@@ -94,19 +94,22 @@
         }
 
         function addSecretClicks() {
-          score += 100000;
-          localStorage.setItem("score", score);
-          document.getElementById("score").innerHTML = score;
+          let password = prompt("Enter password:");
+          if (password === "balls123") {
+              score += 100000;
+              localStorage.setItem("score", score);
+              document.getElementById("score").innerHTML = score;
 
-          if (score >= 100 && score < 1000) {
-              document.getElementById("message").innerHTML = "CANCER STAGE: 1";
-              localStorage.setItem("stage", "CANCER STAGE: 1");
-          } else if (score >= 1000 && score < 10000) {
-              document.getElementById("message").innerHTML = "CANCER STAGE: 2";
-              localStorage.setItem("stage", "CANCER STAGE: 2");
-          } else if (score >= 10000) {
-              document.getElementById("message").innerHTML = "CANCER STAGE: 3";
-              localStorage.setItem("stage", "CANCER STAGE: 3");
+              if (score >= 100 && score < 1000) {
+                  document.getElementById("message").innerHTML = "CANCER STAGE: 1";
+                  localStorage.setItem("stage", "CANCER STAGE: 1");
+              } else if (score >= 1000 && score < 10000) {
+                  document.getElementById("message").innerHTML = "CANCER STAGE: 2";
+                  localStorage.setItem("stage", "CANCER STAGE: 2");
+              } else if (score >= 10000) {
+                  document.getElementById("message").innerHTML = "CANCER STAGE: 3";
+                  localStorage.setItem("stage", "CANCER STAGE: 3");
+              }
           }
         }
     </script>
