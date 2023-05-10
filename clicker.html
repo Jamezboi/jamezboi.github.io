@@ -48,14 +48,14 @@
         let score = localStorage.getItem("score") || 0;
         document.getElementById("score").innerHTML = score;
 
-        let doubleClicksActive = false;
+        let doubleClicksCount = 0;
 
         function doubleClicks() {
             if (score >= 5000) {
                 score -= 5000;
                 localStorage.setItem("score", score);
                 document.getElementById("score").innerHTML = score;
-                doubleClicksActive = true;
+                doubleClicksCount++;
             } else {
                 document.getElementById("message").innerHTML = "Not enough clicks";
                 setTimeout(function() {
@@ -65,11 +65,7 @@
         }
 
         function increaseScore() {
-            if (doubleClicksActive) {
-                score += 2;
-            } else {
-                score++;
-            }
+            score += Math.pow(2, doubleClicksCount);
             localStorage.setItem("score", score);
             document.getElementById("score").innerHTML = score;
 
