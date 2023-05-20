@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Future Clicker</title>
+    <style>
+        body {
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            background-color: #000;
+            text-align: center;
+        }
+        h1 {
+            font-size: 64px;
+            margin-top: 50px;
+        }
+        h2 {
+            font-size: 36px;
+        }
+        #score {
+            font-size: 96px;
+            margin-top: 50px;
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 50px 0;
+        }
+        button {
+            font-size: 24px;
+            padding: 20px 40px;
+            background-color: #00d4ff;
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #fff;
+            color: #f00;
+            box-shadow: 0 15px 30px rgba(255, 0, 0, 0.3);
+        }
+        button.double-clicks-button {
+            background-color: #ff9800;
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(255, 152, 0, 0.3);
+        }
+        button.double-clicks-button:hover {
+            background-color: #fff;
+            color: #ff9800;
+            box-shadow: 0 15px 30px rgba(255, 152, 0, 0.3);
+        }
+        button.autoclick-button {
+            background-color: #8bc34a;
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(139, 195, 74, 0.3);
+        }
+        button.autoclick-button:hover {
+            background-color: #fff;
+            color: #8bc34a;
+            box-shadow: 0 15px 30px rgba(139, 195, 74, 0.3);
+        }
+        button.autoclick-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        button.autoclick-button.active {
+            background-color: #4caf50;
+        }
+        button.prestige-button {
+            background-color: #ff00ff;
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(255, 0, 255, 0.3);
+        }
+        button.prestige-button:hover {
+            background-color: #fff;
+            color: #ff00ff;
+            box-shadow: 0 15px 30px rgba(255, 0, 255, 0.3);
+        }
+        .rgb-color {
+            animation: color-cycle 5s infinite alternate;
+        }
+
+        @keyframes color-cycle {
+            0% {color: rgb(255, 0, 0);}
+            50% {color: rgb(0, 255, 0);}
+            100% {color: rgb(0, 0, 255);}
+        }
+
+        /* Hide the secret button */
+        button.secret-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        /* Make the secret button visible and active when clicked */
+        button.secret-button.active {
+            opacity: 1;
+        }
+
+        /* Display the high scores on the right side of the screen */
+        .high-score-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 20px 0 0 20px;
+        }
+        .high-score-label {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .high-score-value {
+            font-size: 36px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>FUTURE CLICKER</h1>
+    <h2>Score: <span id="score" class="rgb-color">0</span></h2>
+    <button onclick="increaseScore()">Click Me!</button>
+    <div class="button-container">
+        <button class="double-clicks-button" onclick="buyDoubleClicks()">Buy Double Clicks (Cost: <span id="doubleClicksCost">10</span>)</button>
+        <button id="autoclick-button" class="autoclick-button" onclick="buyAutoclick()">Buy Autoclick (Cost: <span id="autoclickCost">100</span>)</button>
+        <button class="prestige-button" onclick="prestige()">Prestige (Cost: <span id="prestigeCost">1000</span>)</button>
+    </div>
+
+    <!-- Display the high scores on the right side of the screen -->
+    <div class="high-score-container">
+        <div class="high-score-label">High Score:</div>
+        <div class="high-score-value" id="highScore"></div>
+        <div class="high-score-label">High Prestiges:</div>
+        <div class="high-score-value" id="highPrestiges"></div>
+    </div>
+
+    <!-- Secret button that increases score by 1000 when clicked -->
+    <button class="secret-button" onclick="increaseScore(1000)">Secret Button</button>
+
+    <script>
+        // Load the high scores from localStorage or set them to 0
+        let highScore = parseInt(localStorage.getItem("highScore")) || 0;
+        let highPrestiges = parseInt(localStorage.getItem("highPrestiges")) || 0;
+
+        // Display the high scores
+        document.getElementById("highScore").textContent = highScore;
+        document.getElementById("highPrestiges").textContent = highPrestiges;
+
+        let score = 0;
+        let doubleClicks = 1;
+        let doubleClicksCost = 10;
+        let autoclicks = 0;
+        let autoclickCost = 100;
+        let prestigeLevel = 0;
+        let prestigeCost = 1000;
+
+        // Function that increases the score
+        function increaseScore(amount = 1) {
+            score += amount * doubleClicks;
+            document.getElementById("score").textContent = score;
+
+            // Update the high score if the current score is higher
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem("highScore", highScore);
+                document.getElementById("highScore").textContent = highScore;
+            }
+        }
+
+        // Function that buys double clicks
+        function buyDoubleClicks() {
+            if (score >= doubleClicksCost) {
+                score -= doubleClicksCost;
+                doubleClicks++;
+                doubleClicksCost *= 2;
+                document.getElementById("score").textContent = score;
+                document.getElementById("doubleClicksCost").textContent = doubleClicksCost;
+            }
+        }
+
+        // Function that buys an autoclick
+        function buyAutoclick() {
+            if (score >= autoclickCost && !document.getElementById("autoclick-button").classList.contains("disabled")) {
+                score -= autoclickCost;
+                autoclicks++;
+                autoclickCost *= 2;
+                document.getElementById("score").textContent = score;
+                document.getElementById("autoclickCost").textContent = autoclickCost;
+
+                // Start the autoclicker if this is the first autoclick purchased
+                if (autoclicks === 1) {
+                    startAutoclicker();
+                }
+            }
+        }
+
+        // Function that starts the autoclicker
+        function startAutoclicker() {
+            if (autoclicks > 0) {
+                increaseScore();
+                setTimeout(startAutoclicker, 1000);
+            }
+        }
+
+// Function that resets the game and increases the prestige level
+function prestige() {
+    if (score >= prestigeCost) {
+        // Multiply the score by 2 and reset all upgrades
+        score = score * 2;
+        doubleClicks = 1;
+        doubleClicksCost = 10;
+        autoclicks = 0;
+        autoclickCost = 100;
+        prestigeLevel++;
+        prestigeCost *= 10;
+        document.getElementById("score").textContent = score;
+        document.getElementById("doubleClicksCost").textContent = doubleClicksCost;
+        document.getElementById("autoclickCost").textContent = autoclickCost;
+        document.getElementById("prestigeCost").textContent = prestigeCost;
+
+        // Update the high prestiges if the current prestiges is higher
+        if (prestigeLevel > highPrestiges) {
+            highPrestiges = prestigeLevel;
+            localStorage.setItem("highPrestiges", highPrestiges);
+            document.getElementById("highPrestiges").textContent = highPrestiges;
+        }
+
+        // Restart the autoclicker if it was active
+        if (autoclicks > 0) {
+            startAutoclicker();
+        }
+
+        // Reset the score and effects
+        score = 0;
+        document.getElementById("score").textContent = score;
+        document.getElementById("score").classList.remove("rgb-color");
+    }
+}
+    </script>
+</body>
+</html>
