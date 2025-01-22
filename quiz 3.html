@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz sur le Tableau Périodique</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #1e1e2f;
+            color: #ffffff;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .quiz-container {
+            background-color: #2a2a3b;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 40px);
+            grid-gap: 5px;
+            background-color: #2a2a3b;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .element {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: white;
+            background-color: #3a3a4f;
+            border: 1px solid #555;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .element.correct {
+            background-color: #4caf50;
+            border-color: #2e7d32;
+        }
+
+        .element.incorrect {
+            background-color: #f44336;
+            border-color: #c62828;
+        }
+
+        .empty {
+            visibility: hidden;
+        }
+
+        /* Cacher la table au départ */
+        #periodic-table {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz sur le Tableau Périodique</h1>
+
+        <div class="quiz-container">
+            <p id="question" class="question"></p>
+            <input type="text" id="answer" placeholder="Votre réponse ici">
+            <button onclick="checkAnswer()">Soumettre</button>
+            <p id="result" class="result"></p>
+            <button onclick="nextQuestion()">Question suivante</button>
+        </div>
+
+        <div class="periodic-table" id="periodic-table"></div>
+
+        <p id="final-score" style="display:none; font-size: 20px; font-weight: bold;">Votre score final: </p>
+    </div>
+
+    <script>
+        const elements = [
+            { symbol: "H", name: "Hydrogène", position: 1 },
+            { symbol: "He", name: "Hélium", position: 18 },
+            { symbol: "Li", name: "Lithium", position: 3 },
+            { symbol: "Be", name: "Béryllium", position: 4 },
+            { symbol: "B", name: "Bore", position: 5 },
+            { symbol: "C", name: "Carbone", position: 6 },
+            { symbol: "N", name: "Azote", position: 7 },
+            { symbol: "O", name: "Oxygène", position: 8 },
+            { symbol: "F", name: "Fluor", position: 9 },
+            { symbol: "Ne", name: "Néon", position: 10 },
+            { symbol: "Na", name: "Sodium", position: 11 },
+            { symbol: "Mg", name: "Magnésium", position: 12 },
+            { symbol: "Al", name: "Aluminium", position: 13 },
+            { symbol: "Si", name: "Silicium", position: 14 },
+            { symbol: "P", name: "Phosphore", position: 15 },
+            { symbol: "S", name: "Soufre", position: 16 },
+            { symbol: "Cl", name: "Chlore", position: 17 },
+            { symbol: "Ar", name: "Argon", position: 18 },
+            { symbol: "K", name: "Potassium", position: 19 },
+            { symbol: "Ca", name: "Calcium", position: 20 },
+            { symbol: "Sc", name: "Scandium", position: 21 },
+            { symbol: "Ga", name: "Gallium", position: 31 },
+            { symbol: "Ge", name: "Germanium", position: 32 },
+            { symbol: "Kr", name: "Krypton", position: 36 },
+            { symbol: "Rb", name: "Rubidium", position: 37 },
+            { symbol: "Sr", name: "Strontium", position: 38 },
+            { symbol: "Cs", name: "Césium", position: 55 },
+            { symbol: "Ba", name: "Baryum", position: 56 },
+            { symbol: "Fr", name: "Francium", position: 87 },
+            { symbol: "Ra", name: "Radium", position: 88 },
+            { symbol: "I", name: "Iode", position: 53 },
+            { symbol: "Xe", name: "Xénon", position: 54 },
+            { symbol: "At", name: "Astate", position: 85 },
+            { symbol: "Rn", name: "Radon", position: 86 },
+            { symbol: "U", name: "Uranium", position: 92 },
+        ];
+
+        const tableTemplate = [
+            // Row 1
+            ["H", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "He"],
+            // Row 2
+            ["Li", "Be", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "B", "C", "N", "O", "F", "Ne"],
+            // Row 3
+            ["Na", "Mg", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "Al", "Si", "P", "S", "Cl", "Ar"],
+            // Row 4
+            ["K", "Ca", "Sc", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "Ga", "Ge", "empty", "empty", "Kr"],
+            // Row 5
+            ["Rb", "Sr", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "Cs", "Ba", "empty", "empty", "Rn"],
+            // Row 6
+            ["Fr", "Ra", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "U", "empty", "empty", "empty", "empty"],
+            // Halogens & Noble gases row
+            ["empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "I", "At", "empty", "Xe", "empty"],
+        ];
+
+        let correctAnswers = [];
+        let incorrectAnswers = [];
+        let currentQuestion;
+
+        function createTable() {
+            const tableContainer = document.getElementById("periodic-table");
+
+            for (let row of tableTemplate) {
+                for (let symbol of row) {
+                    const elementDiv = document.createElement("div");
+                    elementDiv.className = symbol === "empty" ? "element empty" : "element";
+
+                    if (symbol !== "empty") {
+                        const element = elements.find(el => el.symbol === symbol);
+                        if (element) {
+                            elementDiv.textContent = symbol;
+                            elementDiv.dataset.name = element.name;
+                            elementDiv.dataset.symbol = element.symbol;
+                        }
+                    }
+                    tableContainer.appendChild(elementDiv);
+                }
+            }
+        }
+
+        function getRandomQuestion() {
+            if (correctAnswers.length === elements.length) {
+                displayFinalScore();
+                return null;
+            }
+
+            let remainingQuestions = elements.filter(el => !correctAnswers.includes(el) || incorrectAnswers.includes(el));
+            const element = remainingQuestions[Math.floor(Math.random() * remainingQuestions.length)];
+            const isAskingSymbol = Math.random() < 0.5;
+
+            return {
+                element,
+                question: isAskingSymbol ? `Quel est le symbole de l'élément ${element.name} ?` : `Quel élément a pour symbole ${element.symbol} ?`,
+                answer: isAskingSymbol ? element.symbol : element.name,
+            };
+        }
+
+        function nextQuestion() {
+            currentQuestion = getRandomQuestion();
+
+            if (currentQuestion) {
+                document.getElementById("question").textContent = currentQuestion.question;
+                document.getElementById("answer").value = "";
+                document.getElementById("result").textContent = "";
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById("answer").value.trim();
+            const resultElement = document.getElementById("result");
+            const correctElement = Array.from(document.querySelectorAll(".element"))
+                .find(el => el.dataset.symbol === currentQuestion.element.symbol);
+
+            if (userAnswer.toLowerCase() === currentQuestion.answer.toLowerCase()) {
+                resultElement.textContent = "Correct !";
+                resultElement.style.color = "#4caf50";
+                if (!correctAnswers.includes(currentQuestion.element)) {
+                    correctAnswers.push(currentQuestion.element);
+                }
+                if (incorrectAnswers.includes(currentQuestion.element)) {
+                    incorrectAnswers = incorrectAnswers.filter(el => el !== currentQuestion.element);
+                }
+                if (correctElement) correctElement.classList.add("correct");
+
+                // Passer à la question suivante après la bonne réponse
+                setTimeout(nextQuestion, 1000); // Passer à la question suivante après 1 seconde
+            } else {
+                resultElement.textContent = `Incorrect. La bonne réponse est ${currentQuestion.answer}.`;
+                resultElement.style.color = "#f44336";
+                if (!incorrectAnswers.includes(currentQuestion.element)) {
+                    incorrectAnswers.push(currentQuestion.element);
+                }
+                if (correctElement) correctElement.classList.add("incorrect");
+            }
+        }
+
+        function displayFinalScore() {
+            const scoreElement = document.getElementById("final-score");
+            scoreElement.textContent = `Votre score final: ${correctAnswers.length}/${elements.length}`;
+            scoreElement.style.display = "block";
+            document.querySelector(".quiz-container").style.display = "none";
+
+            // Afficher la table après le quiz
+            const tableContainer = document.getElementById("periodic-table");
+            tableContainer.style.display = "grid"; // Afficher la table périodique
+        }
+
+        // Ajouter un écouteur d'événements pour la touche "Enter"
+        document.getElementById("answer").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+        });
+
+        createTable();
+        nextQuestion();
+    </script>
+</body>
+</html>
