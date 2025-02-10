@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercices - Fonctions définies par parties</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; color: #333; }
+        .exercise { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background: white; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); }
+        button { cursor: pointer; margin-top: 10px; padding: 8px 12px; border: none; border-radius: 5px; background: #007BFF; color: white; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        .input-container { margin-top: 10px; }
+        .input-container input { padding: 5px; margin-right: 10px; }
+        .feedback { margin-top: 5px; font-weight: bold; }
+    </style>
+    <script>
+        function checkAnswer(exerciseId, correctAnswer) {
+            var userAnswer = document.getElementById('answer-' + exerciseId).value;
+            var feedback = document.getElementById('feedback-' + exerciseId);
+            if (userAnswer.trim() == correctAnswer) {
+                feedback.innerHTML = "✅ Bonne réponse!";
+                feedback.style.color = "green";
+            } else {
+                feedback.innerHTML = "❌ Mauvaise réponse. Essayez encore!";
+                feedback.style.color = "red";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Exercices - Fonctions définies par parties</h1>
+    
+    <div class="exercise">
+        <h3>Exercice 1 : Lecture d’une fonction définie par parties</h3>
+        <p>Considère la fonction suivante :</p>
+        <p>
+            \[
+            f(x) = \begin{cases} 
+            3x + 4, & \text{si } x < -2 \\
+            -x + 1, & \text{si } -2 \leq x < 2 \\
+            5, & \text{si } x \geq 2
+            \end{cases}
+            \]
+        </p>
+        <p>Évalue : \( f(-3) \)</p>
+        <div class="input-container">
+            <input type="text" id="answer-1" placeholder="Votre réponse">
+            <button onclick="checkAnswer(1, '-5')">Vérifier</button>
+        </div>
+        <div class="feedback" id="feedback-1"></div>
+    </div>
+    
+    <div class="exercise">
+        <h3>Exercice 2 : Calcul de valeur</h3>
+        <p>Considère la fonction suivante :</p>
+        <p>
+            \[
+            g(x) = \begin{cases} 
+            2x - 1, & \text{si } x < 0 \\
+            4, & \text{si } x \geq 0
+            \end{cases}
+            \]
+        </p>
+        <p>Évalue : \( g(-2) \)</p>
+        <div class="input-container">
+            <input type="text" id="answer-2" placeholder="Votre réponse">
+            <button onclick="checkAnswer(2, '-5')">Vérifier</button>
+        </div>
+        <div class="feedback" id="feedback-2"></div>
+    </div>
+    
+    <div class="exercise">
+        <h3>Exercice 3 : Vérification de continuité</h3>
+        <p>La fonction suivante est-elle continue en \( x = 1 \) ?</p>
+        <p>
+            \[
+            h(x) = \begin{cases} 
+            -2x + 3, & \text{si } x < 1 \\
+            1, & \text{si } x \geq 1
+            \end{cases}
+            \]
+        </p>
+        <p>Répondez par "Oui" ou "Non".</p>
+        <div class="input-container">
+            <input type="text" id="answer-3" placeholder="Votre réponse">
+            <button onclick="checkAnswer(3, 'Oui')">Vérifier</button>
+        </div>
+        <div class="feedback" id="feedback-3"></div>
+    </div>
+</body>
+</html>
