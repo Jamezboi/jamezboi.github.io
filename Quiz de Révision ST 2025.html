@@ -1,0 +1,290 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz de Révision ST 2025</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        h2 {
+            color: #2980b9;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        form {
+            margin: 15px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        p.question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        input[type="radio"] {
+            margin: 5px 10px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            resize: vertical;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        span.feedback {
+            margin-left: 15px;
+            font-weight: bold;
+            display: inline-block;
+            min-width: 100px;
+        }
+        .correct { color: #27ae60; }
+        .incorrect { color: #c0392b; }
+        .answer { color: #8e44ad; }
+        p.instructions {
+            font-style: italic;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .section-container {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quiz de Révision ST 2025</h1>
+    <p class="instructions">Bienvenue au quiz de révision pour l'examen ST 2025 ! Répondez aux questions ci-dessous et cliquez sur "Vérifier la réponse" pour voir si vous avez raison. Les questions à développement court affichent la réponse correcte pour comparaison.</p>
+
+    <div class="section-container">
+        <h2>Univers Terre et Espace (20%)</h2>
+        <form>
+            <p class="question">1. Qu'est-ce qui cause principalement les courants océaniques profonds ?</p>
+            <input type="radio" name="te1" value="a"> a) Les vents de surface<br>
+            <input type="radio" name="te1" value="b"> b) La rotation de la Terre<br>
+            <input type="radio" name="te1" value="c"> c) Les différences de densité (température et salinité)<br>
+            <input type="radio" name="te1" value="d"> d) L'attraction gravitationnelle de la Lune<br>
+            <button type="button" onclick="checkAnswer('te1', 'c')">Vérifier la réponse</button>
+            <span id="feedback-te1" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">2. Qu'est-ce que le pergélisol ?</p>
+            <textarea id="te2-answer" rows="4" cols="50"></textarea><br>
+            <button type="button" onclick="showAnswer('te2', 'Le pergélisol est un sol ou une roche gelée en permanence, typiquement trouvé dans les régions arctiques.')">Vérifier la réponse</button>
+            <span id="feedback-te2" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">3. Quel gaz est un gaz à effet de serre (GES) ?</p>
+            <input type="radio" name="te3" value="a"> a) Oxygène (O₂)<br>
+            <input type="radio" name="te3" value="b"> b) Dioxyde de carbone (CO₂)<br>
+            <input type="radio" name="te3" value="c"> c) Azote (N₂)<br>
+            <input type="radio" name="te3" value="d"> d) Argon (Ar)<br>
+            <button type="button" onclick="checkAnswer('te3', 'b')">Vérifier la réponse</button>
+            <span id="feedback-te3" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">4. Où le carbone est-il principalement stocké dans le cycle du carbone ?</p>
+            <input type="radio" name="te4" value="a"> a) Uniquement dans l'atmosphère<br>
+            <input type="radio" name="te4" value="b"> b) Dans l'atmosphère, l'hydrosphère, la lithosphère et la biosphère<br>
+            <input type="radio" name="te4" value="c"> c) Uniquement dans l'hydrosphère<br>
+            <input type="radio" name="te4" value="d"> d) Uniquement dans la biosphère<br>
+            <button type="button" onclick="checkAnswer('te4', 'b')">Vérifier la réponse</button>
+            <span id="feedback-te4" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">5. Quel est un inconvénient des centrales éoliennes ?</p>
+            <textarea id="te5-answer" rows="4" cols="50"></textarea><br>
+            <button type="button" onclick="showAnswer('te5', 'Un inconvénient des centrales éoliennes est leur impact visuel et sonore, ainsi que leur dépendance aux conditions de vent.')">Vérifier la réponse</button>
+            <span id="feedback-te5" class="feedback"></span>
+        </form>
+    </div>
+
+    <div class="section-container">
+        <h2>Univers Matériel (52%)</h2>
+        <form>
+            <p class="question">1. Quelle est la différence entre un atome et une molécule ?</p>
+            <input type="radio" name="m1" value="a"> a) Un atome est plus grand qu'une molécule<br>
+            <input type="radio" name="m1" value="b"> b) Une molécule est formée d'atomes liés chimiquement<br>
+            <input type="radio" name="m1" value="c"> c) Les atomes contiennent des protons, pas les molécules<br>
+            <input type="radio" name="m1" value="d"> d) Les molécules n'ont pas d'électrons<br>
+            <button type="button" onclick="checkAnswer('m1', 'b')">Vérifier la réponse</button>
+            <span id="feedback-m1" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">2. Qu'est-ce que l'échelle de pH mesure ?</p>
+            <textarea id="m2-answer" rows="4" cols="50"></textarea><br>
+            <button type="button" onclick="showAnswer('m2', 'L\'échelle de pH mesure l\'acidité ou la basicité d\'une solution aqueuse.')">Vérifier la réponse</button>
+            <span id="feedback-m2" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">3. Dans un circuit en série, comment se comporte l'intensité du courant ?</p>
+            <input type="radio" name="m3" value="a"> a) Elle se divise à chaque composant<br>
+            <input type="radio" name="m3" value="b"> b) Elle reste la même dans tout le circuit<br>
+            <input type="radio" name="m3" value="c"> c) Elle augmente à chaque composant<br>
+            <input type="radio" name="m3" value="d"> d) Elle diminue à chaque composant<br>
+            <button type="button" onclick="checkAnswer('m3', 'b')">Vérifier la réponse</button>
+            <span id="feedback-m3" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">4. Quelle est la formule de la loi d'Ohm ?</p>
+            <input type="radio" name="m4" value="a"> a) U = R / I<br>
+            <input type="radio" name="m4" value="b"> b) U = R I<br>
+            <input type="radio" name="m4" value="c"> c) I = U R<br>
+            <input type="radio" name="m4" value="d"> d) R = U I<br>
+            <button type="button" onclick="checkAnswer('m4', 'b')">Vérifier la réponse</button>
+            <span id="feedback-m4" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">5. Qu'est-ce que la loi de la conservation de la masse stipule dans une réaction chimique ?</p>
+            <textarea id="m5-answer" rows="4" cols="50"></textarea><br>
+            <button type="button" onclick="showAnswer('m5', 'La somme des masses des réactifs est égale à la somme des masses des produits.')">Vérifier la réponse</button>
+            <span id="feedback-m5" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">6. Quel est l'effet principal de l'électromagnétisme autour d'un fil droit ?</p>
+            <input type="radio" name="m6" value="a"> a) Création d'un champ magnétique<br>
+            <input type="radio" name="m6" value="b"> b) Création d'une charge électrique<br>
+            <input type="radio" name="m6" value="c"> c) Augmentation de la température<br>
+            <input type="radio" name="m6" value="d"> d) Réduction de la conductivité<br>
+            <button type="button" onclick="checkAnswer('m6', 'a')">Vérifier la réponse</button>
+            <span id="feedback-m6" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">7. Qu'est-ce qu'un électrolyte ?</p>
+            <textarea id="m7-answer" rows="4" cols="50"></textarea><br>
+            <button type="button" onclick="showAnswer('m7', 'Un électrolyte est une substance qui, lorsqu\'elle est dissoute dans l\'eau, produit des ions et permet le passage d\'un courant électrique.')">Vérifier la réponse</button>
+            <span id="feedback-m7" class="feedback"></span>
+        </form>
+    </div>
+
+    <div class="section-container">
+        <h2>Univers Technologique (28%)</h2>
+        <form>
+            <p class="question">1. Quel type de liaison mécanique permet un mouvement de rotation ?</p>
+            <input type="radio" name="t1" value="a"> a) Liaison fixe<br>
+            <input type="radio" name="t1" value="b"> b) Liaison glissière<br>
+            <input type="radio" name="t1" value="c"> c) Liaison pivot<br>
+            <input type="radio" name="t1" value="d"> d) Liaison élastique<br>
+            <button type="button" onclick="checkAnswer('t1', 'c')">Vérifier la réponse</button>
+            <span id="feedback-t1" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">2. Nommez un système qui transforme un mouvement de rotation en mouvement de translation.</p>
+            <textarea id="t2-answer" rows="4" cols="50"></textarea><br>
+            <button type="button" onclick="showAnswer('t2', 'Exemples : pignon et crémaillère, vis et écrou, came et galet, bielle et manivelle.')">Vérifier la réponse</button>
+            <span id="feedback-t2" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">3. Quelle propriété mécanique décrit la capacité d'un matériau à résister à la pénétration ?</p>
+            <input type="radio" name="t3" value="a"> a) Ductilité<br>
+            <input type="radio" name="t3" value="b"> b) Dureté<br>
+            <input type="radio" name="t3" value="c"> c) Élasticité<br>
+            <input type="radio" name="t3" value="d"> d) Résilience<br>
+            <button type="button" onclick="checkAnswer('t3', 'b')">Vérifier la réponse</button>
+            <span id="feedback-t3" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">4. Qu'est-ce qu'une liaison indémontable ?</p>
+            <textarea id="t4-answer" rows="4" cols="50"></textarea><br>
+            <button type="button" onclick="showAnswer('t4', 'Une liaison indémontable est une liaison où les pièces restent assemblées, par exemple par collage ou soudure, même sur un dessin en vue éclatée.')">Vérifier la réponse</button>
+            <span id="feedback-t4" class="feedback"></span>
+        </form>
+        <form>
+            <p class="question">5. Lequel des systèmes suivants est réversible ?</p>
+            <input type="radio" name="t5" value="a"> a) Came et galet<br>
+            <input type="radio" name="t5" value="b"> b) Pignon et crémaillère<br>
+            <input type="radio" name="t5" value="c"> c) Bielle et manivelle<br>
+            <input type="radio" name="t5" value="d"> d) Aucun des trois<br>
+            <button type="button" onclick="checkAnswer('t5', 'b')">Vérifier la réponse</button>
+            <span id="feedback-t5" class="feedback"></span>
+        </form>
+    </div>
+
+    <script>
+        function checkAnswer(question, correctAnswer) {
+            var selected = document.querySelector('input[name="' + question + '"]:checked');
+            var feedbackElement = document.getElementById('feedback-' + question);
+            if (selected) {
+                if (selected.value === correctAnswer) {
+                    feedbackElement.innerHTML = "Correct !";
+                    feedbackElement.className = "feedback correct";
+                } else {
+                    feedbackElement.innerHTML = "Incorrect.";
+                    feedbackElement.className = "feedback incorrect";
+                }
+            } else {
+                alert("Veuillez sélectionner une réponse.");
+            }
+        }
+
+        function showAnswer(question, answer) {
+            var feedbackElement = document.getElementById('feedback-' + question);
+            feedbackElement.innerHTML = "Réponse correcte : " + answer;
+            feedbackElement.className = "feedback answer";
+        }
+    </script>
+</body>
+</html>
