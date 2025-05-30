@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz ST 2025</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f8ff; /* AliceBlue */
+            color: #333;
+        }
+        .quiz-container {
+            max-width: 850px;
+            margin: 20px auto;
+            background: #ffffff; /* White */
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50; /* Dark Blue-Gray */
+            margin-bottom: 25px;
+            font-size: 2.2em;
+        }
+        .section-title {
+            font-size: 1.9em;
+            color: #007bff; /* Bright Blue */
+            margin-top: 35px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 8px;
+        }
+        .question-block {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #e9ecef; /* Light Gray */
+            border-left: 6px solid #17a2b8; /* Info Blue */
+            border-radius: 8px;
+            transition: transform 0.2s ease-in-out;
+        }
+        .question-block:hover {
+            transform: translateY(-3px);
+        }
+        .question-text {
+            font-weight: 600; /* Semi-bold */
+            margin-bottom: 15px;
+            font-size: 1.15em;
+            color: #495057; /* Gray */
+        }
+        .options label {
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 6px;
+            background-color: #f8f9fa; /* Very Light Gray */
+            border: 1px solid #dee2e6; /* Light Border */
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .options label:hover {
+            background-color: #e2e6ea; /* Hover Gray */
+            border-color: #adb5bd;
+        }
+        .options input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.1);
+        }
+        .check-btn {
+            background-color: #28a745; /* Green */
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1.05em;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: background-color 0.25s ease-out, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .check-btn:hover {
+            background-color: #218838; /* Darker Green */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 1.05em;
+            text-align: left;
+        }
+        .feedback.correct {
+            background-color: #d1e7dd; /* Light Green */
+            color: #0f5132; /* Dark Green */
+            border: 1px solid #badbcc;
+        }
+        .feedback.incorrect {
+            background-color: #f8d7da; /* Light Red */
+            color: #842029; /* Dark Red */
+            border: 1px solid #f5c2c7;
+        }
+        .citation { /* Style for citations if needed, but they are plain text here */
+            font-size: 0.85em;
+            color: #6c757d; /* Muted Gray */
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Quiz de Révision ST - 2025</h1>
+
+        </div>
+
+    <script>
+        const quizData = [
+            // UNIVERS TERRE ET ESPACE
+            {
+                section: "UNIVERS TERRE ET ESPACE",
+                question: "Quelle est la principale caractéristique qui distingue l'eau salée de l'eau douce ?",
+                options: {
+                    A: "Sa température",
+                    B: "Sa couleur",
+                    C: "Sa salinité [cite: 1]",
+                    D: "Sa pression"
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! La principale différence est la salinité. La salinité réfère à la concentration de sels dissous dans l'eau. [cite: 1]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C: Sa salinité. La salinité réfère à la concentration de sels dissous dans l'eau. [cite: 1]"
+            },
+            {
+                section: "UNIVERS TERRE ET ESPACE",
+                question: "Les courants marins de surface sont principalement causés par :",
+                options: {
+                    A: "La différence de salinité et de température uniquement",
+                    B: "Le vent et la rotation de la Terre [cite: 1]",
+                    C: "L'activité volcanique sous-marine",
+                    D: "L'attraction gravitationnelle de la Lune"
+                },
+                answer: "B",
+                correctAnswerText: "Correct ! Les courants de surface sont causés par le vent et la rotation de la Terre. [cite: 1]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est B: Le vent et la rotation de la Terre. Les courants profonds sont causés par la salinité et la température de l’eau. [cite: 1]"
+            },
+            {
+                section: "UNIVERS TERRE ET ESPACE",
+                question: "Lequel des gaz suivants est un gaz à effet de serre qui contribue au réchauffement climatique en absorbant les rayons infrarouges ?",
+                options: {
+                    A: "Oxygène (O2)",
+                    B: "Azote (N2)",
+                    C: "Dioxyde de carbone (CO2) [cite: 3]",
+                    D: "Ozone (O3) au niveau stratosphérique"
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! Le Dioxyde de carbone (CO2) est un gaz à effet de serre majeur qui absorbe les rayons IR. [cite: 3]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C: Dioxyde de carbone (CO2). Il est important de comprendre le lien avec les rayons IR. [cite: 3]"
+            },
+            {
+                section: "UNIVERS TERRE ET ESPACE",
+                question: "Les centrales marémotrices utilisent une ressource énergétique :",
+                options: {
+                    A: "Non renouvelable, basée sur les combustibles fossiles",
+                    B: "Renouvelable, basée sur l'attraction gravitationnelle de la Lune [cite: 1]",
+                    C: "Non renouvelable, basée sur des éléments fissiles",
+                    D: "Renouvelable, basée sur la chaleur interne de la Terre"
+                },
+                answer: "B",
+                correctAnswerText: "Correct ! Les centrales marémotrices sont renouvelables et utilisent l'énergie des marées, causées par l'attraction gravitationnelle de la Lune. [cite: 1]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est B: Renouvelable, basée sur l'attraction gravitationnelle de la Lune. [cite: 1]"
+            },
+
+            // UNIVERS MATÉRIEL
+            {
+                section: "UNIVERS MATÉRIEL",
+                question: "Quelle affirmation décrit le mieux la différence entre un atome et une molécule ?",
+                options: {
+                    A: "Une molécule est plus petite qu'un atome.",
+                    B: "Un atome est un assemblage de plusieurs molécules.",
+                    C: "Un atome est la plus petite unité de base d'un élément chimique, tandis qu'une molécule est formée d'au moins deux atomes liés chimiquement. [cite: 5]",
+                    D: "Les atomes n'existent que dans les métaux, les molécules dans les non-métaux."
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! Un atome est la plus petite unité de base d'un élément chimique, et une molécule est un assemblage d'au moins deux atomes. [cite: 5]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C. Il faut comprendre la différence entre les deux. [cite: 5]"
+            },
+            {
+                section: "UNIVERS MATÉRIEL",
+                question: "Dans le modèle atomique de Rutherford-Bohr, les électrons :",
+                options: {
+                    A: "Sont concentrés dans le noyau avec les protons.",
+                    B: "Se déplacent de manière aléatoire dans tout l'atome.",
+                    C: "Occupent des orbites ou niveaux d'énergie spécifiques autour du noyau. [cite: 5]",
+                    D: "Sont absents dans les atomes neutres."
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! Dans le modèle de Rutherford-Bohr, les électrons sont sur des couches électroniques (configuration électronique). [cite: 5]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C. Le modèle de Rutherford-Bohr décrit la configuration électronique des électrons autour du noyau. [cite: 5]"
+            },
+            {
+                section: "UNIVERS MATÉRIEL",
+                question: "Une solution aqueuse qui permet le passage du courant électrique grâce à la présence d'ions est appelée :",
+                options: {
+                    A: "Une solution saturée",
+                    B: "Une solution non conductrice",
+                    C: "Un électrolyte [cite: 5]",
+                    D: "Une solution neutre"
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! Les électrolytes (Acide, base, sel dissous dans l’eau) forment des ions et permettent le passage d’un courant électrique. [cite: 5]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C: Un électrolyte. Acide, base, sel forment des ions lorsque dissout dans l’eau = sont des électrolytes. [cite: 5]"
+            },
+            {
+                section: "UNIVERS MATÉRIEL",
+                question: "La réaction de neutralisation acidobasique typique est :",
+                options: {
+                    A: "Acide + Sel → Base + Eau",
+                    B: "Base + Eau → Acide + Sel",
+                    C: "Acide + Base → Sel + Eau [cite: 6]",
+                    D: "Sel + Eau → Acide + Base"
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! La formule est Acide + Base → Sel + Eau. [cite: 6]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C: Acide + Base → Sel + Eau. [cite: 6]"
+            },
+            {
+                section: "UNIVERS MATÉRIEL",
+                question: "Selon la loi d'Ohm (U = RI), si une tension (U) de 12 Volts est appliquée à un circuit avec une résistance (R) de 3 Ohms, quelle est l'intensité du courant (I) ?",
+                options: {
+                    A: "36 Ampères",
+                    B: "4 Ampères [cite: 8]",
+                    C: "0.25 Ampères",
+                    D: "15 Ampères"
+                },
+                answer: "B",
+                correctAnswerText: "Correct ! I = U / R = 12V / 3Ω = 4A. [cite: 8]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est B: 4 Ampères. Selon la loi d’Ohm U = R I, donc I = U / R. [cite: 8]"
+            },
+             {
+                section: "UNIVERS MATÉRIEL",
+                question: "Quels sont les trois éléments du \"triangle de feu\" nécessaires à une combustion ?",
+                options: {
+                    A: "Eau, Air, Bois",
+                    B: "Combustible, Comburant, Étincelle",
+                    C: "Combustible, Comburant, Énergie d'activation [cite: 7]",
+                    D: "Azote, Oxygène, Chaleur"
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! Le triangle de feu est composé d'un combustible, d'un comburant (comme l'oxygène) et d'une énergie d'activation (source de chaleur). [cite: 7]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C: Combustible, Comburant, Énergie d'activation (concept du triangle de feu). [cite: 7]"
+            },
+            {
+                section: "UNIVERS MATÉRIEL",
+                question: "La loi de la conservation de la masse stipule que :",
+                options: {
+                    A: "La masse des produits est toujours supérieure à celle des réactifs.",
+                    B: "La masse se perd toujours lors d'une réaction chimique.",
+                    C: "La somme des masses des réactifs est égale à la somme des masses des produits. [cite: 7]",
+                    D: "Seuls les atomes, et non la masse, sont conservés."
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! La loi de la conservation de la masse énonce que la somme des masses des réactifs = somme des masses des produits. [cite: 7]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C: La somme des masses des réactifs est égale à la somme des masses des produits. [cite: 7]"
+            },
+
+            // UNIVERS TECHNOLOGIQUE
+            {
+                section: "UNIVERS TECHNOLOGIQUE",
+                question: "Une liaison mécanique est dite \"élastique\" si :",
+                options: {
+                    A: "Elle ne peut pas être démontée.",
+                    B: "Elle permet un mouvement de rotation uniquement.",
+                    C: "Un matériau élastique assure un mouvement de rappel à la position initiale. [cite: 11]",
+                    D: "Elle est toujours directe et rigide."
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! C'est la présence d'un matériau élastique qui assure un mouvement de rappel (retour à la position initiale) pour permettre le fonctionnement de l’objet. [cite: 11]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C. La liaison élastique implique un matériau élastique qui assure un mouvement de rappel. [cite: 11]"
+            },
+            {
+                section: "UNIVERS TECHNOLOGIQUE",
+                question: "Lequel de ces systèmes est un exemple de transformation du mouvement de rotation en translation (ou inversement) ?",
+                options: {
+                    A: "Engrenages",
+                    B: "Courroie et poulies",
+                    C: "Pignon et crémaillère [cite: 1]", // Le concept "pignon et crémaillère" est listé sous "4 systèmes de transformation du mouvement" dans [cite: 1]
+                    D: "Chaîne et roues dentées"
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! Le système pignon et crémaillère transforme un mouvement de rotation en translation, ou l'inverse. C'est un des 4 systèmes de transformation du mouvement. [cite: 1]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C: Pignon et crémaillère. Les engrenages, courroie et poulies, chaîne et roues dentées sont des systèmes de transmission du mouvement (rotation à rotation). [cite: 1]"
+            },
+            {
+                section: "UNIVERS TECHNOLOGIQUE",
+                question: "Un système de transmission ou de transformation du mouvement est considéré comme \"réversible\" si :",
+                options: {
+                    A: "Il ne peut fonctionner que dans un seul sens.",
+                    B: "Il peut être actionné indifféremment par l'organe menant ou l'organe mené initial. [cite: 13]",
+                    C: "Il nécessite une source d'énergie externe pour inverser le mouvement.",
+                    D: "Il est fabriqué à partir de matériaux recyclables."
+                },
+                answer: "B",
+                correctAnswerText: "Correct ! La réversibilité signifie que le système peut être actionné par l’organe menant ou l’organe mené (initialement). [cite: 13]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est B. Un système est réversible si celui-ci peut être actionné par l’organe menant ou l’organe mené. [cite: 13]"
+            },
+            {
+                section: "UNIVERS TECHNOLOGIQUE",
+                question: "Laquelle de ces contraintes mécaniques tend à étirer un matériau ?",
+                options: {
+                    A: "Compression",
+                    B: "Torsion",
+                    C: "Cisaillement",
+                    D: "Traction [cite: 16]"
+                },
+                answer: "D",
+                correctAnswerText: "Correct ! La traction est la contrainte qui tend à étirer un matériau. [cite: 16]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est D: Traction. La compression tend à écraser, la torsion à tordre, et le cisaillement à couper. [cite: 16]"
+            },
+            {
+                section: "UNIVERS TECHNOLOGIQUE",
+                question: "La propriété d'un matériau à résister à la pénétration d'un autre matériau est appelée :",
+                options: {
+                    A: "Élasticité",
+                    B: "Résilience",
+                    C: "Dureté [cite: 19]",
+                    D: "Ductilité"
+                },
+                answer: "C",
+                correctAnswerText: "Correct ! La dureté est la propriété d’un matériau à résister à la pénétration d’un autre matériau. [cite: 19]",
+                incorrectAnswerText: "Incorrect. La bonne réponse est C: Dureté. Par exemple, la dureté du diamant le protège des égratignures. [cite: 19, 20]"
+            }
+        ];
+
+        const quizContainer = document.querySelector('.quiz-container');
+        let currentSection = "";
+
+        quizData.forEach((qData, index) => {
+            if (qData.section !== currentSection) {
+                currentSection = qData.section;
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.classList.add('section-title');
+                sectionTitle.textContent = currentSection;
+                quizContainer.appendChild(sectionTitle);
+            }
+
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${index}`;
+
+            const questionText = document.createElement('p');
+            questionText.classList.add('question-text');
+            questionText.innerHTML = qData.question; // Use innerHTML for citations in question
+            questionBlock.appendChild(questionText);
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.classList.add('options');
+
+            for (const key in qData.options) {
+                const label = document.createElement('label');
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `q${index}`;
+                radio.value = key;
+                
+                const optionTextSpan = document.createElement('span');
+                optionTextSpan.innerHTML = ` ${key}: ${qData.options[key]}`; // Use innerHTML for citations in options
+
+                label.appendChild(radio);
+                label.appendChild(optionTextSpan);
+                optionsDiv.appendChild(label);
+            }
+            questionBlock.appendChild(optionsDiv);
+
+            const checkButton = document.createElement('button');
+            checkButton.classList.add('check-btn');
+            checkButton.textContent = 'Vérifier la réponse';
+            checkButton.onclick = () => checkAnswer(index);
+            questionBlock.appendChild(checkButton);
+
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.classList.add('feedback');
+            feedbackDiv.id = `feedback-${index}`;
+            questionBlock.appendChild(feedbackDiv);
+
+            quizContainer.appendChild(questionBlock);
+        });
+
+        function checkAnswer(questionIndex) {
+            const qData = quizData[questionIndex];
+            const selectedOptionInput = document.querySelector(`input[name="q${questionIndex}"]:checked`);
+            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+
+            if (selectedOptionInput) {
+                if (selectedOptionInput.value === qData.answer) {
+                    feedbackDiv.innerHTML = qData.correctAnswerText; // Use innerHTML for citations in feedback
+                    feedbackDiv.className = 'feedback correct';
+                } else {
+                    feedbackDiv.innerHTML = qData.incorrectAnswerText; // Use innerHTML for citations in feedback
+                    feedbackDiv.className = 'feedback incorrect';
+                }
+            } else {
+                feedbackDiv.textContent = 'Veuillez sélectionner une réponse.';
+                feedbackDiv.className = 'feedback incorrect'; // Use a generic incorrect style for this message
+            }
+        }
+    </script>
+</body>
+</html>
