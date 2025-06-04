@@ -1,5 +1,3 @@
-# Welcome to jamezboi.github.io!
-
 ## 🔢 Math
 - [Math Page](https://jamezboi.github.io/math.html)
 
