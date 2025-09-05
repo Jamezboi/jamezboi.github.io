@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SyllabicBox — Secure Web Encoder/Decoder (SBX2) + Argon2</title>
+  <style>
+    body{margin:0;background:#000;color:#00ff88;font-family:ui-monospace,monospace}
+    .app{max-width:980px;margin:36px auto;padding:18px;background:rgba(0,0,0,0.86);border:1px solid #00ff88;border-radius:10px}
+    label{display:block;margin:10px 0 6px;color:#7fffaf}
+    textarea,input,select{width:100%;padding:10px;background:#001a0f;color:#00ff88;border:1px solid rgba(0,255,136,0.08);border-radius:6px;box-sizing:border-box}
+    .row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+    button{padding:9px 12px;background:#000;border:1px solid #00ff88;color:#00ff88;border-radius:6px;cursor:pointer}
+    .muted{color:#5fd39f;font-size:.9rem}
+    .status-ok{color:#8fffb0}
+    .status-err{color:#ff7a7a}
+    .small{font-size:.9rem}
+    .col{flex:1;min-width:160px}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h2>SyllabicBox Secure — SBX2 (AES-GCM) + KDF selector</h2>
+    <p class="muted small">
+      Choose PBKDF2 (built-in) or Argon2id (memory-hard). The header encodes KDF and parameters. Format:
+      <code>SBX2:&lt;kdf&gt;:&lt;salt&gt;.&lt;iv&gt;;&lt;iters-or-params&gt;|&lt;body&gt;</code>
+    </p>
+
+    <label for="input">Plaintext (to encode) or SBX string (to decode)</label>
+    <textarea id="input" rows="6" placeholder="Paste plaintext (to encode) or SBX2... string (to decode)"></textarea>
+
+    <label for="pass">Passphrase</label>
+    <input id="pass" type="password" placeholder="Enter passphrase" autocomplete="new-password" />
+
+    <div class="row">
+      <div class="col">
+        <label for="kdfSelect">KDF</label>
+        <select id="kdfSelect">
+          <option value="pbkdf2">PBKDF2 (SHA-256)</option>
+          <option value="argon2">Argon2id (memory-hard)</option>
+        </select>
+      </div>
+      <div class="col" id="pbkdf2Box">
+        <label for="pbkdf2Iters">PBKDF2 iterations</label>
+        <input id="pbkdf2Iters" type="number" min="50000" step="25000" value="200000" />
+      </div>
+      <div class="col hidden" id="argon2Box">
+        <label for="argonTime">Argon2 time cost (iterations)</label>
+        <input id="argonTime" type="number" min="1" step="1" value="3" />
+        <label for="argonMem" style="margin-top:8px">Argon2 memory (KiB)</label>
+        <input id="argonMem" type="number" min="1024" step="1024" value="65536" />
+        <label for="argonPar" style="margin-top:8px">Argon2 parallelism</label>
+        <input id="argonPar" type="number" min="1" step="1" value="1" />
+      </div>
+    </div>
+
+    <div class="row">
+      <button id="encodeBtn">Encode (Encrypt)</button>
+      <button id="decodeBtn">Decode (Decrypt)</button>
+      <button id="copyBtn">Copy Output</button>
+      <button id="selfTestBtn">Self-Test</button>
+      <button id="clearPassBtn">Clear Pass</button>
+      <span class="muted" style="align-self:center">Salt:16B • IV:12B • AES-GCM auth</span>
+    </div>
+
+    <label for="output">Output</label>
+    <textarea id="output" rows="8" readonly></textarea>
+
+    <div id="status" class="muted" style="margin-top:8px"></div>
+  </main>
+
+  <!-- argon2-browser (bundled/min) loaded from CDN; WASM will be fetched. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/argon2-browser/1.18.0/argon2-bundled.min.js" integrity="" crossorigin="anonymous"></script>
+
+  <script>
+    // --------------------------
+    // Syllable alphabet (256 entries)
+    // --------------------------
+    const CONSONANTS = Array.from('ptkbdgmfnlsvcrhwjxz'); // 16
+    const VOWELS = Array.from('aeiouyqrzplmncd');         // 16
+    const SYLLABLES = (() => {
+      const a = [];
+      for (const c of CONSONANTS) for (const v of VOWELS) a.push(c + v);
+      return a; // length 256
+    })();
+    const SYLL_TO_BYTE = Object.fromEntries(SYLLABLES.map((s,i)=>[s,i]));
+
+    // --------------------------
+    // UI elements
+    // --------------------------
+    const inputEl = document.getElementById('input');
+    const passEl = document.getElementById('pass');
+    const kdfSelect = document.getElementById('kdfSelect');
+    const pbkdf2Box = document.getElementById('pbkdf2Box');
+    const argon2Box = document.getElementById('argon2Box');
+    const pbkdf2Iters = document.getElementById('pbkdf2Iters');
+    const argonTime = document.getElementById('argonTime');
+    const argonMem = document.getElementById('argonMem');
+    const argonPar = document.getElementById('argonPar');
+    const outputEl = document.getElementById('output');
+    const statusEl = document.getElementById('status');
+
+    const enc = new TextEncoder();
+    const decFatal = new TextDecoder('utf-8', {fatal: true});
+
+    function setStatus(msg, ok){
+      statusEl.textContent = msg || '';
+      statusEl.className = ok === undefined ? 'muted' : (ok ? 'status-ok' : 'status-err');
+    }
+
+    // --------------------------
+    // Helpers: syllable <-> bytes
+    // --------------------------
+    function bytesToSyllables(bytes){
+      let out = '';
+      for (const b of bytes) out += SYLLABLES[b];
+      return out;
+    }
+    function syllablesToBytes(str){
+      if (typeof str !== 'string' || (str.length % 2) !== 0) throw new Error('Body length invalid');
+      const out = new Uint8Array(str.length/2);
+      for (let i=0;i<str.length;i+=2){
+        const syl = str.slice(i,i+2);
+        const val = SYLL_TO_BYTE[syl];
+        if (val === undefined) throw new Error('Unknown syllable in body: ' + syl);
+        out[i/2] = val;
+      }
+      return out;
+    }
+
+    // --------------------------
+    // Zeroing sensitive buffers (best-effort)
+    // --------------------------
+    function wipeUint8(u8){ if (!u8) return; for(let i=0;i<u8.length;i++) u8[i]=0; }
+    function safeClearStringInput(el){ try{ el.value=''; }catch(e){} }
+
+    // --------------------------
+    // Crypto utilities (WebCrypto + optionally Argon2)
+    // --------------------------
+    async function deriveAesGcmKeyWithPBKDF2(passphrase, saltBytes, iterations){
+      const passBuf = enc.encode(passphrase);
+      try{
+        const baseKey = await crypto.subtle.importKey('raw', passBuf, {name:'PBKDF2'}, false, ['deriveBits','deriveKey']);
+        const key = await crypto.subtle.deriveKey(
+          {name:'PBKDF2', salt: saltBytes, iterations: iterations, hash: 'SHA-256'},
+          baseKey,
+          {name:'AES-GCM', length:256},
+          false,
+          ['encrypt','decrypt']
+        );
+        return key;
+      } finally { wipeUint8(passBuf); }
+    }
+
+    async function deriveAesGcmKeyWithArgon2(passphrase, saltBytes, timeCost, memKiB, parallelism){
+      // argon2-browser exposes global "argon2"
+      if (typeof argon2 === 'undefined' || !argon2.hash) throw new Error('Argon2 library not loaded');
+      // argon2.hash accepts salt as string or Uint8Array
+      const salt = saltBytes; // Uint8Array
+      try{
+        const res = await argon2.hash({
+          pass: passphrase,
+          salt: salt,
+          time: Number(timeCost) || 3,
+          mem: Number(memKiB) || 65536,
+          parallelism: Number(parallelism) || 1,
+          hashLen: 32,
+          type: argon2.ArgonType.Argon2id
+        });
+        // res.hash is Uint8Array
+        const keyRaw = new Uint8Array(res.hash); // copy
+        // import as AES key
+        const key = await crypto.subtle.importKey('raw', keyRaw, {name:'AES-GCM'}, false, ['encrypt','decrypt']);
+        // wipe raw
+        wipeUint8(keyRaw);
+        return key;
+      } catch(e){ throw e; }
+    }
+
+    // --------------------------
+    // Header encoding / decoding (SBX2)
+    // Format: SBX2:<kdf>:<salt_syllables>.<iv_syllables>;<iters or comma-separated params>|<body>
+    // - For PBKDF2: iters is a single integer (iterations)
+    // - For Argon2: iters is "time,mem,parallelism" (time=iterations, mem=KiB, parallelism)
+    // --------------------------
+    const HEADER_MARKER = 'SBX2';
+    const SALT_BYTES = 16;
+    const IV_BYTES = 12;
+
+    function encodeHeader(kdfName, saltBytes, ivBytes, iterationsOrParams){
+      const saltS = bytesToSyllables(saltBytes);
+      const ivS = bytesToSyllables(ivBytes);
+      return HEADER_MARKER + ':' + kdfName + ':' + saltS + '.' + ivS + ';' + iterationsOrParams;
+    }
+
+    function decodeHeader(meta){
+      if (typeof meta !== 'string' || !meta.startsWith(HEADER_MARKER + ':')) throw new Error('Invalid SBX2 header');
+      const rest = meta.slice(HEADER_MARKER.length + 1);
+      const firstColon = rest.indexOf(':');
+      if (firstColon === -1) throw new Error('Missing KDF in header');
+      const kdf = rest.slice(0, firstColon);
+      const afterKdf = rest.slice(firstColon+1);
+      const semi = afterKdf.lastIndexOf(';');
+      if (semi === -1) throw new Error('Invalid metadata format: missing iterations/params');
+      const preIt = afterKdf.slice(0, semi);
+      const iterStr = afterKdf.slice(semi + 1);
+      const dot = preIt.indexOf('.');
+      if (dot === -1) throw new Error('Invalid metadata format: missing IV separator');
+      const saltPart = preIt.slice(0, dot);
+      const ivPart = preIt.slice(dot + 1);
+      if ((saltPart.length % 2) !== 0 || (ivPart.length % 2) !== 0) throw new Error('Metadata malformed');
+      const salt = syllablesToBytes(saltPart);
+      const iv = syllablesToBytes(ivPart);
+      if (salt.length !== SALT_BYTES) throw new Error('Incorrect salt length');
+      if (iv.length !== IV_BYTES) throw new Error('Incorrect IV length');
+      // parse iterStr depending on kdf
+      let params;
+      if (kdf === 'pbkdf2'){
+        const it = parseInt(iterStr, 10);
+        if (isNaN(it) || it <= 0) throw new Error('Invalid iterations');
+        params = {iterations: it};
+      } else if (kdf === 'argon2'){
+        // expect CSV: time,mem,parallelism
+        const parts = iterStr.split(',').map(s=>Number(s));
+        if (parts.length < 1) throw new Error('Invalid argon2 params');
+        const time = parts[0] || 3;
+        const mem = parts[1] || 65536;
+        const par = parts[2] || 1;
+        params = {time, mem, parallelism: par};
+      } else {
+        throw new Error('Unknown KDF: ' + kdf);
+      }
+      return {kdf, saltBytes: salt, ivBytes: iv, params};
+    }
+
+    // --------------------------
+    // Encrypt (Encode)
+    // --------------------------
+    async function doEncrypt(){
+      setStatus('');
+      const text = inputEl.value || '';
+      const pass = passEl.value || '';
+      const kdfChoice = kdfSelect.value;
+      if (!text.trim()){ setStatus('No text to encode'); return; }
+      if (!pass){ setStatus('Passphrase required'); return; }
+
+      try{
+        const data = enc.encode(text);
+        const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
+        const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
+        let key;
+        let iterParamStr = '';
+        if (kdfChoice === 'pbkdf2'){
+          const iters = Number(pbkdf2Iters.value) || 200000;
+          key = await deriveAesGcmKeyWithPBKDF2(pass, salt, iters);
+          iterParamStr = String(iters);
+        } else if (kdfChoice === 'argon2'){
+          const time = Number(argonTime.value) || 3;
+          const mem = Number(argonMem.value) || 65536;
+          const par = Number(argonPar.value) || 1;
+          key = await deriveAesGcmKeyWithArgon2(pass, salt, time, mem, par);
+          iterParamStr = [time, mem, par].join(',');
+        } else throw new Error('Unsupported KDF');
+
+        const ctBuf = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, data);
+        const ctBytes = new Uint8Array(ctBuf);
+        const body = bytesToSyllables(ctBytes);
+        const meta = encodeHeader(kdfChoice, salt, iv, iterParamStr);
+        outputEl.value = meta + '|' + body;
+        setStatus('Encrypted (SBX2) — output ready', true);
+
+        // wipe
+        wipeUint8(salt); wipeUint8(iv); wipeUint8(ctBytes); wipeUint8(data);
+        // clear key reference
+        key = null;
+      } catch(e){ setStatus('Encrypt failed: ' + (e && e.message ? e.message : String(e))); }
+    }
+
+    // --------------------------
+    // Decrypt (Decode)
+    // --------------------------
+    async function doDecrypt(){
+      setStatus('');
+      const text = inputEl.value || '';
+      const pass = passEl.value || '';
+      if (!text.trim()){ setStatus('No text to decode'); return; }
+      if (!pass){ setStatus('Passphrase required'); return; }
+
+      try{
+        const sep = text.indexOf('|');
+        if (sep === -1) throw new Error('Missing separator');
+        const meta = text.slice(0, sep);
+        const body = text.slice(sep + 1);
+        const {kdf, saltBytes, ivBytes, params} = decodeHeader(meta);
+        let key;
+        if (kdf === 'pbkdf2'){
+          key = await deriveAesGcmKeyWithPBKDF2(pass, saltBytes, params.iterations);
+        } else if (kdf === 'argon2'){
+          key = await deriveAesGcmKeyWithArgon2(pass, saltBytes, params.time, params.mem, params.parallelism);
+        } else throw new Error('Unsupported KDF in header');
+
+        const ctBytes = syllablesToBytes(body);
+        const plainBuf = await crypto.subtle.decrypt({name:'AES-GCM', iv: ivBytes}, key, ctBytes);
+        const plainBytes = new Uint8Array(plainBuf);
+        const decoded = decFatal.decode(plainBytes);
+        outputEl.value = decoded;
+        setStatus('Decrypted successfully (authenticated)', true);
+
+        // wipe
+        wipeUint8(saltBytes); wipeUint8(ivBytes); wipeUint8(ctBytes); wipeUint8(plainBytes);
+      } catch(e){ setStatus('Decrypt failed: ' + (e && e.message ? e.message : String(e))); }
+    }
+
+    // --------------------------
+    // Self-test
+    // --------------------------
+    async function doSelfTest(){
+      setStatus('');
+      try{
+        const sample = 'Hello SBX secure (KDF test)';
+        const pw = 'test-password-123';
+        inputEl.value = sample; passEl.value = pw;
+        // test both KDFs
+        kdfSelect.value = 'pbkdf2'; kdfSelect.dispatchEvent(new Event('change'));
+        await doEncrypt(); const out1 = outputEl.value;
+        inputEl.value = out1; await doDecrypt(); const rec1 = outputEl.value;
+
+        // argon2 (best-effort if lib loaded)
+        kdfSelect.value = 'argon2'; kdfSelect.dispatchEvent(new Event('change'));
+        inputEl.value = sample; await doEncrypt(); const out2 = outputEl.value;
+        inputEl.value = out2; await doDecrypt(); const rec2 = outputEl.value;
+
+        const ok = rec1 === sample && rec2 === sample;
+        setStatus(ok ? 'Self-test OK (pbkdf2 + argon2)' : 'Self-test mismatch (check console)'), ok;
+      } catch(e){ setStatus('Self-test failed: ' + (e && e.message ? e.message : String(e))); }
+    }
+
+    // --------------------------
+    // UI wiring
+    // --------------------------
+    document.getElementById('encodeBtn').addEventListener('click', doEncrypt);
+    document.getElementById('decodeBtn').addEventListener('click', doDecrypt);
+    document.getElementById('selfTestBtn').addEventListener('click', doSelfTest);
+    document.getElementById('copyBtn').addEventListener('click', ()=>{ if(outputEl.value) navigator.clipboard.writeText(outputEl.value).catch(()=>{}); });
+    document.getElementById('clearPassBtn').addEventListener('click', ()=>{ safeClearStringInput(passEl); setStatus('Passphrase cleared'); });
+
+    kdfSelect.addEventListener('change', ()=>{
+      if (kdfSelect.value === 'argon2'){
+        pbkdf2Box.classList.add('hidden'); argon2Box.classList.remove('hidden');
+      } else { pbkdf2Box.classList.remove('hidden'); argon2Box.classList.add('hidden'); }
+    });
+
+    // nice initial state
+    kdfSelect.dispatchEvent(new Event('change'));
+    setStatus('Ready');
+  </script>
+</body>
+</html>
