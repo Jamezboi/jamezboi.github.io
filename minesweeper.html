@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classic Minesweeper</title>
+    <style>
+        /*
+         * --- Retro Minesweeper Theme CSS ---
+         * Uses box-shadow to simulate 3D beveled edges typical of Windows 95/XP.
+         */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #A9A9A9; /* Classic Windows grey */
+            font-family: 'Tahoma', sans-serif;
+            user-select: none;
+        }
+
+        .minesweeper-container {
+            border: 3px solid white;
+            border-right-color: #7B7B7B;
+            border-bottom-color: #7B7B7B;
+            background-color: #C0C0C0;
+            padding: 8px;
+            box-shadow: 1px 1px 0px 1px #000000;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 6px;
+            margin-bottom: 8px;
+            border: 3px solid #7B7B7B;
+            border-right-color: white;
+            border-bottom-color: white;
+            background-color: #C0C0C0;
+        }
+
+        /* --- Counters and Timer Style (LED/7-Segment Look) --- */
+        .counter-display {
+            width: 50px;
+            height: 28px;
+            line-height: 28px;
+            text-align: right;
+            padding: 0 4px;
+            background-color: black;
+            color: red;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: -2px;
+            box-shadow: inset 1px 1px 2px #555;
+        }
+
+        /* --- Reset Button (Smiley Face) Style --- */
+        .reset-button {
+            width: 34px;
+            height: 34px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #C0C0C0;
+            border: 3px solid white;
+            border-right-color: #7B7B7B;
+            border-bottom-color: #7B7B7B;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: none; /* Disable transitions to ensure instant button response */
+        }
+
+        .reset-button:active {
+            border: 3px solid #7B7B7B;
+            border-left-color: white;
+            border-top-color: white;
+            box-shadow: inset 1px 1px 0px 0px #7B7B7B;
+        }
+        
+        /* --- Game Board and Cell Styles --- */
+        .grid {
+            display: inline-grid;
+            border: 3px solid #7B7B7B;
+            border-right-color: white;
+            border-bottom-color: white;
+            line-height: 1; /* Fix vertical alignment issues in grid cells */
+        }
+
+        .cell {
+            width: 24px;
+            height: 24px;
+            background-color: #C0C0C0;
+            border: 3px solid white;
+            border-right-color: #7B7B7B;
+            border-bottom-color: #7B7B7B;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+            transition: none;
+            box-sizing: border-box; /* Include border in cell dimensions */
+        }
+        
+        .cell:active:not(.revealed):not(.bot-move) {
+            border: 3px solid #7B7B7B;
+            box-shadow: inset 1px 1px 2px #555;
+        }
+
+        .cell.revealed {
+            border: 1px solid #7B7B7B;
+            background-color: #D3D3D3; /* Slightly darker revealed background */
+            cursor: default;
+        }
+
+        /* Bot move highlight */
+        .cell.bot-move {
+            background-color: #ffe082; /* Light yellow highlight for bot's current action */
+            border: 1px solid orange;
+        }
+        .cell.bot-move.revealed {
+            background-color: #D3D3D3;
+        }
+
+        /* --- Number Colors (Standard Minesweeper Colors) --- */
+        .num-1 { color: #0000FF; } /* Blue */
+        .num-2 { color: #008000; } /* Green */
+        .num-3 { color: #FF0000; } /* Red */
+        .num-4 { color: #000080; } /* Dark Blue */
+        .num-5 { color: #800000; } /* Maroon */
+        .num-6 { color: #008080; } /* Teal */
+        .num-7 { color: #000000; } /* Black */
+        .num-8 { color: #808080; } /* Grey */
+
+        /* --- Flag and Mine Symbols --- */
+        .flag {
+            color: #FF0000; /* Red flag */
+            font-size: 18px;
+        }
+        .mine {
+            color: black;
+            font-size: 18px;
+            background-color: #FF0000; /* Red background for detonated mine */
+            border: 1px solid #7B7B7B;
+        }
+        .mine:not(.revealed) {
+            background-color: #C0C0C0;
+            border: 3px solid white;
+            border-right-color: #7B7B7B;
+            border-bottom-color: #7B7B7B;
+        }
+        .exploded {
+            background-color: red !important;
+        }
+
+        /* --- Settings and Footer --- */
+        .settings-bar {
+            margin-top: 10px;
+            text-align: center;
+            padding: 5px;
+            background-color: #C0C0C0;
+            border: 3px solid white;
+            border-right-color: #7B7B7B;
+            border-bottom-color: #7B7B7B;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 5px;
+        }
+
+        .settings-bar select, .settings-bar button {
+            padding: 8px 12px;
+            margin: 2px;
+            background-color: #C0C0C0;
+            border: 2px solid white;
+            border-right-color: #7B7B7B;
+            border-bottom-color: #7B7B7B;
+            cursor: pointer;
+            font-family: 'Tahoma', sans-serif;
+            font-size: 14px;
+            transition: none;
+            white-space: nowrap;
+        }
+        .settings-bar select:active, .settings-bar button:active {
+            border: 2px solid #7B7B7B;
+            border-left-color: white;
+            border-top-color: white;
+        }
+        .settings-bar button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            filter: grayscale(1);
+        }
+
+        /* --- Modal Styling for AI Tip --- */
+        .modal {
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #C0C0C0;
+            margin: auto;
+            padding: 20px;
+            border: 3px solid white;
+            border-right-color: #7B7B7B;
+            border-bottom-color: #7B7B7B;
+            width: 80%;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 5px 5px 0px #7B7B7B;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Spinner for Loading */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #7B7B7B;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+            margin: 5px auto;
+        }
+
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="minesweeper-container" id="game-container">
+        <!-- Difficulty Presets and LLM Feature Button -->
+        <div class="settings-bar">
+            <select id="difficulty-select">
+                <option value="beginner">Beginner (9x9, 10 Mines)</option>
+                <option value="intermediate">Intermediate (16x16, 40 Mines)</option>
+                <option value="expert">Expert (30x16, 99 Mines)</option>
+            </select>
+            <button id="strategy-tip-button" onclick="getStrategyTip()">Get Strategy Tip ✨</button>
+            <button id="bot-solver-button" onclick="startBotSolver()">Start Bot Solver 🤖</button>
+        </div>
+
+        <!-- Header: Mine Counter, Reset Button, Timer -->
+        <div class="header">
+            <div id="mine-counter" class="counter-display">000</div>
+            <button id="reset-button" class="reset-button" onclick="resetGame()">🙂</button>
+            <div id="timer-display" class="counter-display">000</div>
+        </div>
+
+        <!-- Game Grid Container -->
+        <div id="grid-container" class="grid">
+            <!-- Cells will be generated here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modal for LLM Strategy Tip -->
+    <div id="tip-modal" class="modal" onclick="if (event.target.id === 'tip-modal') closeModal('tip-modal')">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('tip-modal')">&times;</span>
+            <h3 id="modal-title" style="margin-top: 0; font-size: 18px;">Minesweeper Strategy Assistant</h3>
+            <p id="modal-text">Tip content will appear here.</p>
+            <div id="modal-loading" style="display: none; align-items: center; justify-content: center;">
+                <div class="spinner"></div>
+                <p style="margin-left: 10px;">Thinking...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GRID_CONTAINER = document.getElementById('grid-container');
+        const MINE_COUNTER_DISPLAY = document.getElementById('mine-counter');
+        const TIMER_DISPLAY = document.getElementById('timer-display');
+        const RESET_BUTTON = document.getElementById('reset-button');
+        const DIFFICULTY_SELECT = document.getElementById('difficulty-select');
+        const BOT_SOLVER_BUTTON = document.getElementById('bot-solver-button');
+        const STRATEGY_TIP_BUTTON = document.getElementById('strategy-tip-button');
+
+
+        // --- Game State Variables ---
+        let ROWS = 9;
+        let COLS = 9;
+        let TOTAL_MINES = 10;
+        let GRID = [];
+        let GAME_OVER = false;
+        let GAME_WON = false;
+        let FLAGS_PLACED = 0;
+        let REVEALED_COUNT = 0;
+        let FIRST_CLICK = true;
+        let TIMER_ID = null;
+        let TIME_ELAPSED = 0;
+        let BOT_TIMER_ID = null;
+        let IS_BOT_SOLVING = false;
+        const BOT_SPEED_MS = 30; // Increased speed for faster solving
+
+        // Difficulty presets (Rows, Cols, Mines)
+        const PRESETS = {
+            'beginner': [9, 9, 10],
+            'intermediate': [16, 16, 40],
+            'expert': [16, 30, 99] // Swapped dimensions for landscape layout (30x16)
+        };
+
+        // Prevents browser context menu on right-click
+        document.getElementById('game-container').oncontextmenu = () => false;
+
+        // --- Game Core Logic Functions ---
+
+        /**
+         * Initializes the game board and state.
+         */
+        function initGame() {
+            // Stop the bot if it's running
+            stopBotSolver();
+
+            // Get dimensions from difficulty preset
+            [ROWS, COLS, TOTAL_MINES] = PRESETS[DIFFICULTY_SELECT.value];
+
+            // Reset state
+            GRID = [];
+            GAME_OVER = false;
+            GAME_WON = false;
+            FLAGS_PLACED = 0;
+            REVEALED_COUNT = 0;
+            FIRST_CLICK = true;
+
+            // Stop and reset timer
+            clearInterval(TIMER_ID);
+            TIMER_ID = null;
+            TIME_ELAPSED = 0;
+            updateDisplay();
+
+            // Reset smiley
+            RESET_BUTTON.textContent = '🙂';
+
+            // Enable user interaction buttons
+            BOT_SOLVER_BUTTON.disabled = false;
+            STRATEGY_TIP_BUTTON.disabled = false;
+
+            // Set grid CSS
+            GRID_CONTAINER.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+
+            // Create the grid data structure
+            for (let r = 0; r < ROWS; r++) {
+                GRID[r] = [];
+                for (let c = 0; c < COLS; c++) {
+                    GRID[r][c] = {
+                        mine: false,
+                        revealed: false,
+                        flagged: false,
+                        value: 0, // Number of adjacent mines
+                        exploded: false,
+                        id: `cell-${r}-${c}`
+                    };
+                }
+            }
+
+            // Render the HTML grid
+            renderGrid();
+        }
+
+        /**
+         * Renders the HTML cells based on the GRID data.
+         */
+        function renderGrid() {
+            GRID_CONTAINER.innerHTML = '';
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cellData = GRID[r][c];
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = cellData.id;
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    // User click handlers
+                    cell.onclick = (e) => handleUserClick(e, r, c, 'left');
+                    cell.oncontextmenu = (e) => handleUserClick(e, r, c, 'right'); 
+                    GRID_CONTAINER.appendChild(cell);
+                }
+            }
+        }
+
+        /**
+         * Starts the game timer.
+         */
+        function startTimer() {
+            if (TIMER_ID === null) {
+                TIMER_ID = setInterval(() => {
+                    TIME_ELAPSED++;
+                    updateDisplay();
+                }, 1000);
+            }
+        }
+
+        /**
+         * Updates the mine counter and timer display.
+         */
+        function updateDisplay() {
+            // Mine Counter: Total mines minus flags placed
+            const minesLeft = TOTAL_MINES - FLAGS_PLACED;
+            MINE_COUNTER_DISPLAY.textContent = String(minesLeft).padStart(3, '0');
+
+            // Timer Display: Max 999
+            const time = Math.min(TIME_ELAPSED, 999);
+            TIMER_DISPLAY.textContent = String(time).padStart(3, '0');
+        }
+
+        /**
+         * Randomly places mines, ensuring the first clicked cell (r, c) and its
+         * neighbors remain safe.
+         */
+        function placeMines(startR, startC) {
+            const safeCoords = new Set();
+            safeCoords.add(`${startR},${startC}`);
+            // Also make neighbors safe
+            for (let r = -1; r <= 1; r++) {
+                for (let c = -1; c <= 1; c++) {
+                    safeCoords.add(`${startR + r},${startC + c}`);
+                }
+            }
+
+            let minesPlaced = 0;
+            while (minesPlaced < TOTAL_MINES) {
+                const r = Math.floor(Math.random() * ROWS);
+                const c = Math.floor(Math.random() * COLS);
+
+                if (!GRID[r][c].mine && !safeCoords.has(`${r},${c}`)) {
+                    GRID[r][c].mine = true;
+                    minesPlaced++;
+                }
+            }
+
+            calculateNumbers();
+        }
+
+        /**
+         * Calculates and assigns the adjacent mine count to every non-mine cell.
+         */
+        function calculateNumbers() {
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (GRID[r][c].mine) continue;
+
+                    let count = 0;
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            const nr = r + dr;
+                            const nc = c + dc;
+
+                            if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+                                if (GRID[nr][nc].mine) {
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                    GRID[r][c].value = count;
+                }
+            }
+        }
+
+        /**
+         * Helper to perform a programmatic click (left or right) on a cell.
+         * Used by both user and bot logic.
+         */
+        function clickCell(r, c, type) {
+            if (GAME_OVER) return;
+
+            // 1. First Click Logic (Safe Start)
+            if (FIRST_CLICK) {
+                placeMines(r, c);
+                FIRST_CLICK = false;
+                startTimer();
+            }
+
+            const cellData = GRID[r][c];
+
+            if (type === 'left') {
+                if (cellData.revealed || cellData.flagged) return false;
+
+                // 2. Mine Hit (Game Over)
+                if (cellData.mine) {
+                    cellData.exploded = true;
+                    endGame(false); // Loss
+                    return true; // Clicked a mine
+                }
+
+                // 3. Reveal Cell (Standard or Flood)
+                revealCell(r, c);
+
+                // 4. Check for Win
+                checkWin();
+
+            } else if (type === 'right') {
+                if (cellData.revealed) return false;
+
+                // Toggle flag
+                if (cellData.flagged) {
+                    cellData.flagged = false;
+                    FLAGS_PLACED--;
+                } else if (FLAGS_PLACED < TOTAL_MINES) {
+                    cellData.flagged = true;
+                    FLAGS_PLACED++;
+                }
+                updateCellDisplay(r, c);
+                updateDisplay();
+                return true; // Flagged/unflagged
+            }
+            return true; // Successful move
+        }
+
+        /**
+         * Handles user mouse clicks, ensuring default browser actions are prevented.
+         */
+        function handleUserClick(e, r, c, type) {
+            if (IS_BOT_SOLVING) return; // Ignore user input while bot is solving
+
+            if (type === 'right') e.preventDefault();
+            clickCell(r, c, type);
+        }
+
+        /**
+         * Reveals a single cell, triggering flood reveal if its value is 0.
+         */
+        function revealCell(r, c) {
+            const cellData = GRID[r][c];
+            if (cellData.revealed || cellData.flagged) return;
+
+            cellData.revealed = true;
+            REVEALED_COUNT++;
+            updateCellDisplay(r, c);
+
+            if (cellData.value === 0) {
+                // Flood fill for zeros
+                floodReveal(r, c);
+            }
+        }
+        
+        /**
+         * Performs a flood-fill revelation starting from a zero-value cell.
+         * Uses an iterative approach (queue) to prevent stack overflow/lag.
+         */
+        function floodReveal(startR, startC) {
+            const queue = [[startR, startC]];
+
+            while (queue.length > 0) {
+                const [r, c] = queue.shift();
+
+                // Check 3x3 neighborhood
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        const nr = r + dr;
+                        const nc = c + dc;
+
+                        // Boundary check
+                        if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+                            const neighborData = GRID[nr][nc];
+                            if (!neighborData.revealed && !neighborData.mine && !neighborData.flagged) {
+                                // Important: Call revealCell which handles the recursive call if value is 0
+                                revealCell(nr, nc); 
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * Updates the visual representation of a single cell.
+         */
+        function updateCellDisplay(r, c, highlight = false) {
+            const cellData = GRID[r][c];
+            const cellElement = document.getElementById(cellData.id);
+            if (!cellElement) return;
+
+            // Remove previous classes
+            cellElement.className = 'cell';
+            cellElement.classList.toggle('bot-move', highlight);
+
+            if (cellData.revealed) {
+                cellElement.classList.add('revealed');
+                cellElement.textContent = ''; // Clear flag/content
+
+                if (cellData.value > 0) {
+                    cellElement.textContent = cellData.value;
+                    cellElement.classList.add(`num-${cellData.value}`);
+                }
+            } else if (cellData.flagged) {
+                cellElement.textContent = '🚩';
+                cellElement.classList.add('flag');
+            } else {
+                cellElement.textContent = '';
+            }
+
+            // Always ensure mine state is reflected on game end
+            if (GAME_OVER) {
+                if (cellData.mine && !cellData.flagged && !cellData.exploded) {
+                    cellElement.textContent = '💣';
+                    cellElement.classList.add('mine');
+                } else if (cellData.mine && cellData.flagged) {
+                    cellElement.textContent = '🚩';
+                    cellElement.classList.add('flag');
+                    cellElement.classList.add('revealed');
+                } else if (!cellData.mine && cellData.flagged) {
+                    cellElement.textContent = '❌';
+                    cellElement.style.color = 'red';
+                }
+                if (cellData.exploded) {
+                    cellElement.classList.add('exploded');
+                }
+            }
+        }
+
+        /**
+         * Checks if the win condition has been met (all non-mine cells revealed).
+         */
+        function checkWin() {
+            const safeCells = ROWS * COLS - TOTAL_MINES;
+            if (REVEALED_COUNT === safeCells) {
+                endGame(true); // Win
+            }
+        }
+
+        /**
+         * Executes final actions upon game end (win or loss).
+         */
+        function endGame(won) {
+            GAME_OVER = true;
+            GAME_WON = won;
+            stopBotSolver();
+            clearInterval(TIMER_ID);
+            
+            // Show all final states
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    updateCellDisplay(r, c);
+                    // Disable click handlers
+                    const cellElement = document.getElementById(GRID[r][c].id);
+                    if(cellElement) {
+                        cellElement.onclick = null;
+                        cellElement.oncontextmenu = null;
+                        cellElement.classList.remove('bot-move');
+                    }
+                }
+            }
+
+            // Update smiley
+            if (won) {
+                RESET_BUTTON.textContent = '😎'; // Sunglasses for win
+            } else {
+                RESET_BUTTON.textContent = '😵'; // Dead face for loss
+            }
+        }
+
+        // --- Event Handlers and Setup ---
+
+        function resetGame() {
+            initGame();
+        }
+
+        DIFFICULTY_SELECT.addEventListener('change', initGame);
+
+        // Initial game setup on load
+        window.onload = initGame;
+
+
+        // -------------------------------------------------------------------
+        // --- MINESWEEPER BOT SOLVER LOGIC (ENHANCED) -----------------------
+        // -------------------------------------------------------------------
+
+        /**
+         * Finds the neighbors of a cell (r, c).
+         * Returns an array of objects: {r, c, data, element}.
+         */
+        function getNeighbors(r, c) {
+            const neighbors = [];
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue; // Skip self
+
+                    const nr = r + dr;
+                    const nc = c + dc;
+
+                    if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+                        const data = GRID[nr][nc];
+                        neighbors.push({ r: nr, c: nc, data: data, id: data.id });
+                    }
+                }
+            }
+            return neighbors;
+        }
+
+        /**
+         * Core logic to find guaranteed safe moves or flags based on single numbers.
+         * (Basic Rules: Full coverage and complete flags)
+         */
+        function findGuaranteedMoves() {
+            const moves = [];
+            
+            // Loop through all revealed, numbered cells
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = GRID[r][c];
+                    if (cell.revealed && cell.value > 0) {
+                        const neighbors = getNeighbors(r, c);
+                        
+                        const covered = neighbors.filter(n => !n.data.revealed);
+                        const flagged = neighbors.filter(n => n.data.flagged);
+                        const unflaggedCovered = covered.filter(n => !n.data.flagged);
+                        
+                        const requiredFlags = cell.value;
+                        
+                        // Rule 1: If covered cells == remaining mines, all covered cells are mines (flag them)
+                        if (unflaggedCovered.length > 0 && covered.length === requiredFlags - flagged.length) {
+                            unflaggedCovered.forEach(n => {
+                                moves.push({ r: n.r, c: n.c, type: 'right' });
+                            });
+                        }
+
+                        // Rule 2: If flags placed == number value, all unflagged covered cells are safe (click them)
+                        if (unflaggedCovered.length > 0 && flagged.length === requiredFlags) {
+                            unflaggedCovered.forEach(n => {
+                                moves.push({ r: n.r, c: n.c, type: 'left' });
+                            });
+                        }
+                    }
+                }
+            }
+
+            return filterUniqueMoves(moves);
+        }
+
+        /**
+         * Advanced logic: Subset Analysis (e.g., 1-2 pattern, 1-2-1 pattern)
+         * Compares the required mine count and covered cells of two adjacent numbers.
+         */
+        function findAdvancedMoves() {
+            const moves = [];
+
+            // 1. Iterate through all revealed number cells (Cell A)
+            for (let rA = 0; rA < ROWS; rA++) {
+                for (let cA = 0; cA < COLS; cA++) {
+                    const cellA = GRID[rA][cA];
+                    if (!cellA.revealed || cellA.value === 0) continue;
+
+                    const neighborsA = getNeighbors(rA, cA);
+                    const flaggedA = neighborsA.filter(n => n.data.flagged);
+                    const coveredA = neighborsA.filter(n => !n.data.revealed && !n.data.flagged);
+                    const requiredMinesA = cellA.value - flaggedA.length;
+
+                    if (requiredMinesA <= 0 || coveredA.length === 0) continue;
+
+                    // 2. Compare Cell A against its adjacent revealed, numbered cells (Cell B)
+                    const adjacentRevealed = neighborsA.filter(n => n.data.revealed && n.data.value > 0);
+
+                    for (const neighborB of adjacentRevealed) {
+                        const rB = neighborB.r;
+                        const cB = neighborB.c;
+                        const cellB = GRID[rB][cB];
+
+                        // Skip if cell B is the same as A or is already fully satisfied
+                        if (cellA.id === cellB.id) continue;
+
+                        const neighborsB = getNeighbors(rB, cB);
+                        const flaggedB = neighborsB.filter(n => n.data.flagged);
+                        const coveredB = neighborsB.filter(n => !n.data.revealed && !n.data.flagged);
+                        const requiredMinesB = cellB.value - flaggedB.length;
+
+                        if (requiredMinesB <= 0 || coveredB.length === 0) continue;
+
+                        // Create Sets of IDs for comparison
+                        const coveredASet = new Set(coveredA.map(n => n.id));
+                        const coveredBSet = new Set(coveredB.map(n => n.id));
+                        
+                        // Check if A's covered cells are a subset of B's covered cells (A C B)
+                        const A_is_subset_of_B = coveredA.every(n => coveredBSet.has(n.id));
+
+                        if (A_is_subset_of_B) {
+                            // C_OUT is the set of cells covered by B but not A (B \ A)
+                            const C_OUT = coveredB.filter(n => !coveredASet.has(n.id));
+
+                            // Mines required in C_OUT: R_OUT = R_B - R_A
+                            const requiredMinesOUT = requiredMinesB - requiredMinesA;
+
+                            if (requiredMinesOUT < 0) continue; 
+
+                            // Rule 3A: C_OUT are all MINES (Flag them)
+                            if (C_OUT.length === requiredMinesOUT && C_OUT.length > 0) {
+                                C_OUT.forEach(n => moves.push({ r: n.r, c: n.c, type: 'right' }));
+                            }
+                            
+                            // Rule 3B: C_OUT are all SAFE (Click them)
+                            else if (requiredMinesOUT === 0 && C_OUT.length > 0) {
+                                C_OUT.forEach(n => moves.push({ r: n.r, c: n.c, type: 'left' }));
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return filterUniqueMoves(moves);
+        }
+
+        /**
+         * Filters the list of moves to ensure no duplicates or redundant actions.
+         */
+        function filterUniqueMoves(moves) {
+            const uniqueMoves = [];
+            const moveSet = new Set();
+            moves.forEach(move => {
+                const key = `${move.r},${move.c},${move.type}`;
+                if (!moveSet.has(key)) {
+                    // Check if the cell is already in the desired state before adding
+                    const cell = GRID[move.r][move.c];
+                    if (move.type === 'right' && cell.flagged) return;
+                    if (move.type === 'left' && cell.revealed) return;
+                    
+                    uniqueMoves.push(move);
+                    moveSet.add(key);
+                }
+            });
+            return uniqueMoves;
+        }
+
+
+        /**
+         * Performs one step of the solving process.
+         */
+        async function solveStep() {
+            if (GAME_OVER) {
+                stopBotSolver();
+                return;
+            }
+
+            // 1. Initial Click (If game hasn't started)
+            if (FIRST_CLICK) {
+                const startR = Math.floor(ROWS / 2);
+                const startC = Math.floor(COLS / 2);
+                
+                // Highlight and execute the move
+                highlightMove(startR, startC, 'left');
+                await new Promise(resolve => setTimeout(resolve, BOT_SPEED_MS));
+                clickCell(startR, startC, 'left');
+                
+                if (!GAME_OVER) {
+                    BOT_TIMER_ID = setTimeout(solveStep, BOT_SPEED_MS);
+                }
+                return;
+            }
+
+            let moves = [];
+            
+            // 2. Find and execute guaranteed logical moves (Basic Rules)
+            moves = findGuaranteedMoves();
+            
+            // 3. Find and execute advanced logical moves (Subset Rules, if basic fails)
+            if (moves.length === 0) {
+                moves = findAdvancedMoves();
+            }
+
+            if (moves.length > 0) {
+                const move = moves[0];
+                
+                // Highlight and execute the move
+                highlightMove(move.r, move.c, move.type);
+                await new Promise(resolve => setTimeout(resolve, BOT_SPEED_MS));
+                clickCell(move.r, move.c, move.type);
+
+                // If the game is still running, immediately check for the next guaranteed move (faster solving)
+                if (!GAME_OVER) {
+                    BOT_TIMER_ID = setTimeout(solveStep, BOT_SPEED_MS);
+                }
+                return;
+            }
+
+            // 4. Fallback: Guessing Strategy (If no guaranteed moves are found)
+            
+            // Find a cell that is unrevealed, unflagged, and NOT adjacent to any revealed number
+            const safeGuessCells = [];
+            const allUnrevealed = [];
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = GRID[r][c];
+                    if (!cell.revealed && !cell.flagged) {
+                        allUnrevealed.push({r, c});
+                        const neighbors = getNeighbors(r, c);
+                        const isAdjacentToNumber = neighbors.some(n => n.data.revealed && n.data.value > 0);
+                        
+                        // Prefer cells that are not adjacent to any number (i.e., less chance of a nearby mine)
+                        if (!isAdjacentToNumber) {
+                            safeGuessCells.push({r, c});
+                        }
+                    }
+                }
+            }
+
+            let guessCell;
+            if (safeGuessCells.length > 0) {
+                // Safest guess: random cell far from any constraint
+                guessCell = safeGuessCells[Math.floor(Math.random() * safeGuessCells.length)];
+            } else if (allUnrevealed.length > 0) {
+                // Forced guess: random cell from all remaining unrevealed
+                guessCell = allUnrevealed[Math.floor(Math.random() * allUnrevealed.length)];
+            } else {
+                // Game should be won already
+                stopBotSolver();
+                return;
+            }
+
+            // Execute the guess
+            highlightMove(guessCell.r, guessCell.c, 'left');
+            await new Promise(resolve => setTimeout(resolve, BOT_SPEED_MS * 4)); // Longer delay for a guess
+            clickCell(guessCell.r, guessCell.c, 'left');
+
+            // Continue the solving loop
+            if (!GAME_OVER) {
+                BOT_TIMER_ID = setTimeout(solveStep, BOT_SPEED_MS);
+            }
+        }
+
+        /**
+         * Visualizes the bot's intended move by highlighting the cell.
+         */
+        function highlightMove(r, c, type) {
+            // Remove previous highlights
+            document.querySelectorAll('.bot-move').forEach(el => el.classList.remove('bot-move'));
+
+            const cellElement = document.getElementById(`cell-${r}-${c}`);
+            if (cellElement) {
+                cellElement.classList.add('bot-move');
+                if (type === 'right' && !GRID[r][c].flagged) {
+                    cellElement.textContent = '❓'; // Show what the bot is about to do (flag)
+                }
+            }
+        }
+
+        /**
+         * Starts the bot solver loop.
+         */
+        function startBotSolver() {
+            if (GAME_OVER || IS_BOT_SOLVING) return;
+            
+            IS_BOT_SOLVING = true;
+            BOT_SOLVER_BUTTON.textContent = 'Solving...';
+            BOT_SOLVER_BUTTON.disabled = true;
+            STRATEGY_TIP_BUTTON.disabled = true;
+
+            // Disable user mouse interaction
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.onclick = null;
+                cell.oncontextmenu = null;
+            });
+
+            // Start the main solving loop
+            BOT_TIMER_ID = setTimeout(solveStep, BOT_SPEED_MS);
+        }
+
+        /**
+         * Stops the bot solver loop.
+         */
+        function stopBotSolver() {
+            if (BOT_TIMER_ID) {
+                clearTimeout(BOT_TIMER_ID);
+                BOT_TIMER_ID = null;
+            }
+            IS_BOT_SOLVING = false;
+            BOT_SOLVER_BUTTON.textContent = 'Start Bot Solver 🤖';
+            BOT_SOLVER_BUTTON.disabled = false;
+            STRATEGY_TIP_BUTTON.disabled = false;
+
+            // Re-enable user mouse interaction if game is not over
+            if (!GAME_OVER) {
+                document.querySelectorAll('.cell').forEach(cell => {
+                    const r = parseInt(cell.dataset.r);
+                    const c = parseInt(cell.dataset.c);
+                    cell.onclick = (e) => handleUserClick(e, r, c, 'left');
+                    cell.oncontextmenu = (e) => handleUserClick(e, r, c, 'right');
+                    cell.classList.remove('bot-move');
+                });
+            }
+        }
+
+        // -------------------------------------------------------------------
+        // --- GEMINI LLM INTEGRATION FOR STRATEGY TIPS (Existing code) ------
+        // -------------------------------------------------------------------
+
+        const apiKey = ""; // API Key is provided by the environment
+        const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
+
+        /**
+         * Utility function to show the custom modal/message box.
+         */
+        function showModal(title, text, isLoading = false) {
+            const modal = document.getElementById('tip-modal');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-text').textContent = text;
+            document.getElementById('modal-loading').style.display = isLoading ? 'flex' : 'none';
+            modal.style.display = 'flex';
+        }
+
+        /**
+         * Utility function to close the custom modal/message box.
+         */
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        /**
+         * Calls the Gemini API with exponential backoff.
+         */
+        async function callGeminiAPI(prompt, systemPrompt, maxRetries = 3) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                // Use Google Search grounding to potentially access common minesweeper strategies
+                tools: [{ "google_search": {} }],
+            };
+
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429 && attempt < maxRetries - 1) {
+                            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            continue; // Retry
+                        }
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "The assistant could not generate a response.";
+                    return text;
+
+                } catch (error) {
+                    // Do not log retries as errors, only the final failure
+                    if (attempt === maxRetries - 1) {
+                        throw new Error("Failed to get strategy tip after multiple retries.");
+                    }
+                    const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+            return "Error: Could not connect to the strategy assistant.";
+        }
+
+
+        /**
+         * Generates a textual summary of the current visible game state for the LLM.
+         */
+        function getGameStateSummary() {
+            let revealedCells = [];
+            let flaggedCells = [];
+            let totalCells = ROWS * COLS;
+            let revealedCount = 0;
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = GRID[r][c];
+                    if (cell.revealed && cell.value > 0) {
+                        revealedCells.push(`Cell (${r}, ${c}) has a value of ${cell.value}.`);
+                    } else if (cell.flagged) {
+                        flaggedCells.push(`Cell (${r}, ${c}) is currently flagged.`);
+                    }
+                    if (cell.revealed) revealedCount++;
+                }
+            }
+
+            const summary = `
+Current Minesweeper Game State:
+- Board Size: ${ROWS}x${COLS}
+- Total Mines: ${TOTAL_MINES}
+- Mines Remaining (Estimate: Total Mines - Flags Placed): ${TOTAL_MINES - FLAGS_PLACED}
+- Cells Revealed: ${revealedCount} out of ${totalCells}
+
+Visible Information (only numbers and flags):
+${revealedCells.length > 0 ? revealedCells.join('\n') : 'No numbered cells revealed yet.'}
+Flag Locations:
+${flaggedCells.length > 0 ? flaggedCells.join('\n') : 'No flags placed yet.'}
+
+Based on this limited visible information, provide one concise, actionable strategy tip (2-3 sentences max) to help the player find a safe cell or flag a mine. If no clear move is obvious, give a general tip for common patterns. DO NOT include coordinates.
+`.trim();
+
+            return summary;
+        }
+
+        /**
+         * Main function to generate and display the strategy tip.
+         */
+        async function getStrategyTip() {
+            if (IS_BOT_SOLVING) {
+                showModal("Bot Active", "The Bot Solver is currently active. Stop the bot to get a human-friendly strategy tip.", false);
+                return;
+            }
+
+            if (GAME_OVER) {
+                showModal("Game Over", GAME_WON ? "Congratulations! You won! Reset the game to start a new challenge." : "Game over! Try again! Reset the board to continue.", false);
+                return;
+            }
+
+            if (FIRST_CLICK) {
+                 showModal("First Move Strategy", "Since you haven't made your first move yet, it's safe to click any cell! We recommend starting in a corner or the center to maximize the chance of a large zero-reveal.", false);
+                return;
+            }
+            
+            const userPrompt = getGameStateSummary();
+            const systemPrompt = "You are an expert Minesweeper strategy assistant. Analyze the provided game state and offer one concise, highly actionable tip (2-3 sentences max) for the player. Focus on pattern recognition (like 1-2-1, covered numbers, or identifying 'safe' areas). DO NOT include any coordinates or board representation, only explain the logic.";
+
+            showModal("Minesweeper Strategy Assistant", "Generating a strategic tip based on the current board state...", true);
+
+            try {
+                const tip = await callGeminiAPI(userPrompt, systemPrompt);
+                showModal("Minesweeper Strategy Assistant", tip, false);
+            } catch (error) {
+                showModal("Error", "Could not get a tip. Please try again later.", false);
+                console.error("Gemini API Error:", error);
+            }
+        }
+    </script>
+</body>
+</html>
