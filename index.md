@@ -40,11 +40,12 @@ layout: none
   }
 </style>
 
-## 🐍 Games
+## Games & More
 - [Snake](https://jamezboi.github.io/snake.html)
 - [Doodle Jump](https://jamezboi.github.io/game.html)
 - [Tetris](https://jamezboi.github.io/tetris.html)
 - [SBX Hacker](https://jamezboi.github.io/sbx_hacker.html)
+- [Chem Search](https://jamezboi.github.io/chem_search.html)
 
 ---
 
