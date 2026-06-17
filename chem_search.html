@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annexe 10 - Chaleur de formation</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 20px auto;
+            max-width: 900px;
+            color: #222;
+        }
+        
+        /* En-tête */
+        .annexe-badge {
+            background-color: black;
+            color: white;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 1.4em;
+            display: inline-block;
+        }
+        .main-title {
+            color: #0099D8;
+            font-size: 1.6em;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 25px;
+            line-height: 1.2;
+        }
+
+        /* Barre de recherche */
+        .search-container {
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        /* Style de la table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #555;
+            padding: 6px 12px;
+        }
+        th {
+            background-color: black;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+        th:first-child {
+            text-align: left;
+            width: 50%;
+        }
+        .category {
+            background-color: #e6e7e8;
+            font-weight: bold;
+        }
+        td:nth-child(2) {
+            text-align: center;
+        }
+
+        /* Note de bas de page */
+        .note {
+            font-size: 0.85em;
+            margin-top: 10px;
+            color: #444;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .main-title { font-size: 1.3em; }
+            th, td { font-size: 0.9em; padding: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="annexe-badge">ANNEXE 10</div>
+    <div class="main-title">La chaleur de formation de quelques substances<br>aux conditions normalisées</div>
+
+    <div class="search-container">
+        <label for="searchInput" style="display:block; margin-bottom:8px; font-weight:bold;">Recherche de substance :</label>
+        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Tapez un symbole (H, H2), un nom (Argent), ou une formule (AgCl)...">
+    </div>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Substances<br>inorganiques</th>
+                <th>ΔH°<sub>f</sub><br>(en kJ/mol)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Aluminium -->
+            <tr class="category"><td colspan="2">Aluminium</td></tr>
+            <tr><td>Al<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>AlCl<sub>3(s)</sub></td><td>-705,6</td></tr>
+            <tr><td>Al<sub>2</sub>Cl<sub>6(g)</sub></td><td>-1291</td></tr>
+            <tr><td>AlF<sub>3(s)</sub></td><td>-1504</td></tr>
+            <tr><td>Al<sub>2</sub>O<sub>3(s)</sub></td><td>-1676</td></tr>
+            <tr><td>Al(OH)<sub>3(s)</sub></td><td>-1276</td></tr>
+            <tr><td>Al<sub>2</sub>(SO<sub>4</sub>)<sub>3(s)</sub></td><td>-3441</td></tr>
+
+            <!-- Argent -->
+            <tr class="category"><td colspan="2">Argent</td></tr>
+            <tr><td>Ag<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>AgBr<sub>(s)</sub></td><td>-100,4</td></tr>
+            <tr><td>AgCl<sub>(s)</sub></td><td>-127,1</td></tr>
+            <tr><td>AgI<sub>(s)</sub></td><td>-61,84</td></tr>
+            <tr><td>AgNO<sub>3(s)</sub></td><td>-124,4</td></tr>
+            <tr><td>Ag<sub>2</sub>O<sub>(s)</sub></td><td>-31,0</td></tr>
+            <tr><td>Ag<sub>2</sub>SO<sub>4(s)</sub></td><td>-715,9</td></tr>
+
+            <!-- Azote -->
+            <tr class="category"><td colspan="2">Azote</td></tr>
+            <tr><td>N<sub>2(g)</sub></td><td>0</td></tr>
+            <tr><td>NF<sub>3(g)</sub></td><td>-124,7</td></tr>
+            <tr><td>NH<sub>3(g)</sub></td><td>-46,1</td></tr>
+            <tr><td>NH<sub>3(aq)</sub></td><td>-80,3</td></tr>
+            <tr><td>NH<sub>4</sub><sup>+</sup><sub>(aq)</sub></td><td>-132,5</td></tr>
+            <tr><td>NH<sub>4</sub>Br<sub>(s)</sub></td><td>-270,8</td></tr>
+            <tr><td>NH<sub>4</sub>Cl<sub>(s)</sub></td><td>-314,4</td></tr>
+            <tr><td>NH<sub>4</sub>F<sub>(s)</sub></td><td>-464,0</td></tr>
+            <tr><td>NH<sub>4</sub>HCO<sub>3(s)</sub></td><td>-849,4</td></tr>
+            <tr><td>NH<sub>4</sub>I<sub>(s)</sub></td><td>-201,4</td></tr>
+            <tr><td>NH<sub>4</sub>NO<sub>3(s)</sub></td><td>-365,6</td></tr>
+            <tr><td>NH<sub>4</sub>NO<sub>3(aq)</sub></td><td>-339,9</td></tr>
+            <tr><td>(NH<sub>4</sub>)<sub>2</sub>SO<sub>4(s)</sub></td><td>-1181</td></tr>
+            <tr><td>N<sub>2</sub>H<sub>4(g)</sub></td><td>95,4</td></tr>
+            <tr><td>N<sub>2</sub>H<sub>4(l)</sub></td><td>50,6</td></tr>
+            <tr><td>NO<sub>(g)</sub></td><td>90,3</td></tr>
+            <tr><td>N<sub>2</sub>O<sub>(g)</sub></td><td>82,1</td></tr>
+            <tr><td>NO<sub>2(g)</sub></td><td>33,2</td></tr>
+            <tr><td>N<sub>2</sub>O<sub>4(g)</sub></td><td>9,2</td></tr>
+            <tr><td>N<sub>2</sub>O<sub>4(l)</sub></td><td>-19,6</td></tr>
+            <tr><td>N<sub>2</sub>O<sub>5(g)</sub></td><td>11,3</td></tr>
+            <tr><td>NOBr<sub>(g)</sub></td><td>82,2</td></tr>
+            <tr><td>NOCl<sub>(g)</sub></td><td>51,7</td></tr>
+
+            <!-- Baryum -->
+            <tr class="category"><td colspan="2">Baryum</td></tr>
+            <tr><td>Ba<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>BaCO<sub>3(s)</sub></td><td>-1216</td></tr>
+            <tr><td>BaCl<sub>2(s)</sub></td><td>-858,1</td></tr>
+            <tr><td>BaF<sub>2(s)</sub></td><td>-1209</td></tr>
+            <tr><td>BaO<sub>(s)</sub></td><td>-548,1</td></tr>
+            <tr><td>Ba(OH)<sub>2(s)</sub></td><td>-946,0</td></tr>
+            <tr><td>BaSO<sub>4(s)</sub></td><td>-1473</td></tr>
+
+            <!-- Béryllium -->
+            <tr class="category"><td colspan="2">Béryllium</td></tr>
+            <tr><td>Be<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>BeCl<sub>2(s)</sub></td><td>-496,2</td></tr>
+            <tr><td>BeF<sub>2(s)</sub></td><td>-1027</td></tr>
+            <tr><td>BeO<sub>(s)</sub></td><td>-608,4</td></tr>
+
+            <!-- Bismuth -->
+            <tr class="category"><td colspan="2">Bismuth</td></tr>
+            <tr><td>Bi<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>BiCl<sub>3(s)</sub></td><td>-379</td></tr>
+            <tr><td>Bi<sub>2</sub>O<sub>3(s)</sub></td><td>-573,9</td></tr>
+
+            <!-- Bore -->
+            <tr class="category"><td colspan="2">Bore</td></tr>
+            <tr><td>B<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>BCl<sub>3(l)</sub></td><td>-427,2</td></tr>
+            <tr><td>BF<sub>3(g)</sub></td><td>-1137</td></tr>
+            <tr><td>B<sub>2</sub>H<sub>6(g)</sub></td><td>36</td></tr>
+            <tr><td>B<sub>2</sub>O<sub>3(s)</sub></td><td>-1273</td></tr>
+
+            <!-- Brome -->
+            <tr class="category"><td colspan="2">Brome</td></tr>
+            <tr><td>Br<sub>2(g)</sub></td><td>30,9</td></tr>
+            <tr><td>Br<sub>2(l)</sub></td><td>0</td></tr>
+            <tr><td>BrCl<sub>(g)</sub></td><td>14,6</td></tr>
+            <tr><td>BrF<sub>3(g)</sub></td><td>-255,6</td></tr>
+            <tr><td>BrF<sub>3(l)</sub></td><td>-300,8</td></tr>
+
+            <!-- Cadmium -->
+            <tr class="category"><td colspan="2">Cadmium</td></tr>
+            <tr><td>Cd<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>CdCl<sub>2(s)</sub></td><td>-391,5</td></tr>
+            <tr><td>CdO<sub>(s)</sub></td><td>-258</td></tr>
+
+            <!-- Calcium -->
+            <tr class="category"><td colspan="2">Calcium</td></tr>
+            <tr><td>Ca<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>CaBr<sub>2(s)</sub></td><td>-682,8</td></tr>
+            <tr><td>CaCO<sub>3(s)</sub></td><td>-1207</td></tr>
+            <tr><td>CaCl<sub>2(s)</sub></td><td>-795,8</td></tr>
+            <tr><td>CaF<sub>2(s)</sub></td><td>-1220</td></tr>
+            <tr><td>CaH<sub>2(s)</sub></td><td>-186</td></tr>
+            <tr><td>Ca(NO<sub>3</sub>)<sub>2(s)</sub></td><td>-938,4</td></tr>
+            <tr><td>CaO<sub>(s)</sub></td><td>-635,1</td></tr>
+            <tr><td>Ca(OH)<sub>2(s)</sub></td><td>-986,1</td></tr>
+            <tr><td>Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2(s)</sub></td><td>-4121</td></tr>
+            <tr><td>CaSO<sub>4(s)</sub></td><td>-1434</td></tr>
+
+            <!-- Carbone -->
+            <tr class="category"><td colspan="2">Carbone<br><span style="font-size:0.8em; font-weight:normal;">(voir aussi le tableau des substances organiques)</span></td></tr>
+            <tr><td>C<sub>(g)</sub></td><td>716,7</td></tr>
+            <tr><td>C (diamant)</td><td>1,9</td></tr>
+            <tr><td>C (graphite)</td><td>0</td></tr>
+            <tr><td>CCl<sub>4(g)</sub></td><td>-102,9</td></tr>
+            <tr><td>CCl<sub>4(l)</sub></td><td>-135,4</td></tr>
+            <tr><td>C<sub>2</sub>N<sub>2(g)</sub></td><td>308,9</td></tr>
+            <tr><td>CO<sub>(g)</sub></td><td>-110,5</td></tr>
+            <tr><td>CO<sub>2(g)</sub></td><td>-393,5</td></tr>
+            <tr><td>C<sub>3</sub>O<sub>2(g)</sub></td><td>-93,7</td></tr>
+            <tr><td>C<sub>3</sub>O<sub>2(l)</sub></td><td>-117,3</td></tr>
+            <tr><td>COCl<sub>2(g)</sub></td><td>-220,9</td></tr>
+            <tr><td>COS<sub>(g)</sub></td><td>-138,4</td></tr>
+            <tr><td>CS<sub>2(l)</sub></td><td>89,7</td></tr>
+
+            <!-- Chlore -->
+            <tr class="category"><td colspan="2">Chlore</td></tr>
+            <tr><td>Cl<sub>2(g)</sub></td><td>0</td></tr>
+            <tr><td>ClF<sub>3(g)</sub></td><td>-163,2</td></tr>
+            <tr><td>ClO<sub>2(g)</sub></td><td>102,5</td></tr>
+            <tr><td>Cl<sub>2</sub>O<sub>7(l)</sub></td><td>80,3</td></tr>
+
+            <!-- Chrome -->
+            <tr class="category"><td colspan="2">Chrome</td></tr>
+            <tr><td>Cr<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>Cr<sub>2</sub>O<sub>3(s)</sub></td><td>-1135</td></tr>
+
+            <!-- Cobalt -->
+            <tr class="category"><td colspan="2">Cobalt</td></tr>
+            <tr><td>Co<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>CoO<sub>(s)</sub></td><td>-237,9</td></tr>
+            <tr><td>Co(OH)<sub>2(s)</sub></td><td>-539,7</td></tr>
+
+            <!-- Cuivre -->
+            <tr class="category"><td colspan="2">Cuivre</td></tr>
+            <tr><td>Cu<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>Cu<sub>2</sub>O<sub>(s)</sub></td><td>-168,6</td></tr>
+            <tr><td>CuO<sub>(s)</sub></td><td>-157,3</td></tr>
+            <tr><td>Cu(OH)<sub>2(s)</sub></td><td>-450,2</td></tr>
+
+            <!-- Étain -->
+            <tr class="category"><td colspan="2">Étain</td></tr>
+            <tr><td>Sn<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>SnCl<sub>4(l)</sub></td><td>-511,3</td></tr>
+            <tr><td>SnO<sub>(s)</sub></td><td>-286</td></tr>
+            <tr><td>SnO<sub>2(s)</sub></td><td>-580,7</td></tr>
+
+            <!-- Fer -->
+            <tr class="category"><td colspan="2">Fer</td></tr>
+            <tr><td>Fe<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>FeCO<sub>3(s)</sub></td><td>-740,6</td></tr>
+            <tr><td>FeCl<sub>3(s)</sub></td><td>-399,5</td></tr>
+            <tr><td>FeO<sub>(s)</sub></td><td>-272</td></tr>
+            <tr><td>Fe<sub>2</sub>O<sub>3(s)</sub></td><td>-824,2</td></tr>
+            <tr><td>Fe<sub>3</sub>O<sub>4(s)</sub></td><td>-1118</td></tr>
+            <tr><td>Fe(OH)<sub>3(s)</sub></td><td>-823,0</td></tr>
+
+            <!-- Fluor -->
+            <tr class="category"><td colspan="2">Fluor</td></tr>
+            <tr><td>F<sub>2(g)</sub></td><td>0</td></tr>
+
+            <!-- Hydrogène -->
+            <tr class="category"><td colspan="2">Hydrogène</td></tr>
+            <tr><td>H<sub>2(g)</sub></td><td>0</td></tr>
+            <tr><td>HBr<sub>(g)</sub></td><td>-36,4</td></tr>
+            <tr><td>HCl<sub>(g)</sub></td><td>-92,3</td></tr>
+            <tr><td>HCl<sub>(aq)</sub></td><td>-167,2</td></tr>
+            <tr><td>HCN<sub>(g)</sub></td><td>135</td></tr>
+            <tr><td>HF<sub>(g)</sub></td><td>-271,1</td></tr>
+            <tr><td>HI<sub>(g)</sub></td><td>26,5</td></tr>
+            <tr><td>HNO<sub>3(l)</sub></td><td>-173,2</td></tr>
+            <tr><td>HNO<sub>3(aq)</sub></td><td>-207,4</td></tr>
+            <tr><td>H<sub>2</sub>O<sub>(g)</sub></td><td>-241,8</td></tr>
+            <tr><td>H<sub>2</sub>O<sub>(l)</sub></td><td>-285,8</td></tr>
+            <tr><td>H<sub>2</sub>O<sub>2(g)</sub></td><td>-136,1</td></tr>
+            <tr><td>H<sub>2</sub>O<sub>2(l)</sub></td><td>-187,8</td></tr>
+            <tr><td>H<sub>2</sub>S<sub>(g)</sub></td><td>-20,6</td></tr>
+            <tr><td>H<sub>2</sub>SO<sub>4(l)</sub></td><td>-814,0</td></tr>
+            <tr><td>H<sub>2</sub>SO<sub>4(aq)</sub></td><td>-909,3</td></tr>
+
+            <!-- Iode -->
+            <tr class="category"><td colspan="2">Iode</td></tr>
+            <tr><td>I<sub>2(g)</sub></td><td>62,4</td></tr>
+            <tr><td>I<sub>2(s)</sub></td><td>0</td></tr>
+            <tr><td>IBr<sub>(g)</sub></td><td>40,8</td></tr>
+            <tr><td>ICl<sub>(g)</sub></td><td>17,78</td></tr>
+            <tr><td>ICl<sub>(l)</sub></td><td>-23,9</td></tr>
+
+            <!-- Lithium -->
+            <tr class="category"><td colspan="2">Lithium</td></tr>
+            <tr><td>Li<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>LiCl<sub>(s)</sub></td><td>-408,6</td></tr>
+            <tr><td>Li<sub>2</sub>O<sub>(s)</sub></td><td>-597,9</td></tr>
+            <tr><td>LiOH<sub>(s)</sub></td><td>-484,9</td></tr>
+            <tr><td>LiNO<sub>3(s)</sub></td><td>-483,1</td></tr>
+
+            <!-- Magnésium -->
+            <tr class="category"><td colspan="2">Magnésium</td></tr>
+            <tr><td>Mg<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>MgCl<sub>2(s)</sub></td><td>-641,3</td></tr>
+            <tr><td>MgCO<sub>3(s)</sub></td><td>-1096</td></tr>
+            <tr><td>MgF<sub>2(s)</sub></td><td>-1124</td></tr>
+            <tr><td>MgO<sub>(s)</sub></td><td>-601,7</td></tr>
+            <tr><td>Mg(OH)<sub>2(s)</sub></td><td>-924,7</td></tr>
+            <tr><td>MgSO<sub>4(s)</sub></td><td>-1285</td></tr>
+
+            <!-- Manganèse -->
+            <tr class="category"><td colspan="2">Manganèse</td></tr>
+            <tr><td>Mn<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>MnO<sub>2(s)</sub></td><td>-520</td></tr>
+
+            <!-- Mercure -->
+            <tr class="category"><td colspan="2">Mercure</td></tr>
+            <tr><td>Hg<sub>(g)</sub></td><td>61,3</td></tr>
+            <tr><td>Hg<sub>(l)</sub></td><td>0</td></tr>
+            <tr><td>HgO<sub>(s)</sub></td><td>-90,8</td></tr>
+
+            <!-- Oxygène -->
+            <tr class="category"><td colspan="2">Oxygène</td></tr>
+            <tr><td>O<sub>(g)</sub></td><td>249,2</td></tr>
+            <tr><td>O<sub>2(g)</sub></td><td>0</td></tr>
+            <tr><td>O<sub>3(g)</sub></td><td>142,7</td></tr>
+            <tr><td>OF<sub>2(g)</sub></td><td>24,5</td></tr>
+
+            <!-- Phosphore -->
+            <tr class="category"><td colspan="2">Phosphore</td></tr>
+            <tr><td>P<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>P<sub>4(g)</sub></td><td>58,9</td></tr>
+            <tr><td>PCl<sub>3(g)</sub></td><td>-287,0</td></tr>
+            <tr><td>PCl<sub>3(l)</sub></td><td>-319,7</td></tr>
+            <tr><td>PCl<sub>5(g)</sub></td><td>-374,9</td></tr>
+            <tr><td>PCl<sub>5(s)</sub></td><td>-443,5</td></tr>
+            <tr><td>PH<sub>3(g)</sub></td><td>5,4</td></tr>
+            <tr><td>P<sub>4</sub>O<sub>10(s)</sub></td><td>-2984</td></tr>
+
+            <!-- Plomb -->
+            <tr class="category"><td colspan="2">Plomb</td></tr>
+            <tr><td>Pb<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>PbI<sub>2(s)</sub></td><td>-175,5</td></tr>
+            <tr><td>PbO<sub>2(s)</sub></td><td>-277</td></tr>
+            <tr><td>PbSO<sub>4(s)</sub></td><td>-919,9</td></tr>
+
+            <!-- Potassium -->
+            <tr class="category"><td colspan="2">Potassium</td></tr>
+            <tr><td>K<sub>(g)</sub></td><td>89,2</td></tr>
+            <tr><td>K<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>KBr<sub>(s)</sub></td><td>-393,8</td></tr>
+            <tr><td>KCN<sub>(s)</sub></td><td>-113</td></tr>
+            <tr><td>KCl<sub>(s)</sub></td><td>-436,7</td></tr>
+            <tr><td>KClO<sub>3(s)</sub></td><td>-397,7</td></tr>
+            <tr><td>KClO<sub>4(s)</sub></td><td>-432,8</td></tr>
+            <tr><td>KF<sub>(s)</sub></td><td>-567,3</td></tr>
+            <tr><td>KI<sub>(s)</sub></td><td>-327,9</td></tr>
+            <tr><td>KNO<sub>3(s)</sub></td><td>-494,6</td></tr>
+            <tr><td>KOH<sub>(s)</sub></td><td>-424,8</td></tr>
+            <tr><td>KOH<sub>(aq)</sub></td><td>-482,4</td></tr>
+            <tr><td>K<sub>2</sub>SO<sub>4(s)</sub></td><td>-1438</td></tr>
+
+            <!-- Silicium -->
+            <tr class="category"><td colspan="2">Silicium</td></tr>
+            <tr><td>Si<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>SiH<sub>4(g)</sub></td><td>34</td></tr>
+            <tr><td>Si<sub>2</sub>H<sub>6(g)</sub></td><td>80,3</td></tr>
+            <tr><td>SiO<sub>2</sub> (quartz)</td><td>-910,9</td></tr>
+
+            <!-- Sodium -->
+            <tr class="category"><td colspan="2">Sodium</td></tr>
+            <tr><td>Na<sub>(g)</sub></td><td>107,3</td></tr>
+            <tr><td>Na<sub>(l)</sub></td><td>2,4</td></tr>
+            <tr><td>Na<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>NaBr<sub>(s)</sub></td><td>-361,1</td></tr>
+            <tr><td>Na<sub>2</sub>CO<sub>3(s)</sub></td><td>-1131</td></tr>
+            <tr><td>NaHCO<sub>3(s)</sub></td><td>-950,8</td></tr>
+            <tr><td>NaCl<sub>(s)</sub></td><td>-411,1</td></tr>
+            <tr><td>NaCl<sub>(aq)</sub></td><td>-407,3</td></tr>
+            <tr><td>NaClO<sub>3(s)</sub></td><td>-365,8</td></tr>
+            <tr><td>NaClO<sub>4(s)</sub></td><td>-383,3</td></tr>
+            <tr><td>NaF<sub>(s)</sub></td><td>-573,7</td></tr>
+            <tr><td>NaH<sub>(s)</sub></td><td>-56,3</td></tr>
+            <tr><td>NaI<sub>(s)</sub></td><td>-287,8</td></tr>
+            <tr><td>NaNO<sub>3(s)</sub></td><td>-467,9</td></tr>
+            <tr><td>NaNO<sub>3(aq)</sub></td><td>-447,4</td></tr>
+            <tr><td>Na<sub>2</sub>O<sub>2(s)</sub></td><td>-510,9</td></tr>
+            <tr><td>NaOH<sub>(s)</sub></td><td>-425,6</td></tr>
+            <tr><td>NaOH<sub>(aq)</sub></td><td>-469,2</td></tr>
+            <tr><td>NaH<sub>2</sub>PO<sub>4(s)</sub></td><td>-1537</td></tr>
+            <tr><td>Na<sub>2</sub>HPO<sub>4(s)</sub></td><td>-1748</td></tr>
+            <tr><td>Na<sub>3</sub>PO<sub>4(s)</sub></td><td>-1917</td></tr>
+            <tr><td>NaHSO<sub>4(s)</sub></td><td>-1125</td></tr>
+            <tr><td>Na<sub>2</sub>SO<sub>4(s)</sub></td><td>-1387</td></tr>
+            <tr><td>Na<sub>2</sub>SO<sub>4(aq)</sub></td><td>-1390</td></tr>
+            <tr><td>Na<sub>2</sub>S<sub>2</sub>O<sub>3(s)</sub></td><td>-1123</td></tr>
+
+            <!-- Soufre -->
+            <tr class="category"><td colspan="2">Soufre</td></tr>
+            <tr><td>S<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>S<sub>2</sub>Cl<sub>2(g)</sub></td><td>-18,4</td></tr>
+            <tr><td>SF<sub>6(g)</sub></td><td>-1209</td></tr>
+            <tr><td>SO<sub>2(g)</sub></td><td>-296,8</td></tr>
+            <tr><td>SO<sub>3(g)</sub></td><td>-395,7</td></tr>
+            <tr><td>SO<sub>2</sub>Cl<sub>2(g)</sub></td><td>-364,0</td></tr>
+            <tr><td>SO<sub>2</sub>Cl<sub>2(l)</sub></td><td>-394,1</td></tr>
+
+            <!-- Titane -->
+            <tr class="category"><td colspan="2">Titane</td></tr>
+            <tr><td>Ti<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>TiCl<sub>4(g)</sub></td><td>-763,2</td></tr>
+            <tr><td>TiCl<sub>4(l)</sub></td><td>-804,2</td></tr>
+            <tr><td>TiO<sub>2(s)</sub></td><td>-944,7</td></tr>
+
+            <!-- Uranium -->
+            <tr class="category"><td colspan="2">Uranium</td></tr>
+            <tr><td>U<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>UF<sub>6(g)</sub></td><td>-2147</td></tr>
+            <tr><td>UF<sub>6(s)</sub></td><td>-2197</td></tr>
+            <tr><td>UO<sub>2(s)</sub></td><td>-1085</td></tr>
+
+            <!-- Zinc -->
+            <tr class="category"><td colspan="2">Zinc</td></tr>
+            <tr><td>Zn<sub>(s)</sub></td><td>0</td></tr>
+            <tr><td>Zn<sup>2+</sup><sub>(aq)</sub></td><td>-153,9</td></tr>
+            <tr><td>ZnCl<sub>2(s)</sub></td><td>-415,1</td></tr>
+            <tr><td>ZnO<sub>(s)</sub></td><td>-348,3</td></tr>
+
+        </tbody>
+    </table>
+
+    <div class="note">
+        Note : Une chaleur de formation de 0 indique la forme la plus stable de l'élément.
+    </div>
+
+    <!-- Script de la barre de recherche amélioré -->
+    <script>
+        function filterTable() {
+            const input = document.getElementById("searchInput").value.trim();
+            const rows = document.querySelectorAll("#dataTable tbody tr");
+            
+            // Si la recherche est vide, on réaffiche tout
+            if (input === "") {
+                rows.forEach(row => row.style.display = "");
+                return;
+            }
+
+            // Fonction pour retirer les accents et mettre en majuscules (ex: "é" -> "E")
+            const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+            const normalizedInput = normalize(input);
+
+            let groups = [];
+            let currentGroup = null;
+
+            // On groupe les lignes par catégorie (Ligne d'en-tête + ses molécules enfants)
+            rows.forEach(row => {
+                if (row.classList.contains('category')) {
+                    if (currentGroup) groups.push(currentGroup);
+                    currentGroup = { 
+                        categoryRow: row, 
+                        categoryName: normalize(row.textContent), 
+                        children: [] 
+                    };
+                } else {
+                    if (currentGroup) currentGroup.children.push(row);
+                }
+            });
+            if (currentGroup) groups.push(currentGroup);
+
+            // Filtrage
+            groups.forEach(group => {
+                // RÈGLE DE CATÉGORIE :
+                // Pour éviter qu'une petite lettre (ex: "H") fasse apparaître toute une catégorie (ex: "Chrome"),
+                // On considère que l'utilisateur cherche une catégorie uniquement s'il a tapé au moins 3 lettres
+                // ou s'il a tapé le nom exact de la catégorie.
+                let strongCategoryMatch = (normalizedInput.length >= 3 && group.categoryName.includes(normalizedInput)) || 
+                                          (group.categoryName === normalizedInput);
+                
+                let visibleChildren = 0;
+
+                group.children.forEach(child => {
+                    // On vérifie le texte de la première colonne (la formule de la molécule)
+                    // textContent permet d'ignorer les balises HTML <sub> et <sup>
+                    let moleculeText = normalize(child.cells[0].textContent); 
+                    
+                    // On affiche la molécule si :
+                    // 1. La catégorie entière est recherchée (ex: "Fer")
+                    // 2. OU la molécule elle-même contient le texte recherché (ex: "H2")
+                    if (strongCategoryMatch || moleculeText.includes(normalizedInput)) {
+                        child.style.display = "";
+                        visibleChildren++;
+                    } else {
+                        child.style.display = "none";
+                    }
+                });
+
+                // On affiche l'en-tête de la catégorie seulement s'il y a des molécules à afficher en dessous
+                if (visibleChildren > 0) {
+                    group.categoryRow.style.display = "";
+                } else {
+                    group.categoryRow.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
