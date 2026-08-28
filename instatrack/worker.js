@@ -1,0 +1,5 @@
+// Local Node 20+ proxy for the hosted InstaTrack Edge Function.
+import http from 'node:http';
+const port=process.env.PORT||8787;
+const target=process.env.INSTATrack_API||'https://mdvbiwmlxsvcmexbsrps.supabase.co/functions/v1/instatrack';
+http.createServer(async(req,res)=>{const u=new URL(req.url,`http://${req.headers.host}`);if(u.pathname==='/health'){res.writeHead(200,{'content-type':'application/json'});return res.end(JSON.stringify({ok:true,proxy:'instatrack'}));}if(!['GET','POST'].includes(req.method)){res.writeHead(405);return res.end();}const body=req.method==='POST'?await new Promise(resolve=>{let b='';req.on('data',c=>b+=c);req.on('end',()=>resolve(b));}):undefined;try{const r=await fetch(target+u.pathname,{method:req.method,headers:{'content-type':req.headers['content-type']||'application/json',authorization:req.headers.authorization||''},body});res.writeHead(r.status,{'content-type':'application/json'});res.end(await r.text());}catch(e){res.writeHead(502,{'content-type':'application/json'});res.end(JSON.stringify({error:String(e)}));}}).listen(port,()=>console.log(`InstaTrack local worker: http://localhost:${port}`));
