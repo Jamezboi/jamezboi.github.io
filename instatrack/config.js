@@ -1,1 +1,1 @@
-window.INSTATrackConfig={supabaseUrl:'https://YOUR_PROJECT.supabase.co',supabaseAnonKey:'YOUR_PUBLISHABLE_KEY',apiBaseUrl:'https://YOUR-WORKER.example.com'};
+window.INSTATrackConfig={supabaseUrl:'https://mdvbiwmlxsvcmexbsrps.supabase.co',supabaseAnonKey:'sb_publishable_YAYK6LWKDQQODjPgL0i6sg_sX86Y2cP',apiBaseUrl:'https://YOUR-WORKER.example.com'};
