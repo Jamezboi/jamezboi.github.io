@@ -1,12 +1,14 @@
 import os, uuid, tempfile, pathlib, base64, threading
 from datetime import datetime, timezone
 from fastapi import FastAPI, Header, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from supabase import create_client
 import instaloader
 from cryptography.fernet import Fernet
 URL=os.environ['SUPABASE_URL']; KEY=os.environ['SUPABASE_SERVICE_ROLE_KEY']; FKEY=os.environ['SESSION_ENCRYPTION_KEY']
 sb=create_client(URL,KEY); cipher=Fernet(FKEY.encode()); app=FastAPI(title='InstaTrack Worker')
+app.add_middleware(CORSMiddleware,allow_origins=os.getenv('ALLOWED_ORIGINS','https://jamezboi.github.io').split(','),allow_credentials=True,allow_methods=['*'],allow_headers=['*'])
 class Connect(BaseModel): username:str; password:str
 class Empty(BaseModel): pass
 def auth(h):
