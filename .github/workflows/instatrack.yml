@@ -34,7 +34,7 @@ jobs:
           test -f instatrack/config.js
           test -f instatrack/styles.css
           grep -q 'apiBaseUrl' instatrack/config.js
-          grep -q 'instatrack-api' instatrack/config.js
+          grep -q 'instatrack-connect' instatrack/config.js
           grep -q 'app.js' instatrack/index.html
           if grep -q 'session.js' instatrack/index.html; then
             echo 'Legacy session.js must not be loaded by the page.'
