@@ -1,0 +1,29 @@
+name: InstaTrack Cloud Scanner
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+permissions:
+  contents: read
+concurrency:
+  group: instatrack-scanner
+  cancel-in-progress: false
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: python -m pip install --upgrade pip instaloader supabase
+      - name: Process queued InstaTrack scans
+        env:
+          SUPABASE_URL: ${{ secrets.INSTATrack_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.INSTATrack_SUPABASE_SERVICE_ROLE_KEY }}
+          GMAIL_USER: ${{ secrets.INSTATrack_GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.INSTATrack_GMAIL_APP_PASSWORD }}
+          REPORT_TO: ${{ secrets.INSTATrack_REPORT_TO }}
+        run: python instatrack/cloud_worker.py
