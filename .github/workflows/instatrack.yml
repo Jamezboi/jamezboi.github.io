@@ -25,5 +25,6 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.INSTATrack_SUPABASE_SERVICE_ROLE_KEY }}
           GMAIL_USER: ${{ secrets.INSTATrack_GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.INSTATrack_GMAIL_APP_PASSWORD }}
+          INSTATrack_SESSION_PRIVATE_KEY: ${{ secrets.INSTATrack_SESSION_PRIVATE_KEY }}
           REPORT_TO: ${{ secrets.INSTATrack_REPORT_TO }}
         run: python instatrack/cloud_worker.py
