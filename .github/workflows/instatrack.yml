@@ -22,11 +22,9 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Validate InstaTrack static files
         shell: bash
         run: |
@@ -36,28 +34,26 @@ jobs:
           test -f instatrack/config.js
           test -f instatrack/styles.css
           grep -q 'apiBaseUrl' instatrack/config.js
-          grep -q 'instatrack-v3' instatrack/config.js
+          grep -q 'instatrack-api' instatrack/config.js
           grep -q 'app.js' instatrack/index.html
           if grep -q 'session.js' instatrack/index.html; then
-            echo "Legacy session.js must not be loaded by the page."
+            echo 'Legacy session.js must not be loaded by the page.'
             exit 1
           fi
-
       - name: Validate JavaScript syntax
         shell: bash
         run: |
           set -euo pipefail
           node --check instatrack/app.js
           node --check instatrack/config.js
-
       - name: Validate HTML references
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          html = Path("instatrack/index.html").read_text(encoding="utf-8")
-          for ref in ("config.js", "app.js", "styles.css"):
-              assert ref in html, f"missing reference: {ref}"
-          print("HTML references OK")
+          html = Path('instatrack/index.html').read_text(encoding='utf-8')
+          for ref in ('config.js', 'app.js', 'styles.css'):
+              assert ref in html, f'missing reference: {ref}'
+          print('HTML references OK')
           PY
