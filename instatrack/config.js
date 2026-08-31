@@ -1,1 +1,1 @@
-window.INSTATrackConfig={supabaseUrl:'https://mdvbiwmlxsvcmexbsrps.supabase.co',supabaseAnonKey:'sb_publishable_YAYK6LWKDQQODjPgL0i6sg_sX86Y2cP',apiBaseUrl:'https://mdvbiwmlxsvcmexbsrps.supabase.co/functions/v1/instatrack-connect'};
+window.INSTATrackConfig={supabaseUrl:'https://mdvbiwmlxsvcmexbsrps.supabase.co',supabaseAnonKey:'sb_publishable_YAYK6LWKDQQODjPgL0i6sg_sX86Y2cP',apiBaseUrl:'https://mdvbiwmlxsvcmexbsrps.supabase.co/functions/v1/instatrack-connect-v2'};
