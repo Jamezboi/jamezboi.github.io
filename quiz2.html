@@ -54,10 +54,61 @@
         transition: all 0.2s;
         text-align: left;
     }
-    button:hover {
+    button:hover:not(:disabled) {
         background: #3498db;
         color: #fff;
     }
+    button:disabled {
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+    
+    /* New Feedback Styles */
+    .correct-btn {
+        background: #2ecc71 !important;
+        border-color: #2ecc71 !important;
+        color: white !important;
+    }
+    .wrong-btn {
+        background: #e74c3c !important;
+        border-color: #e74c3c !important;
+        color: white !important;
+    }
+    #feedback-container {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        display: none;
+    }
+    .feedback-correct {
+        background-color: #eafaf1;
+        border-left: 5px solid #2ecc71;
+    }
+    .feedback-wrong {
+        background-color: #fdedec;
+        border-left: 5px solid #e74c3c;
+    }
+    #feedback-title {
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    #feedback-exp {
+        margin-bottom: 15px;
+        color: #555;
+    }
+    #next-btn {
+        background: #34495e;
+        border-color: #34495e;
+        color: white;
+        text-align: center;
+        width: 100%;
+        display: none;
+    }
+    #next-btn:hover {
+        background: #2c3e50;
+    }
+
+    /* Results Screen Styles */
     #results-screen {
         display: none;
     }
@@ -98,6 +149,12 @@
     <div class="progress" id="progress">Question 1 of 50</div>
     <div class="question" id="question">Loading...</div>
     <div class="options" id="options"></div>
+    
+    <div id="feedback-container">
+        <h3 id="feedback-title"></h3>
+        <div id="feedback-exp"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question &raquo;</button>
+    </div>
 </div>
 
 <div class="quiz-container" id="results-screen">
@@ -110,68 +167,68 @@
 <script>
     const questions = [
         // Element Classifications
-        { q: "Classify the element: Uranium (U)", options: ["Alkali Metal", "Transition Metal", "Inner Transition Metal", "Nonmetal"], a: 2 },
-        { q: "Classify the element: Bromine (Br)", options: ["Halogen (Nonmetal)", "Alkali Metal", "Transition Metal", "Noble Gas"], a: 0 },
-        { q: "Classify the element: Strontium (Sr)", options: ["Alkali Metal", "Alkaline Earth Metal", "Transition Metal", "Metalloid"], a: 1 },
-        { q: "Classify the element: Neon (Ne)", options: ["Halogen", "Alkali Metal", "Noble Gas", "Chalcogen"], a: 2 },
-        { q: "Classify the element: Gold (Au)", options: ["Inner Transition Metal", "Transition Metal", "Alkaline Earth Metal", "Nonmetal"], a: 1 },
-        { q: "Identify the lightest member of the noble gases.", options: ["Helium", "Hydrogen", "Neon", "Lithium"], a: 0 },
-        { q: "Identify the lightest member of the alkaline earth metals.", options: ["Magnesium", "Lithium", "Beryllium", "Calcium"], a: 2 },
-        { q: "Identify the lightest member of the chalcogens (Group 16).", options: ["Nitrogen", "Oxygen", "Fluorine", "Sulfur"], a: 1 },
-        { q: "What is the halogen in the same period as lithium?", options: ["Fluorine", "Chlorine", "Bromine", "Iodine"], a: 0 },
-        { q: "What is the noble gas in the same period as germanium?", options: ["Argon", "Krypton", "Xenon", "Radon"], a: 1 },
+        { q: "Classify the element: Uranium (U)", options: ["Alkali Metal", "Transition Metal", "Inner Transition Metal", "Nonmetal"], a: 2, exp: "Uranium is an actinide, which places it in the inner transition metals at the bottom of the periodic table." },
+        { q: "Classify the element: Bromine (Br)", options: ["Halogen (Nonmetal)", "Alkali Metal", "Transition Metal", "Noble Gas"], a: 0, exp: "Bromine is in Group 17, making it a halogen." },
+        { q: "Classify the element: Strontium (Sr)", options: ["Alkali Metal", "Alkaline Earth Metal", "Transition Metal", "Metalloid"], a: 1, exp: "Strontium is found in Group 2, the alkaline earth metals." },
+        { q: "Classify the element: Neon (Ne)", options: ["Halogen", "Alkali Metal", "Noble Gas", "Chalcogen"], a: 2, exp: "Neon is in Group 18, which consists of the noble gases." },
+        { q: "Classify the element: Gold (Au)", options: ["Inner Transition Metal", "Transition Metal", "Alkaline Earth Metal", "Nonmetal"], a: 1, exp: "Gold is located in the central block (Group 11) of the periodic table, making it a transition metal." },
+        { q: "Identify the lightest member of the noble gases.", options: ["Helium", "Hydrogen", "Neon", "Lithium"], a: 0, exp: "Helium is at the very top of Group 18, making it the lightest noble gas." },
+        { q: "Identify the lightest member of the alkaline earth metals.", options: ["Magnesium", "Lithium", "Beryllium", "Calcium"], a: 2, exp: "Beryllium is at the top of Group 2, making it the lightest alkaline earth metal." },
+        { q: "Identify the lightest member of the chalcogens (Group 16).", options: ["Nitrogen", "Oxygen", "Fluorine", "Sulfur"], a: 1, exp: "Oxygen sits at the very top of Group 16, known as the chalcogens." },
+        { q: "What is the halogen in the same period as lithium?", options: ["Fluorine", "Chlorine", "Bromine", "Iodine"], a: 0, exp: "Lithium is in Period 2. The Group 17 element (halogen) in Period 2 is Fluorine." },
+        { q: "What is the noble gas in the same period as germanium?", options: ["Argon", "Krypton", "Xenon", "Radon"], a: 1, exp: "Germanium is in Period 4. The noble gas in Period 4 is Krypton." },
         
         // Isotopes and Subatomic Particles
-        { q: "How many protons are in <sup>14</sup>C?", options: ["6", "8", "14", "12"], a: 0 },
-        { q: "How many neutrons are in <sup>14</sup>C?", options: ["6", "8", "14", "12"], a: 1 },
-        { q: "Write the symbol for the neutral isotope with 11 protons and a mass number of 23.", options: ["<sup>23</sup>Mg", "<sup>23</sup>Na", "<sup>11</sup>Na", "<sup>23</sup>V"], a: 1 },
-        { q: "Write the symbol for the neutral isotope with 33 protons and 40 neutrons.", options: ["<sup>40</sup>As", "<sup>73</sup>As", "<sup>73</sup>Se", "<sup>40</sup>Zr"], a: 1 },
-        { q: "What is the charge of an ion with 15 protons and 18 electrons?", options: ["3+", "15+", "3-", "18-"], a: 2 },
-        { q: "How many electrons does the Ca<sup>2+</sup> ion have?", options: ["20", "22", "18", "40"], a: 2 },
-        { q: "An ion has a 3+ charge, 28 electrons, and a mass number of 71. What is its atomic number?", options: ["25", "28", "31", "71"], a: 2 },
+        { q: "How many protons are in <sup>14</sup>C?", options: ["6", "8", "14", "12"], a: 0, exp: "Carbon always has an atomic number of 6, meaning it always has 6 protons." },
+        { q: "How many neutrons are in <sup>14</sup>C?", options: ["6", "8", "14", "12"], a: 1, exp: "Mass number (14) - Protons (6) = 8 neutrons." },
+        { q: "Write the symbol for the neutral isotope with 11 protons and a mass number of 23.", options: ["<sup>23</sup>Mg", "<sup>23</sup>Na", "<sup>11</sup>Na", "<sup>23</sup>V"], a: 1, exp: "11 protons identifies the element as Sodium (Na). The mass number is 23." },
+        { q: "Write the symbol for the neutral isotope with 33 protons and 40 neutrons.", options: ["<sup>40</sup>As", "<sup>73</sup>As", "<sup>73</sup>Se", "<sup>40</sup>Zr"], a: 1, exp: "33 protons is Arsenic (As). Mass number = protons (33) + neutrons (40) = 73." },
+        { q: "What is the charge of an ion with 15 protons and 18 electrons?", options: ["3+", "15+", "3-", "18-"], a: 2, exp: "Protons (+15) and electrons (-18) result in a net charge of 3-." },
+        { q: "How many electrons does the Ca<sup>2+</sup> ion have?", options: ["20", "22", "18", "40"], a: 2, exp: "Neutral Calcium has 20 electrons. A 2+ charge means it lost 2 electrons (20 - 2 = 18)." },
+        { q: "An ion has a 3+ charge, 28 electrons, and a mass number of 71. What is its atomic number?", options: ["25", "28", "31", "71"], a: 2, exp: "A 3+ charge means it has 3 more protons than electrons. 28 + 3 = 31 protons. The atomic number is 31." },
         
         // Ionic vs Covalent Predictions
-        { q: "Predict whether KCl is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 0 },
-        { q: "Predict whether NCl<sub>3</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
-        { q: "Predict whether MgCl<sub>2</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 0 },
-        { q: "Predict whether CCl<sub>4</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
-        { q: "Predict whether BaO is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 0 },
-        { q: "Predict whether NF<sub>3</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
-        { q: "Predict whether IBr is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
-        { q: "Predict whether PCl<sub>5</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
-        { q: "Is (NH<sub>4</sub>)<sub>2</sub>CO<sub>3</sub> an ionic or covalent compound?", options: ["Ionic (contains polyatomic ions)", "Covalent", "Neither", "Purely metallic"], a: 0 },
-        { q: "Predict whether SiCl<sub>4</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
+        { q: "Predict whether KCl is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 0, exp: "KCl consists of a metal (K) and a nonmetal (Cl), indicating an ionic bond." },
+        { q: "Predict whether NCl<sub>3</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1, exp: "NCl3 consists of two nonmetals, which form covalent bonds." },
+        { q: "Predict whether MgCl<sub>2</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 0, exp: "MgCl2 contains a metal (Mg) and a nonmetal (Cl), making it ionic." },
+        { q: "Predict whether CCl<sub>4</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1, exp: "Carbon and chlorine are both nonmetals, so they bond covalently." },
+        { q: "Predict whether BaO is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 0, exp: "BaO is formed from a metal (Barium) and a nonmetal (Oxygen), so it is ionic." },
+        { q: "Predict whether NF<sub>3</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1, exp: "Nitrogen and Fluorine are both nonmetals, resulting in a covalent compound." },
+        { q: "Predict whether IBr is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1, exp: "Iodine and Bromine are both halogens (nonmetals), so they form a covalent bond." },
+        { q: "Predict whether PCl<sub>5</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1, exp: "Phosphorus and Chlorine are both nonmetals, making this a covalent compound." },
+        { q: "Is (NH<sub>4</sub>)<sub>2</sub>CO<sub>3</sub> an ionic or covalent compound?", options: ["Ionic (contains polyatomic ions)", "Covalent", "Neither", "Purely metallic"], a: 0, exp: "Though made of nonmetals, it consists of the ammonium cation and carbonate anion, making it an ionic compound." },
+        { q: "Predict whether SiCl<sub>4</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1, exp: "Silicon (metalloid) and Chlorine (nonmetal) form covalent bonds." },
         
         // Naming Ionic Compounds
-        { q: "Name the compound: CsCl", options: ["Caesium chlorine", "Caesium monochloride", "Caesium chloride", "Carbon sulfur chloride"], a: 2 },
-        { q: "Name the compound: BaO", options: ["Barium oxygen", "Barium oxide", "Barium(II) oxide", "Barium monoxide"], a: 1 },
-        { q: "Name the compound: AlF<sub>3</sub>", options: ["Aluminum trifluoride", "Aluminum(III) fluoride", "Aluminum fluoride", "Monoaluminum trifluoride"], a: 2 },
-        { q: "Name the compound: Cr<sub>2</sub>O<sub>3</sub>", options: ["Chromium oxide", "Dichromium trioxide", "Chromium(II) oxide", "Chromium(III) oxide"], a: 3 },
-        { q: "Name the compound: FeCl<sub>2</sub>", options: ["Iron chloride", "Iron(II) chloride", "Iron(III) chloride", "Iron dichloride"], a: 1 },
-        { q: "Name the compound: TiCl<sub>4</sub>", options: ["Titanium(IV) chloride", "Titanium tetrachloride", "Titanium(I) chloride", "Titanium chloride"], a: 0 },
-        { q: "Name the compound: CuBr<sub>2</sub>", options: ["Copper bromide", "Copper(I) bromide", "Copper(II) bromide", "Cupric dibromide"], a: 2 },
-        { q: "Name the compound: NH<sub>4</sub>NO<sub>3</sub>", options: ["Ammonia nitrate", "Ammonium nitrate", "Nitrogen hydrogen nitrate", "Ammonium nitride"], a: 1 },
-        { q: "Name the compound: Ca(H<sub>2</sub>PO<sub>4</sub>)<sub>2</sub>", options: ["Calcium hydrogen phosphate", "Calcium dihydrogen phosphate", "Calcium(II) biphosphate", "Calcium diphosphate"], a: 1 },
-        { q: "Name the compound: NaNO<sub>2</sub>", options: ["Sodium nitrate", "Sodium nitrite", "Sodium nitrogen dioxide", "Sodium nitride"], a: 1 },
+        { q: "Name the compound: CsCl", options: ["Caesium chlorine", "Caesium monochloride", "Caesium chloride", "Carbon sulfur chloride"], a: 2, exp: "Ionic compounds don't use prefixes. Cs is caesium, Cl is chloride." },
+        { q: "Name the compound: BaO", options: ["Barium oxygen", "Barium oxide", "Barium(II) oxide", "Barium monoxide"], a: 1, exp: "Barium has a fixed +2 charge, so no Roman numerals or prefixes are needed: Barium oxide." },
+        { q: "Name the compound: AlF<sub>3</sub>", options: ["Aluminum trifluoride", "Aluminum(III) fluoride", "Aluminum fluoride", "Monoaluminum trifluoride"], a: 2, exp: "Aluminum has a fixed +3 charge. Ionic names don't use prefixes: Aluminum fluoride." },
+        { q: "Name the compound: Cr<sub>2</sub>O<sub>3</sub>", options: ["Chromium oxide", "Dichromium trioxide", "Chromium(II) oxide", "Chromium(III) oxide"], a: 3, exp: "Oxygen is -2. Three oxygens = -6 total. Two chromiums must be +6 total, so each Cr is +3. Therefore, Chromium(III) oxide." },
+        { q: "Name the compound: FeCl<sub>2</sub>", options: ["Iron chloride", "Iron(II) chloride", "Iron(III) chloride", "Iron dichloride"], a: 1, exp: "Chloride is -1. Two chlorides = -2. Iron must balance it with +2. Iron(II) chloride." },
+        { q: "Name the compound: TiCl<sub>4</sub>", options: ["Titanium(IV) chloride", "Titanium tetrachloride", "Titanium(I) chloride", "Titanium chloride"], a: 0, exp: "Titanium is a transition metal. 4 chlorides (-4) means Ti is +4. Titanium(IV) chloride." },
+        { q: "Name the compound: CuBr<sub>2</sub>", options: ["Copper bromide", "Copper(I) bromide", "Copper(II) bromide", "Cupric dibromide"], a: 2, exp: "Bromide is -1. Two bromides = -2. Copper must be +2. Copper(II) bromide." },
+        { q: "Name the compound: NH<sub>4</sub>NO<sub>3</sub>", options: ["Ammonia nitrate", "Ammonium nitrate", "Nitrogen hydrogen nitrate", "Ammonium nitride"], a: 1, exp: "It consists of the polyatomic cation ammonium (NH4+) and the polyatomic anion nitrate (NO3-)." },
+        { q: "Name the compound: Ca(H<sub>2</sub>PO<sub>4</sub>)<sub>2</sub>", options: ["Calcium hydrogen phosphate", "Calcium dihydrogen phosphate", "Calcium(II) biphosphate", "Calcium diphosphate"], a: 1, exp: "Ca is Calcium. H2PO4- is the dihydrogen phosphate ion." },
+        { q: "Name the compound: NaNO<sub>2</sub>", options: ["Sodium nitrate", "Sodium nitrite", "Sodium nitrogen dioxide", "Sodium nitride"], a: 1, exp: "Na is Sodium. NO2- is the nitrite polyatomic ion." },
 
         // Naming Covalent Compounds
-        { q: "Name the compound: P<sub>4</sub>O<sub>6</sub>", options: ["Phosphorus oxide", "Tetraphosphorus hexoxide", "Phosphorus(VI) oxide", "Tetraphosphorus oxygen"], a: 1 },
-        { q: "Name the compound: ICl<sub>3</sub>", options: ["Iodine chloride", "Iodine(III) chloride", "Iodine trichloride", "Monoiodine trichloride"], a: 2 },
-        { q: "Name the compound: SO<sub>2</sub>", options: ["Sulfur dioxide", "Sulfur(II) oxide", "Monosulfur dioxide", "Sulfate"], a: 0 },
-        { q: "Name the compound: N<sub>2</sub>O<sub>3</sub>", options: ["Nitrogen trioxide", "Dinitrogen trioxide", "Nitrogen(III) oxide", "Dinitrogen oxide"], a: 1 },
-        { q: "Name the compound: H<sub>2</sub>S (gas)", options: ["Hydrogen sulfur", "Dihydrogen sulfide", "Hydrogen sulfide", "Sulfuric acid"], a: 2 },
+        { q: "Name the compound: P<sub>4</sub>O<sub>6</sub>", options: ["Phosphorus oxide", "Tetraphosphorus hexoxide", "Phosphorus(VI) oxide", "Tetraphosphorus oxygen"], a: 1, exp: "Covalent compounds use prefixes. P4 = tetra-, O6 = hex-. Tetraphosphorus hexoxide." },
+        { q: "Name the compound: ICl<sub>3</sub>", options: ["Iodine chloride", "Iodine(III) chloride", "Iodine trichloride", "Monoiodine trichloride"], a: 2, exp: "Covalent rules: drop 'mono' on the first element. I = iodine, Cl3 = trichloride." },
+        { q: "Name the compound: SO<sub>2</sub>", options: ["Sulfur dioxide", "Sulfur(II) oxide", "Monosulfur dioxide", "Sulfate"], a: 0, exp: "Covalent rules: drop 'mono' on the first element. S = sulfur, O2 = dioxide." },
+        { q: "Name the compound: N<sub>2</sub>O<sub>3</sub>", options: ["Nitrogen trioxide", "Dinitrogen trioxide", "Nitrogen(III) oxide", "Dinitrogen oxide"], a: 1, exp: "N2 = dinitrogen, O3 = trioxide. Combine for Dinitrogen trioxide." },
+        { q: "Name the compound: H<sub>2</sub>S (gas)", options: ["Hydrogen sulfur", "Dihydrogen sulfide", "Hydrogen sulfide", "Sulfuric acid"], a: 2, exp: "Binary compounds containing hydrogen often drop prefixes: Hydrogen sulfide." },
 
         // Writing Formulas
-        { q: "Write the formula for: Rubidium bromide", options: ["RbBr", "Rb<sub>2</sub>Br", "RbBr<sub>2</sub>", "RuBr"], a: 0 },
-        { q: "Write the formula for: Magnesium selenide", options: ["MgSe", "Mg<sub>2</sub>Se", "MgSe<sub>2</sub>", "MnSe"], a: 0 },
-        { q: "Write the formula for: Ammonium sulfate", options: ["NH<sub>4</sub>SO<sub>4</sub>", "(NH<sub>4</sub>)<sub>2</sub>SO<sub>4</sub>", "NH<sub>4</sub>(SO<sub>4</sub>)<sub>2</sub>", "AmSO<sub>4</sub>"], a: 1 },
-        { q: "Write the formula for: Sodium perchlorate", options: ["NaClO", "NaClO<sub>2</sub>", "NaClO<sub>3</sub>", "NaClO<sub>4</sub>"], a: 3 },
-        { q: "Write the formula for: Barium hydroxide", options: ["BaOH", "Ba(OH)<sub>2</sub>", "Ba<sub>2</sub>OH", "BaH<sub>2</sub>O"], a: 1 },
-        { q: "Write the formula for: Dinitrogen tetraoxide", options: ["NO<sub>4</sub>", "N<sub>2</sub>O<sub>4</sub>", "N<sub>4</sub>O<sub>2</sub>", "Ni<sub>2</sub>O<sub>4</sub>"], a: 1 },
-        { q: "Write the formula for: Silver sulfide", options: ["AgS", "AgS<sub>2</sub>", "Ag<sub>2</sub>S", "Au<sub>2</sub>S"], a: 2 },
-        { q: "Write the formula for: Silicon dioxide", options: ["SiO", "Si<sub>2</sub>O", "SiO<sub>2</sub>", "S<sub>2</sub>O"], a: 2 },
-        { q: "Write the formula for: Magnesium nitride", options: ["MgN", "Mg<sub>2</sub>N<sub>3</sub>", "Mg<sub>3</sub>N<sub>2</sub>", "Mg(NO<sub>3</sub>)<sub>2</sub>"], a: 2 },
-        { q: "Write the formula for: Copper(II) sulfate", options: ["CuSO<sub>3</sub>", "CuSO<sub>4</sub>", "Cu<sub>2</sub>SO<sub>4</sub>", "Cu(SO<sub>4</sub>)<sub>2</sub>"], a: 1 }
+        { q: "Write the formula for: Rubidium bromide", options: ["RbBr", "Rb<sub>2</sub>Br", "RbBr<sub>2</sub>", "RuBr"], a: 0, exp: "Rb is +1 (Group 1) and Br is -1 (Group 17). They bond in a 1:1 ratio: RbBr." },
+        { q: "Write the formula for: Magnesium selenide", options: ["MgSe", "Mg<sub>2</sub>Se", "MgSe<sub>2</sub>", "MnSe"], a: 0, exp: "Mg is +2, Se is -2. The charges cancel perfectly in a 1:1 ratio: MgSe." },
+        { q: "Write the formula for: Ammonium sulfate", options: ["NH<sub>4</sub>SO<sub>4</sub>", "(NH<sub>4</sub>)<sub>2</sub>SO<sub>4</sub>", "NH<sub>4</sub>(SO<sub>4</sub>)<sub>2</sub>", "AmSO<sub>4</sub>"], a: 1, exp: "Ammonium is NH4 (+1). Sulfate is SO4 (-2). You need two ammoniums to balance one sulfate." },
+        { q: "Write the formula for: Sodium perchlorate", options: ["NaClO", "NaClO<sub>2</sub>", "NaClO<sub>3</sub>", "NaClO<sub>4</sub>"], a: 3, exp: "Sodium is Na (+1). Perchlorate is ClO4 (-1). Formula is NaClO4." },
+        { q: "Write the formula for: Barium hydroxide", options: ["BaOH", "Ba(OH)<sub>2</sub>", "Ba<sub>2</sub>OH", "BaH<sub>2</sub>O"], a: 1, exp: "Barium is +2. Hydroxide is OH (-1). You need two hydroxides, requiring parentheses: Ba(OH)2." },
+        { q: "Write the formula for: Dinitrogen tetraoxide", options: ["NO<sub>4</sub>", "N<sub>2</sub>O<sub>4</sub>", "N<sub>4</sub>O<sub>2</sub>", "Ni<sub>2</sub>O<sub>4</sub>"], a: 1, exp: "Prefix di- means 2 nitrogens (N2). Tetra- means 4 oxygens (O4)." },
+        { q: "Write the formula for: Silver sulfide", options: ["AgS", "AgS<sub>2</sub>", "Ag<sub>2</sub>S", "Au<sub>2</sub>S"], a: 2, exp: "Silver (Ag) is always +1. Sulfide (S) is -2. You need two silvers: Ag2S." },
+        { q: "Write the formula for: Silicon dioxide", options: ["SiO", "Si<sub>2</sub>O", "SiO<sub>2</sub>", "S<sub>2</sub>O"], a: 2, exp: "Silicon (Si) and Dioxide (2 Oxygens, O2) = SiO2." },
+        { q: "Write the formula for: Magnesium nitride", options: ["MgN", "Mg<sub>2</sub>N<sub>3</sub>", "Mg<sub>3</sub>N<sub>2</sub>", "Mg(NO<sub>3</sub>)<sub>2</sub>"], a: 2, exp: "Mg is +2. Nitride (N) is -3. Find the lowest common multiple (6): You need 3 Mg and 2 N -> Mg3N2." },
+        { q: "Write the formula for: Copper(II) sulfate", options: ["CuSO<sub>3</sub>", "CuSO<sub>4</sub>", "Cu<sub>2</sub>SO<sub>4</sub>", "Cu(SO<sub>4</sub>)<sub>2</sub>"], a: 1, exp: "Copper(II) is Cu2+. Sulfate is SO4 2-. They cancel directly: CuSO4." }
     ];
 
     let currentQuestionIndex = 0;
@@ -209,6 +266,10 @@
         document.getElementById('progress').innerText = `Question ${currentQuestionIndex + 1} of ${shuffledQuestions.length}`;
         document.getElementById('question').innerHTML = qData.q;
         
+        // Hide feedback
+        document.getElementById('feedback-container').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'none';
+
         const optionsDiv = document.getElementById('options');
         optionsDiv.innerHTML = '';
         
@@ -221,24 +282,54 @@
         displayOptions.forEach(opt => {
             const btn = document.createElement('button');
             btn.innerHTML = opt;
-            // Check if this option string matches the correct answer string
             const isCorrect = (opt === correctAnswerString);
-            btn.onclick = () => handleAnswer(isCorrect, opt, correctAnswerString, qData.q);
+            btn.onclick = (e) => handleAnswer(isCorrect, opt, correctAnswerString, qData.q, qData.exp, e.target);
             optionsDiv.appendChild(btn);
         });
     }
 
-    function handleAnswer(isCorrect, selectedText, correctText, questionText) {
+    function handleAnswer(isCorrect, selectedText, correctText, questionText, explanation, btnElement) {
+        // Disable all buttons to lock in answer
+        const allBtns = document.getElementById('options').querySelectorAll('button');
+        allBtns.forEach(btn => {
+            btn.disabled = true;
+            // Reveal the correct answer in green even if they didn't click it
+            if (btn.innerHTML === correctText) {
+                btn.classList.add('correct-btn');
+            }
+        });
+
+        const feedbackContainer = document.getElementById('feedback-container');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackExp = document.getElementById('feedback-exp');
+        
+        // Setup Feedback Display
+        feedbackContainer.style.display = 'block';
+        document.getElementById('next-btn').style.display = 'block';
+
         if (isCorrect) {
             score++;
+            feedbackContainer.className = 'feedback-correct';
+            feedbackTitle.innerText = "Correct!";
+            feedbackTitle.style.color = "#27ae60";
+            feedbackExp.innerHTML = `<strong>Why:</strong> ${explanation}`;
         } else {
+            // Mark the selected wrong answer red
+            btnElement.classList.add('wrong-btn');
             mistakes.push({
                 question: questionText,
                 selected: selectedText,
                 correct: correctText
             });
+            
+            feedbackContainer.className = 'feedback-wrong';
+            feedbackTitle.innerText = "Incorrect";
+            feedbackTitle.style.color = "#c0392b";
+            feedbackExp.innerHTML = `<strong>Correct Answer:</strong> ${correctText} <br><br><strong>Why:</strong> ${explanation}`;
         }
-
+    }
+    
+    function nextQuestion() {
         currentQuestionIndex++;
         if (currentQuestionIndex < shuffledQuestions.length) {
             loadQuestion();
