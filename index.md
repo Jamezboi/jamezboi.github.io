@@ -46,7 +46,8 @@ layout: none
 - [Tetris](https://jamezboi.github.io/tetris.html)
 - [SBX Hacker](https://jamezboi.github.io/sbx_hacker.html)
 - [Chem Search](https://jamezboi.github.io/chem_search.html)
-- [Chem Quiz 2 Study](https://jamezboi.github.io/quiz2.html))
+- [Chem Quiz 2 Study](https://jamezboi.github.io/quiz2.html)
+- [Chem Quiz 2 Study (2)](https://jamezboi.github.io/Polyatomic_Ions.html)
 
 ---
 
