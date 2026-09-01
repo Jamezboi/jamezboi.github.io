@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyatomic Ions Quiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 1em;
+            border: 2px solid #3498db;
+            background-color: white;
+            color: #3498db;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        button:disabled {
+            border-color: #bdc3c7;
+            color: #7f8c8d;
+            cursor: not-allowed;
+            background-color: #ecf0f1;
+        }
+        .correct {
+            background-color: #2ecc71 !important;
+            color: white !important;
+            border-color: #2ecc71 !important;
+        }
+        .incorrect {
+            background-color: #e74c3c !important;
+            color: white !important;
+            border-color: #e74c3c !important;
+        }
+        #next-btn {
+            margin-top: 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            display: none;
+            width: 100%;
+        }
+        #next-btn:hover {
+            background-color: #1a252f;
+        }
+        .score-container {
+            text-align: center;
+            font-size: 1.5em;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz">
+        <h1>Polyatomic Ions Quiz</h1>
+        <div id="question-text" class="question"></div>
+        <div id="options-container" class="options"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+    <div id="score-container" class="score-container">
+        <h2>Quiz Completed!</h2>
+        <p>Your Score: <span id="score"></span> / <span id="total-questions"></span></p>
+        <button onclick="location.reload()">Restart Quiz</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            question: "What is the formula and charge for Acetate?",
+            options: ["C2H3O2- or CH3COO-", "CO3 2-", "C2H4O2", "CH3OH"],
+            correct: 0
+        },
+        {
+            question: "What is the name of NH4+?",
+            options: ["Ammonia", "Ammonium", "Nitrate", "Nitrite"],
+            correct: 1
+        },
+        {
+            question: "What is the formula and charge for Carbonate?",
+            options: ["CO2", "C2O4 2-", "CO3 2-", "CO3 -"],
+            correct: 2
+        },
+        {
+            question: "What is the name of OH-?",
+            options: ["Hydrogen oxide", "Hydroxide", "Hydronium", "Oxygen hydride"],
+            correct: 1
+        },
+        {
+            question: "What is the formula and charge for Nitrate?",
+            options: ["NO2 -", "NO3 2-", "N3 -", "NO3 -"],
+            correct: 3
+        },
+        {
+            question: "What is the name of NO2-?",
+            options: ["Nitride", "Nitrite", "Nitrate", "Nitrous oxide"],
+            correct: 1
+        },
+        {
+            question: "What is the formula and charge for Phosphate?",
+            options: ["PO4 3-", "PO3 3-", "P 3-", "PO4 2-"],
+            correct: 0
+        },
+        {
+            question: "What is the name of SO4 2-?",
+            options: ["Sulfite", "Sulfur dioxide", "Sulfate", "Sulfide"],
+            correct: 2
+        },
+        {
+            question: "What is the formula and charge for Sulfite?",
+            options: ["SO4 2-", "SO3 2-", "S 2-", "SO3 -"],
+            correct: 1
+        },
+        {
+            question: "What is the name of ClO4-?",
+            options: ["Chlorite", "Chlorate", "Hypochlorite", "Perchlorate"],
+            correct: 3
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const quizContainer = document.getElementById("quiz");
+    const scoreContainer = document.getElementById("score-container");
+    const scoreText = document.getElementById("score");
+    const totalQuestionsText = document.getElementById("total-questions");
+
+    function loadQuestion() {
+        nextBtn.style.display = "none";
+        optionsContainer.innerHTML = "";
+        
+        const currentQuestion = quizData[currentQuestionIndex];
+        questionText.innerHTML = `Question ${currentQuestionIndex + 1}/${quizData.length}: <br><br> ${currentQuestion.question}`;
+        
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement("button");
+            button.innerText = option;
+            button.onclick = () => selectAnswer(index, button);
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    function selectAnswer(selectedIndex, button) {
+        const currentQuestion = quizData[currentQuestionIndex];
+        const allButtons = optionsContainer.children;
+        
+        for (let i = 0; i < allButtons.length; i++) {
+            allButtons[i].disabled = true;
+            if (i === currentQuestion.correct) {
+                allButtons[i].classList.add("correct");
+            }
+        }
+
+        if (selectedIndex === currentQuestion.correct) {
+            score++;
+        } else {
+            button.classList.add("incorrect");
+        }
+
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showScore();
+        }
+    }
+
+    function showScore() {
+        quizContainer.style.display = "none";
+        scoreContainer.style.display = "block";
+        scoreText.innerText = score;
+        totalQuestionsText.innerText = quizData.length;
+    }
+
+    // Initialize quiz
+    loadQuestion();
+</script>
+
+</body>
+</html>
