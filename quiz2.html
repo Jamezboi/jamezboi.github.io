@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chemistry Chapter 2 Rapid Drill</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f7f6;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+    }
+    .quiz-container {
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        max-width: 600px;
+        width: 100%;
+    }
+    h1, h2 {
+        text-align: center;
+        color: #2c3e50;
+    }
+    .progress {
+        text-align: center;
+        font-size: 0.9em;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+    }
+    .question {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    button {
+        padding: 12px 20px;
+        font-size: 1em;
+        border: 2px solid #3498db;
+        border-radius: 6px;
+        background: #fff;
+        color: #3498db;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: left;
+    }
+    button:hover {
+        background: #3498db;
+        color: #fff;
+    }
+    #results-screen {
+        display: none;
+    }
+    .mistake-item {
+        background: #ffeaa7;
+        padding: 15px;
+        border-left: 5px solid #d63031;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+    .correct-answer {
+        color: #27ae60;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+    .your-answer {
+        color: #d63031;
+        margin-top: 5px;
+    }
+    .restart-btn {
+        background: #2ecc71;
+        border-color: #2ecc71;
+        color: white;
+        text-align: center;
+        margin-top: 20px;
+        width: 100%;
+    }
+    .restart-btn:hover {
+        background: #27ae60;
+        border-color: #27ae60;
+    }
+</style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz-screen">
+    <h1>Chem 2e - Chapter 2 Drill</h1>
+    <div class="progress" id="progress">Question 1 of 50</div>
+    <div class="question" id="question">Loading...</div>
+    <div class="options" id="options"></div>
+</div>
+
+<div class="quiz-container" id="results-screen">
+    <h2>Drill Complete!</h2>
+    <h3 id="score-display"></h3>
+    <div id="mistakes-container"></div>
+    <button class="restart-btn" onclick="startQuiz()">Restart Drill</button>
+</div>
+
+<script>
+    const questions = [
+        // Element Classifications
+        { q: "Classify the element: Uranium (U)", options: ["Alkali Metal", "Transition Metal", "Inner Transition Metal", "Nonmetal"], a: 2 },
+        { q: "Classify the element: Bromine (Br)", options: ["Halogen (Nonmetal)", "Alkali Metal", "Transition Metal", "Noble Gas"], a: 0 },
+        { q: "Classify the element: Strontium (Sr)", options: ["Alkali Metal", "Alkaline Earth Metal", "Transition Metal", "Metalloid"], a: 1 },
+        { q: "Classify the element: Neon (Ne)", options: ["Halogen", "Alkali Metal", "Noble Gas", "Chalcogen"], a: 2 },
+        { q: "Classify the element: Gold (Au)", options: ["Inner Transition Metal", "Transition Metal", "Alkaline Earth Metal", "Nonmetal"], a: 1 },
+        { q: "Identify the lightest member of the noble gases.", options: ["Helium", "Hydrogen", "Neon", "Lithium"], a: 0 },
+        { q: "Identify the lightest member of the alkaline earth metals.", options: ["Magnesium", "Lithium", "Beryllium", "Calcium"], a: 2 },
+        { q: "Identify the lightest member of the chalcogens (Group 16).", options: ["Nitrogen", "Oxygen", "Fluorine", "Sulfur"], a: 1 },
+        { q: "What is the halogen in the same period as lithium?", options: ["Fluorine", "Chlorine", "Bromine", "Iodine"], a: 0 },
+        { q: "What is the noble gas in the same period as germanium?", options: ["Argon", "Krypton", "Xenon", "Radon"], a: 1 },
+        
+        // Isotopes and Subatomic Particles
+        { q: "How many protons are in <sup>14</sup>C?", options: ["6", "8", "14", "12"], a: 0 },
+        { q: "How many neutrons are in <sup>14</sup>C?", options: ["6", "8", "14", "12"], a: 1 },
+        { q: "Write the symbol for the neutral isotope with 11 protons and a mass number of 23.", options: ["<sup>23</sup>Mg", "<sup>23</sup>Na", "<sup>11</sup>Na", "<sup>23</sup>V"], a: 1 },
+        { q: "Write the symbol for the neutral isotope with 33 protons and 40 neutrons.", options: ["<sup>40</sup>As", "<sup>73</sup>As", "<sup>73</sup>Se", "<sup>40</sup>Zr"], a: 1 },
+        { q: "What is the charge of an ion with 15 protons and 18 electrons?", options: ["3+", "15+", "3-", "18-"], a: 2 },
+        { q: "How many electrons does the Ca<sup>2+</sup> ion have?", options: ["20", "22", "18", "40"], a: 2 },
+        { q: "An ion has a 3+ charge, 28 electrons, and a mass number of 71. What is its atomic number?", options: ["25", "28", "31", "71"], a: 2 },
+        
+        // Ionic vs Covalent Predictions
+        { q: "Predict whether KCl is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 0 },
+        { q: "Predict whether NCl<sub>3</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
+        { q: "Predict whether MgCl<sub>2</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 0 },
+        { q: "Predict whether CCl<sub>4</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
+        { q: "Predict whether BaO is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 0 },
+        { q: "Predict whether NF<sub>3</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
+        { q: "Predict whether IBr is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
+        { q: "Predict whether PCl<sub>5</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
+        { q: "Is (NH<sub>4</sub>)<sub>2</sub>CO<sub>3</sub> an ionic or covalent compound?", options: ["Ionic (contains polyatomic ions)", "Covalent", "Neither", "Purely metallic"], a: 0 },
+        { q: "Predict whether SiCl<sub>4</sub> is ionic or covalent.", options: ["Ionic", "Covalent", "Metallic", "None of the above"], a: 1 },
+        
+        // Naming Ionic Compounds
+        { q: "Name the compound: CsCl", options: ["Caesium chlorine", "Caesium monochloride", "Caesium chloride", "Carbon sulfur chloride"], a: 2 },
+        { q: "Name the compound: BaO", options: ["Barium oxygen", "Barium oxide", "Barium(II) oxide", "Barium monoxide"], a: 1 },
+        { q: "Name the compound: AlF<sub>3</sub>", options: ["Aluminum trifluoride", "Aluminum(III) fluoride", "Aluminum fluoride", "Monoaluminum trifluoride"], a: 2 },
+        { q: "Name the compound: Cr<sub>2</sub>O<sub>3</sub>", options: ["Chromium oxide", "Dichromium trioxide", "Chromium(II) oxide", "Chromium(III) oxide"], a: 3 },
+        { q: "Name the compound: FeCl<sub>2</sub>", options: ["Iron chloride", "Iron(II) chloride", "Iron(III) chloride", "Iron dichloride"], a: 1 },
+        { q: "Name the compound: TiCl<sub>4</sub>", options: ["Titanium(IV) chloride", "Titanium tetrachloride", "Titanium(I) chloride", "Titanium chloride"], a: 0 },
+        { q: "Name the compound: CuBr<sub>2</sub>", options: ["Copper bromide", "Copper(I) bromide", "Copper(II) bromide", "Cupric dibromide"], a: 2 },
+        { q: "Name the compound: NH<sub>4</sub>NO<sub>3</sub>", options: ["Ammonia nitrate", "Ammonium nitrate", "Nitrogen hydrogen nitrate", "Ammonium nitride"], a: 1 },
+        { q: "Name the compound: Ca(H<sub>2</sub>PO<sub>4</sub>)<sub>2</sub>", options: ["Calcium hydrogen phosphate", "Calcium dihydrogen phosphate", "Calcium(II) biphosphate", "Calcium diphosphate"], a: 1 },
+        { q: "Name the compound: NaNO<sub>2</sub>", options: ["Sodium nitrate", "Sodium nitrite", "Sodium nitrogen dioxide", "Sodium nitride"], a: 1 },
+
+        // Naming Covalent Compounds
+        { q: "Name the compound: P<sub>4</sub>O<sub>6</sub>", options: ["Phosphorus oxide", "Tetraphosphorus hexoxide", "Phosphorus(VI) oxide", "Tetraphosphorus oxygen"], a: 1 },
+        { q: "Name the compound: ICl<sub>3</sub>", options: ["Iodine chloride", "Iodine(III) chloride", "Iodine trichloride", "Monoiodine trichloride"], a: 2 },
+        { q: "Name the compound: SO<sub>2</sub>", options: ["Sulfur dioxide", "Sulfur(II) oxide", "Monosulfur dioxide", "Sulfate"], a: 0 },
+        { q: "Name the compound: N<sub>2</sub>O<sub>3</sub>", options: ["Nitrogen trioxide", "Dinitrogen trioxide", "Nitrogen(III) oxide", "Dinitrogen oxide"], a: 1 },
+        { q: "Name the compound: H<sub>2</sub>S (gas)", options: ["Hydrogen sulfur", "Dihydrogen sulfide", "Hydrogen sulfide", "Sulfuric acid"], a: 2 },
+
+        // Writing Formulas
+        { q: "Write the formula for: Rubidium bromide", options: ["RbBr", "Rb<sub>2</sub>Br", "RbBr<sub>2</sub>", "RuBr"], a: 0 },
+        { q: "Write the formula for: Magnesium selenide", options: ["MgSe", "Mg<sub>2</sub>Se", "MgSe<sub>2</sub>", "MnSe"], a: 0 },
+        { q: "Write the formula for: Ammonium sulfate", options: ["NH<sub>4</sub>SO<sub>4</sub>", "(NH<sub>4</sub>)<sub>2</sub>SO<sub>4</sub>", "NH<sub>4</sub>(SO<sub>4</sub>)<sub>2</sub>", "AmSO<sub>4</sub>"], a: 1 },
+        { q: "Write the formula for: Sodium perchlorate", options: ["NaClO", "NaClO<sub>2</sub>", "NaClO<sub>3</sub>", "NaClO<sub>4</sub>"], a: 3 },
+        { q: "Write the formula for: Barium hydroxide", options: ["BaOH", "Ba(OH)<sub>2</sub>", "Ba<sub>2</sub>OH", "BaH<sub>2</sub>O"], a: 1 },
+        { q: "Write the formula for: Dinitrogen tetraoxide", options: ["NO<sub>4</sub>", "N<sub>2</sub>O<sub>4</sub>", "N<sub>4</sub>O<sub>2</sub>", "Ni<sub>2</sub>O<sub>4</sub>"], a: 1 },
+        { q: "Write the formula for: Silver sulfide", options: ["AgS", "AgS<sub>2</sub>", "Ag<sub>2</sub>S", "Au<sub>2</sub>S"], a: 2 },
+        { q: "Write the formula for: Silicon dioxide", options: ["SiO", "Si<sub>2</sub>O", "SiO<sub>2</sub>", "S<sub>2</sub>O"], a: 2 },
+        { q: "Write the formula for: Magnesium nitride", options: ["MgN", "Mg<sub>2</sub>N<sub>3</sub>", "Mg<sub>3</sub>N<sub>2</sub>", "Mg(NO<sub>3</sub>)<sub>2</sub>"], a: 2 },
+        { q: "Write the formula for: Copper(II) sulfate", options: ["CuSO<sub>3</sub>", "CuSO<sub>4</sub>", "Cu<sub>2</sub>SO<sub>4</sub>", "Cu(SO<sub>4</sub>)<sub>2</sub>"], a: 1 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let mistakes = [];
+    let shuffledQuestions = [];
+
+    // Shuffle function for questions and options
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    function startQuiz() {
+        score = 0;
+        mistakes = [];
+        currentQuestionIndex = 0;
+        document.getElementById('quiz-screen').style.display = 'block';
+        document.getElementById('results-screen').style.display = 'none';
+        
+        // Deep copy and shuffle questions
+        shuffledQuestions = JSON.parse(JSON.stringify(questions));
+        shuffle(shuffledQuestions);
+        
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const qData = shuffledQuestions[currentQuestionIndex];
+        document.getElementById('progress').innerText = `Question ${currentQuestionIndex + 1} of ${shuffledQuestions.length}`;
+        document.getElementById('question').innerHTML = qData.q;
+        
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        
+        // Keep track of the original correct answer string to compare after shuffling options
+        const correctAnswerString = qData.options[qData.a];
+        
+        let displayOptions = [...qData.options];
+        shuffle(displayOptions);
+
+        displayOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerHTML = opt;
+            // Check if this option string matches the correct answer string
+            const isCorrect = (opt === correctAnswerString);
+            btn.onclick = () => handleAnswer(isCorrect, opt, correctAnswerString, qData.q);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    function handleAnswer(isCorrect, selectedText, correctText, questionText) {
+        if (isCorrect) {
+            score++;
+        } else {
+            mistakes.push({
+                question: questionText,
+                selected: selectedText,
+                correct: correctText
+            });
+        }
+
+        currentQuestionIndex++;
+        if (currentQuestionIndex < shuffledQuestions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        const resultsScreen = document.getElementById('results-screen');
+        resultsScreen.style.display = 'block';
+        
+        document.getElementById('score-display').innerText = `You scored ${score} out of ${shuffledQuestions.length}!`;
+        
+        const mistakesContainer = document.getElementById('mistakes-container');
+        mistakesContainer.innerHTML = '';
+        
+        if (mistakes.length === 0) {
+            mistakesContainer.innerHTML = '<p>Perfect score! You are completely ready for the quiz.</p>';
+        } else {
+            const heading = document.createElement('h3');
+            heading.innerText = 'Review your mistakes:';
+            mistakesContainer.appendChild(heading);
+            
+            mistakes.forEach((m, index) => {
+                const div = document.createElement('div');
+                div.className = 'mistake-item';
+                div.innerHTML = `
+                    <div><strong>${index + 1}. ${m.question}</strong></div>
+                    <div class="your-answer">You chose: ${m.selected}</div>
+                    <div class="correct-answer">Correct answer: ${m.correct}</div>
+                `;
+                mistakesContainer.appendChild(div);
+            });
+        }
+    }
+
+    // Start the drill initially
+    window.onload = startQuiz;
+</script>
+
+</body>
+</html>
