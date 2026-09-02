@@ -31,56 +31,69 @@
             font-size: 1.2em;
             margin-bottom: 20px;
         }
-        .options {
+        .input-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
+        }
+        input[type="text"] {
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #3498db;
+        }
+        input[type="text"]:disabled {
+            background-color: #ecf0f1;
+            cursor: not-allowed;
         }
         button {
             padding: 10px 15px;
             font-size: 1em;
             border: 2px solid #3498db;
-            background-color: white;
-            color: #3498db;
+            background-color: #3498db;
+            color: white;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         button:hover {
-            background-color: #3498db;
-            color: white;
-        }
-        button:disabled {
-            border-color: #bdc3c7;
-            color: #7f8c8d;
-            cursor: not-allowed;
-            background-color: #ecf0f1;
-        }
-        .correct {
-            background-color: #2ecc71 !important;
-            color: white !important;
-            border-color: #2ecc71 !important;
-        }
-        .incorrect {
-            background-color: #e74c3c !important;
-            color: white !important;
-            border-color: #e74c3c !important;
+            background-color: #2980b9;
+            border-color: #2980b9;
         }
         #next-btn {
             margin-top: 20px;
             background-color: #2c3e50;
-            color: white;
-            border: none;
+            border-color: #2c3e50;
             display: none;
             width: 100%;
         }
         #next-btn:hover {
             background-color: #1a252f;
+            border-color: #1a252f;
         }
         .score-container {
             text-align: center;
             font-size: 1.5em;
             display: none;
+        }
+        .feedback {
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            min-height: 24px;
+        }
+        .correct-text { color: #2ecc71; }
+        .incorrect-text { color: #e74c3c; }
+        .correction {
+            font-weight: normal;
+            font-size: 0.9em;
+            color: #333;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -90,9 +103,16 @@
     <div id="quiz">
         <h1>Polyatomic Ions Quiz</h1>
         <div id="question-text" class="question"></div>
-        <div id="options-container" class="options"></div>
+        
+        <div class="input-container">
+            <input type="text" id="answer-input" placeholder="Type your answer here..." autocomplete="off">
+            <button id="submit-btn" onclick="checkAnswer()">Submit</button>
+            <div id="feedback" class="feedback"></div>
+        </div>
+
         <button id="next-btn" onclick="nextQuestion()">Next Question</button>
     </div>
+    
     <div id="score-container" class="score-container">
         <h2>Quiz Completed!</h2>
         <p>Your Score: <span id="score"></span> / <span id="total-questions"></span></p>
@@ -101,56 +121,57 @@
 </div>
 
 <script>
+    // Updated quizData to accept text variations and provide a display answer
     const quizData = [
         {
             question: "What is the formula and charge for Acetate?",
-            options: ["C2H3O2- or CH3COO-", "CO3 2-", "C2H4O2", "CH3OH"],
-            correct: 0
+            acceptedAnswers: ["C2H3O2-", "CH3COO-", "C2H3O2^-", "CH3COO^-"],
+            displayAnswer: "C2H3O2- or CH3COO-"
         },
         {
             question: "What is the name of NH4+?",
-            options: ["Ammonia", "Ammonium", "Nitrate", "Nitrite"],
-            correct: 1
+            acceptedAnswers: ["Ammonium"],
+            displayAnswer: "Ammonium"
         },
         {
             question: "What is the formula and charge for Carbonate?",
-            options: ["CO2", "C2O4 2-", "CO3 2-", "CO3 -"],
-            correct: 2
+            acceptedAnswers: ["CO32-", "CO3^2-", "CO3-2"],
+            displayAnswer: "CO3 2-"
         },
         {
             question: "What is the name of OH-?",
-            options: ["Hydrogen oxide", "Hydroxide", "Hydronium", "Oxygen hydride"],
-            correct: 1
+            acceptedAnswers: ["Hydroxide"],
+            displayAnswer: "Hydroxide"
         },
         {
             question: "What is the formula and charge for Nitrate?",
-            options: ["NO2 -", "NO3 2-", "N3 -", "NO3 -"],
-            correct: 3
+            acceptedAnswers: ["NO3-", "NO3^-"],
+            displayAnswer: "NO3 -"
         },
         {
             question: "What is the name of NO2-?",
-            options: ["Nitride", "Nitrite", "Nitrate", "Nitrous oxide"],
-            correct: 1
+            acceptedAnswers: ["Nitrite"],
+            displayAnswer: "Nitrite"
         },
         {
             question: "What is the formula and charge for Phosphate?",
-            options: ["PO4 3-", "PO3 3-", "P 3-", "PO4 2-"],
-            correct: 0
+            acceptedAnswers: ["PO43-", "PO4^3-", "PO4-3"],
+            displayAnswer: "PO4 3-"
         },
         {
             question: "What is the name of SO4 2-?",
-            options: ["Sulfite", "Sulfur dioxide", "Sulfate", "Sulfide"],
-            correct: 2
+            acceptedAnswers: ["Sulfate"],
+            displayAnswer: "Sulfate"
         },
         {
             question: "What is the formula and charge for Sulfite?",
-            options: ["SO4 2-", "SO3 2-", "S 2-", "SO3 -"],
-            correct: 1
+            acceptedAnswers: ["SO32-", "SO3^2-", "SO3-2"],
+            displayAnswer: "SO3 2-"
         },
         {
             question: "What is the name of ClO4-?",
-            options: ["Chlorite", "Chlorate", "Hypochlorite", "Perchlorate"],
-            correct: 3
+            acceptedAnswers: ["Perchlorate"],
+            displayAnswer: "Perchlorate"
         }
     ];
 
@@ -158,46 +179,71 @@
     let score = 0;
 
     const questionText = document.getElementById("question-text");
-    const optionsContainer = document.getElementById("options-container");
+    const answerInput = document.getElementById("answer-input");
+    const submitBtn = document.getElementById("submit-btn");
     const nextBtn = document.getElementById("next-btn");
+    const feedback = document.getElementById("feedback");
     const quizContainer = document.getElementById("quiz");
     const scoreContainer = document.getElementById("score-container");
     const scoreText = document.getElementById("score");
     const totalQuestionsText = document.getElementById("total-questions");
 
+    // Allow pressing "Enter" to submit the answer
+    answerInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter" && !answerInput.disabled) {
+            event.preventDefault();
+            checkAnswer();
+        } else if (event.key === "Enter" && answerInput.disabled && nextBtn.style.display === "block") {
+            event.preventDefault();
+            nextQuestion();
+        }
+    });
+
     function loadQuestion() {
-        nextBtn.style.display = "none";
-        optionsContainer.innerHTML = "";
-        
         const currentQuestion = quizData[currentQuestionIndex];
         questionText.innerHTML = `Question ${currentQuestionIndex + 1}/${quizData.length}: <br><br> ${currentQuestion.question}`;
         
-        currentQuestion.options.forEach((option, index) => {
-            const button = document.createElement("button");
-            button.innerText = option;
-            button.onclick = () => selectAnswer(index, button);
-            optionsContainer.appendChild(button);
-        });
+        // Reset UI for the new question
+        answerInput.value = "";
+        answerInput.disabled = false;
+        feedback.innerHTML = "";
+        submitBtn.style.display = "block";
+        nextBtn.style.display = "none";
+        answerInput.focus();
     }
 
-    function selectAnswer(selectedIndex, button) {
-        const currentQuestion = quizData[currentQuestionIndex];
-        const allButtons = optionsContainer.children;
+    function checkAnswer() {
+        const userInput = answerInput.value;
         
-        for (let i = 0; i < allButtons.length; i++) {
-            allButtons[i].disabled = true;
-            if (i === currentQuestion.correct) {
-                allButtons[i].classList.add("correct");
+        // Prevent submitting empty answers
+        if (userInput.trim() === "") return;
+
+        const currentQuestion = quizData[currentQuestionIndex];
+        
+        // Normalize input: remove spaces and make lowercase to make grading forgiving
+        const normalizedInput = userInput.toLowerCase().replace(/\s+/g, '');
+        
+        let isCorrect = false;
+        for (let i = 0; i < currentQuestion.acceptedAnswers.length; i++) {
+            const normalizedCorrect = currentQuestion.acceptedAnswers[i].toLowerCase().replace(/\s+/g, '');
+            if (normalizedInput === normalizedCorrect) {
+                isCorrect = true;
+                break;
             }
         }
 
-        if (selectedIndex === currentQuestion.correct) {
+        if (isCorrect) {
             score++;
+            feedback.innerHTML = `<span class="correct-text">Correct!</span>`;
         } else {
-            button.classList.add("incorrect");
+            feedback.innerHTML = `<span class="incorrect-text">Incorrect.</span><div class="correction">The correct answer was: <strong>${currentQuestion.displayAnswer}</strong></div>`;
         }
 
+        // Lock in the answer
+        answerInput.disabled = true;
+        submitBtn.style.display = "none";
         nextBtn.style.display = "block";
+        nextBtn.focus();
     }
 
     function nextQuestion() {
