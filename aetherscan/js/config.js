@@ -8,7 +8,7 @@
      Then paste the client ID below (or enter it once in the console's
      sign-in screen — it is stored in this browser only). */
 window.AETHERSCAN_CONFIG = {
-  clientId: "",                                   // e.g. "1234567890-abc.apps.googleusercontent.com"
+  clientId: "949741347685-arahv0dbp32vosl52fqptsbkuh98408i.apps.googleusercontent.com",                                   // e.g. "1234567890-abc.apps.googleusercontent.com"
   engineBase: "http://127.0.0.1:8765",            // local AetherScan engine for Live mode
   siteName: "AetherScan",
   ownerSite: "https://jamezboi.github.io",
