@@ -56,4 +56,7 @@ layout: none
 
 ---
 
-<div class="footer">Thanks for visiting</div>
+<div class="footer">
+  <p>Thanks for visiting</p>
+  <p><a href="https://jamezboi.github.io/privacy.html">Privacy Policy</a> · <a href="https://jamezboi.github.io/terms.html">Terms of Service</a></p>
+</div>
