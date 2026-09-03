@@ -687,12 +687,23 @@
     if (path.startsWith("/report")) {
       const gate = gateFor("reports", license.tier);
       if (gate) return json(gate, 402);
-      const fmt = new URLSearchParams(path.split("?")[1] || "").get("fmt") || "html";
-      const md = markdownReport();
-      if (fmt === "json") return json({ generated: Date.now() / 1000, demo: true,
-        devices: demoDevices.map(deviceView), audits: Object.values(auditStore) });
-      return new Response(md, { status: 200, headers: { "Content-Type":
-        fmt === "csv" ? "text/csv; charset=utf-8" : "text/plain; charset=utf-8" } });
+      const query = new URLSearchParams(path.split("?")[1] || "");
+      const fmt = query.get("fmt") || "html";
+      const save = query.get("save") === "1";
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/, "-");
+      if (fmt === "json") {
+        const payload = JSON.stringify({ generated: Date.now() / 1000, demo: true,
+          devices: demoDevices.map(deviceView), audits: Object.values(auditStore) }, null, 2);
+        if (save) { downloadBlob(payload, `aetherscan-report-${stamp}.json`, "application/json");
+          return json({ ok: true, saved: "(downloaded by your browser)" }); }
+        return new Response(payload, { status: 200,
+          headers: { "Content-Type": "application/json; charset=utf-8" } });
+      }
+      const text = fmt === "csv" ? csvReport() : markdownReport();
+      const mime = fmt === "csv" ? "text/csv; charset=utf-8" : "text/markdown; charset=utf-8";
+      if (save) { downloadBlob(text, `aetherscan-report-${stamp}.${fmt}`, mime);
+        return json({ ok: true, saved: "(downloaded by your browser)" }); }
+      return new Response(text, { status: 200, headers: { "Content-Type": mime } });
     }
 
     return json({ error: "unknown_route", path }, 404);
@@ -718,11 +729,87 @@
     return lines.join("\n") + "\n";
   }
 
+  function csvReport() {
+    const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const rows = [["Name", "IP", "MAC", "Vendor", "Type", "OS guess", "Open ports"]];
+    for (const d of demoDevices) {
+      rows.push([d.custom_name, d.ip, d.mac, d.vendor || "", d.device_type,
+        d.os_guess || "", d.ports.map(p => p.port).join(" ")]);
+    }
+    return rows.map(r => r.map(esc).join(",")).join("\r\n") + "\r\n";
+  }
+
+  function downloadBlob(text, filename, mime) {
+    const blob = new Blob([text], { type: mime });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
   /* ------------------------------------------------------------------ */
   /* fetch interception                                                  */
   /* ------------------------------------------------------------------ */
 
   const origFetch = window.fetch.bind(window);
+  const origOpen = window.open.bind(window);
+
+  /* In demo mode, report tiles try window.open("/api/report?...") which would
+     404 on static hosting — synthesize the report as a blob document instead. */
+  function demoReportHtml() {
+    const rows = demoDevices.map(d => {
+      const audit = auditStore[d.id];
+      const score = audit ? `<span class="score">${audit.score}</span>` : "—";
+      return `<tr><td><strong>${d.custom_name}</strong><br><span style="color:#86868b;font-size:12px">${d.vendor || ""}</span></td>
+        <td>${d.ip}</td><td style="font-family:ui-monospace,Menlo,monospace;font-size:12px">${d.mac}</td>
+        <td>${d.device_type}</td><td>${d.os_guess || "—"}</td><td>${score}</td></tr>`;
+    }).join("");
+    const findings = [];
+    for (const [id, audit] of Object.entries(auditStore)) {
+      const dev = demoDevices.find(d => d.id === id);
+      for (const f of audit.findings) {
+        findings.push(`<tr><td><span class="sev ${f.severity}">${f.severity}</span></td>
+          <td><strong>${f.title}</strong><br><span style="color:#86868b;font-size:12px">${f.description}</span></td>
+          <td>${dev ? dev.ip : ""}</td><td style="color:#6e6e73">${f.remediation}</td></tr>`);
+      }
+    }
+    const summary = summarizeAudits();
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>AetherScan Report (demo)</title><style>
+      body{font-family:-apple-system,'Segoe UI',Inter,sans-serif;background:#f5f5f7;color:#1d1d1f;padding:44px 22px;line-height:1.55}
+      .page{max-width:960px;margin:0 auto}
+      .hero{background:linear-gradient(135deg,#0a84ff,#5e5ce6);border-radius:24px;padding:36px;color:#fff;margin-bottom:24px}
+      h1{font-size:30px;margin:0} .hero p{opacity:.9;margin-top:6px}
+      section{background:#fff;border-radius:20px;padding:26px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+      h2{font-size:19px;margin:0 0 12px} table{width:100%;border-collapse:collapse;font-size:13.5px}
+      th{text-align:left;font-size:11px;text-transform:uppercase;color:#6e6e73;padding:8px;border-bottom:1px solid #e5e5ea}
+      td{padding:9px 8px;border-bottom:1px solid #f0f0f2;vertical-align:top}
+      .score{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#30d158;color:#fff;font-weight:700}
+      .sev{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;text-transform:uppercase}
+      .sev.critical{background:#ffe5e4;color:#c41e3a}.sev.high{background:#ffedd9;color:#b25000}
+      .sev.medium{background:#fff4cc;color:#8a6d00}.sev.low{background:#e8f2ff;color:#0066cc}.sev.info{background:#ececf0;color:#555}
+      footer{text-align:center;color:#86868b;font-size:12px;margin-top:26px}
+    </style></head><body><div class="page">
+      <div class="hero"><h1>Network Intelligence Report</h1>
+      <p>AetherScan v1.4.0 · demo LAN · ${new Date().toLocaleString()}</p>
+      <p>Devices: ${demoDevices.length} · Audited: ${summary.devices_audited} · Avg score: ${summary.average_score} (${summary.grade})</p></div>
+      <section><h2>Discovered devices</h2><table><tr><th>Device</th><th>IP</th><th>MAC</th><th>Type</th><th>OS guess</th><th>Score</th></tr>${rows}</table></section>
+      <section><h2>Security findings</h2>${findings.length ?
+        `<table><tr><th>Severity</th><th>Finding</th><th>Device</th><th>Remediation</th></tr>${findings.join("")}</table>`
+        : `<p style="color:#30d158">No findings yet — run an audit from the console.</p>`}</section>
+      <footer>AetherScan Labs · web demo report · non-invasive checks only</footer>
+    </div></body></html>`;
+  }
+
+  window.open = function (url, ...rest) {
+    const u = typeof url === "string" ? url : url?.url || "";
+    if (pairing.connected || !u.startsWith("/api/report")) {
+      return origOpen(url, ...rest);
+    }
+    const blob = new Blob([demoReportHtml()], { type: "text/html" });
+    return origOpen(URL.createObjectURL(blob), "_blank");
+  };
 
   async function proxyToEngine(base, token, userInit, url) {
     const init = { ...userInit };
