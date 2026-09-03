@@ -51,4 +51,9 @@ layout: none
 
 ---
 
+## Tools
+- [AetherScan — Network Intelligence Suite](https://jamezboi.github.io/aetherscan/)
+
+---
+
 <div class="footer">Thanks for visiting</div>
