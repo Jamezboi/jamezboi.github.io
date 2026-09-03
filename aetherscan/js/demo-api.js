@@ -750,8 +750,142 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* fetch interception                                                  */
+  /* Pairing credentials handed over via URL fragment (#pair=...)        */
   /* ------------------------------------------------------------------ */
+
+  function handlePairFragment() {
+    const m = location.hash.match(/^#pair=([A-Za-z0-9_-]+)$/);
+    if (!m) return false;
+    try {
+      const b64 = m[1].replace(/-/g, "+").replace(/_/g, "/");
+      const pad = "=".repeat((4 - (b64.length % 4)) % 4);
+      const data = JSON.parse(atob(b64 + pad));
+      if (data.base && data.token) {
+        pairing.base = data.base;
+        pairing.token = data.token;
+        savePairing();
+        history.replaceState(null, "", location.pathname + location.search);
+        probeEngine(data.base, data.token).then((probe) => {
+          pairing.connected = !!probe.ok;
+          renderPill();
+          if (probe.ok) {
+            toast(`Paired with AetherScan v${probe.version || ""} on this computer`, "ok", 5000);
+            window.dispatchEvent(new CustomEvent("aetherscan:modechange"));
+          } else {
+            toast("Engine launcher finished, but the engine is not reachable yet — it may still be starting.", "err", 6000);
+          }
+        });
+        return true;
+      }
+    } catch { /* malformed fragment — ignore */ }
+    return false;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Tailored Windows launcher generation                                */
+  /* ------------------------------------------------------------------ */
+
+  function siteBase() {
+    return location.origin + location.pathname.replace(/console\.html.*$/, "");
+  }
+
+  async function fetchLatestVersion() {
+    try {
+      const resp = await origFetch(siteBase() + "engine/update.json", { cache: "no-store" });
+      if (resp.ok) {
+        const manifest = await resp.json();
+        if (manifest.latest) return String(manifest.latest);
+      }
+    } catch { /* fall through */ }
+    return "1.4.0";
+  }
+
+  function buildLauncherBat(version, consoleUrl, bundleUrl, siteOrigin) {
+    return [
+      "@echo off",
+      "setlocal EnableExtensions",
+      "title AetherScan Engine Setup",
+      'set "DIR=%LOCALAPPDATA%\\AetherScan"',
+      `set "BUNDLE_URL=${bundleUrl}"`,
+      `set "LATEST=${version}"`,
+      `set "CONSOLE_URL=${consoleUrl}"`,
+      `set "ORIGIN=${siteOrigin}"`,
+      "set \"PYTHONIOENCODING=utf-8\"",
+      "echo ==================================================",
+      `echo   AetherScan ${version} - one-time setup`,
+      "echo   Downloads ~13 MB. No Python installation needed.",
+      "echo   Runtime is the official Python.org embeddable build.",
+      "echo ==================================================",
+      'if not exist "%DIR%" mkdir "%DIR%" >nul 2>&1',
+      "set NEED=1",
+      'if exist "%DIR%\\version.txt" set /p HAVE=<"%DIR%\\version.txt"',
+      'if "%HAVE%"=="%LATEST%" set NEED=0',
+      'if "%NEED%"=="1" (',
+      "  echo Downloading engine bundle...",
+      "  powershell -NoProfile -ExecutionPolicy Bypass -Command \"[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $ProgressPreference='SilentlyContinue'; Invoke-WebRequest -Uri '%BUNDLE_URL%' -OutFile '%DIR%\\bundle.zip'\"",
+      "  if errorlevel 1 goto fail",
+      "  echo Unpacking...",
+      "  powershell -NoProfile -ExecutionPolicy Bypass -Command \"Expand-Archive -Force '%DIR%\\bundle.zip' '%DIR%'\"",
+      "  if errorlevel 1 goto fail",
+      '  del "%DIR%\\bundle.zip" >nul 2>&1',
+      '  echo %LATEST%>"%DIR%\\version.txt"',
+      ")",
+      "echo Starting the AetherScan engine on this computer...",
+      "echo Your browser will open and pair automatically - leave this",
+      "echo window open while you are using AetherScan.",
+      'start "AetherScan Engine" /D "%DIR%\\engine" "%DIR%\\runtime\\python.exe" "%DIR%\\engine\\main.py" --pair "%CONSOLE_URL%" --origin "%ORIGIN%"',
+      "timeout /t 3 >nul",
+      "exit /b 0",
+      ":fail",
+      "echo Download failed - check your internet connection and run this file again.",
+      "pause",
+      "exit /b 1",
+    ].join("\r\n");
+  }
+
+  function downloadText(text, filename) {
+    const blob = new Blob([text], { type: "application/octet-stream" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  async function generateLauncher(statusEl) {
+    const version = await fetchLatestVersion();
+    const consoleUrl = siteBase() + "console.html";
+    const bundleUrl = siteBase() + `engine/aetherscan-portable-${version}.zip`;
+    const bat = buildLauncherBat(version, consoleUrl, bundleUrl, location.origin);
+    downloadText(bat, `Start-AetherScan-${version}.bat`);
+    if (statusEl) {
+      statusEl.textContent = "Launcher downloaded — open it from your Downloads folder and allow it to run.";
+      statusEl.className = "status ok";
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Engine update badge (live mode)                                     */
+  /* ------------------------------------------------------------------ */
+
+  let updateToastShown = false;
+
+  async function checkEngineUpdate() {
+    if (!pairing.connected) return;
+    try {
+      const resp = await origFetch(`${pairing.base}/api/status`, {
+        headers: { "X-Aether-Token": pairing.token } });
+      if (!resp.ok) return;
+      const body = await resp.json();
+      const update = body.update;
+      if (update && update.available && !updateToastShown) {
+        updateToastShown = true;
+        renderPill("Engine: live ⬆");
+        toast(`Engine update available: v${update.latest} (installed v${update.current}). Restart the launcher to update.`, "info", 8000);
+      }
+    } catch { /* engine offline — ignore */ }
+  }
 
   const origFetch = window.fetch.bind(window);
   const origOpen = window.open.bind(window);
@@ -868,7 +1002,7 @@
     document.head.appendChild(style);
   }
 
-  function renderPill() {
+  function renderPill(labelOverride) {
     ensureStyles();
     const host = document.getElementById("net-pill");
     if (!host) return;
@@ -881,8 +1015,9 @@
       host.parentNode.insertBefore(pill, host);
     }
     pill.classList.toggle("live", pairing.connected);
-    pill.innerHTML = `<span class="dot"></span>` +
+    const label = labelOverride ||
       (pairing.connected ? "Engine: live" : "Engine: demo");
+    pill.innerHTML = `<span class="dot"></span>${label}`;
   }
 
   function openPairingModal() {
@@ -891,52 +1026,107 @@
     backdrop.className = "aether-modal-backdrop";
     backdrop.innerHTML = `
       <div class="aether-modal">
-        <h3>${pairing.connected ? "Live engine connected" : "Connect a local engine"}</h3>
-        <p>In demo mode everything runs on a simulated LAN inside this page.
-           For real scanning, start the AetherScan engine on your computer
-           (<code>python main.py</code>), then paste its session details here.
-           The engine only accepts the origins listed in its <code>pair_origins</code> config.</p>
-        <label>Engine URL</label>
-        <input id="pair-base" value="${pairing.base || cfg.engineBase}" spellcheck="false"/>
-        <label>Session token</label>
-        <input id="pair-token" value="${pairing.token || ""}" placeholder="printed in the engine's terminal" spellcheck="false"/>
-        <div class="status" id="pair-status"></div>
-        <div class="row">
-          <button class="btn btn-ghost btn-sm" id="pair-forget">Forget</button>
-          <button class="btn btn-ghost btn-sm" id="pair-close">Close</button>
-          <button class="btn btn-primary btn-sm" id="pair-connect">Connect</button>
-        </div>
+        ${pairing.connected ? `
+          <h3>Live engine connected</h3>
+          <p>This console is paired with the AetherScan engine running on
+             <code>${pairing.base}</code>. Real scans now run on this computer's
+             network. Keep the engine window open while using the console.</p>
+          <div class="status ok" id="pair-status">✔ Paired${pairing.token ? "" : ""}</div>
+          <div class="row">
+            <button class="btn btn-ghost btn-sm" id="pair-forget">Unpair</button>
+            <button class="btn btn-primary btn-sm" id="pair-close">Done</button>
+          </div>
+        ` : `
+          <h3>Scan your real network</h3>
+          <p>Everything in the console can run against a simulated LAN, but browsers
+             can't ping or read ARP tables — real scanning needs a small engine on
+             your computer. <b>No Python installation is required.</b> One download (~13 MB),
+             one double-click, and this page pairs automatically.</p>
+          <div class="row" style="justify-content:flex-start">
+            <button class="btn btn-primary btn-sm" id="pair-launcher">⬇ Download my launcher (.bat)</button>
+          </div>
+          <div class="status" id="pair-status"></div>
+          <p style="margin-top:12px;font-size:11.5px">Steps: run the downloaded
+             <code>Start-AetherScan-*.bat</code> from your Downloads folder (Windows may ask for
+             confirmation — it only downloads the official Python.org embeddable runtime plus the
+             AetherScan engine, then opens this page paired). The engine runs locally; nothing but
+             your own scan traffic leaves your machine.</p>
+          <div class="auth-setup" id="pair-advanced" style="display:none">
+            <p><b>Advanced:</b> already have the engine running? Paste its details.</p>
+            <label>Engine URL</label>
+            <input id="pair-base" value="${pairing.base || cfg.engineBase}" spellcheck="false"/>
+            <label>Session token</label>
+            <input id="pair-token" value="${pairing.token || ""}" placeholder="printed in the engine's terminal" spellcheck="false"/>
+            <div class="row">
+              <button class="btn btn-ghost btn-sm" id="pair-connect">Connect</button>
+            </div>
+          </div>
+          <div class="row" style="justify-content:space-between">
+            <button class="btn btn-ghost btn-sm" id="pair-manual">Manual pairing…</button>
+            <button class="btn btn-ghost btn-sm" id="pair-close">Close</button>
+          </div>
+        `}
       </div>`;
     document.body.appendChild(backdrop);
     backdrop.addEventListener("click", (e) => { if (e.target === backdrop) backdrop.remove(); });
     backdrop.querySelector("#pair-close").addEventListener("click", () => backdrop.remove());
-    backdrop.querySelector("#pair-forget").addEventListener("click", () => {
-      pairing.base = null; pairing.token = null; pairing.connected = false;
-      savePairing(); renderPill(); backdrop.remove();
-      window.dispatchEvent(new CustomEvent("aetherscan:modechange"));
-    });
-    backdrop.querySelector("#pair-connect").addEventListener("click", async () => {
-      const base = backdrop.querySelector("#pair-base").value.trim().replace(/\/$/, "");
-      const token = backdrop.querySelector("#pair-token").value.trim();
-      const status = backdrop.querySelector("#pair-status");
-      if (!base || !token) { status.textContent = "Both fields are required."; status.className = "status err"; return; }
-      status.textContent = "Probing engine…"; status.className = "status";
-      const probe = await probeEngine(base, token);
-      if (probe.ok) {
-        pairing.base = base; pairing.token = token; pairing.connected = true;
-        savePairing(); renderPill();
-        status.textContent = `Connected — AetherScan v${probe.version}. Reloading console…`;
-        status.className = "status ok";
-        setTimeout(() => location.reload(), 900);
-      } else {
-        status.textContent = probe.status === 401
-          ? "Engine reachable but the token was rejected — copy it from the engine's terminal."
-          : `Could not reach the engine (${probe.error || probe.status || "refused"}). Is it running?`;
-        status.className = "status err";
-      }
-    });
+
+    const launcherBtn = backdrop.querySelector("#pair-launcher");
+    if (launcherBtn) {
+      launcherBtn.addEventListener("click", async () => {
+        launcherBtn.disabled = true;
+        await generateLauncher(backdrop.querySelector("#pair-status"));
+        launcherBtn.disabled = false;
+      });
+    }
+    const manualBtn = backdrop.querySelector("#pair-manual");
+    if (manualBtn) {
+      manualBtn.addEventListener("click", () => {
+        const adv = backdrop.querySelector("#pair-advanced");
+        adv.style.display = adv.style.display === "block" ? "none" : "block";
+      });
+    }
+    const forgetBtn = backdrop.querySelector("#pair-forget");
+    if (forgetBtn) {
+      forgetBtn.addEventListener("click", () => {
+        pairing.base = null; pairing.token = null; pairing.connected = false;
+        savePairing(); renderPill(); backdrop.remove();
+        window.dispatchEvent(new CustomEvent("aetherscan:modechange"));
+      });
+    }
+    const connectBtn = backdrop.querySelector("#pair-connect");
+    if (connectBtn) {
+      connectBtn.addEventListener("click", async () => {
+        const base = backdrop.querySelector("#pair-base").value.trim().replace(/\/$/, "");
+        const token = backdrop.querySelector("#pair-token").value.trim();
+        const status = backdrop.querySelector("#pair-status");
+        if (!base || !token) { status.textContent = "Both fields are required."; status.className = "status err"; return; }
+        status.textContent = "Probing engine…"; status.className = "status";
+        const probe = await probeEngine(base, token);
+        if (probe.ok) {
+          pairing.base = base; pairing.token = token; pairing.connected = true;
+          savePairing(); renderPill();
+          status.textContent = `Connected — AetherScan v${probe.version}. Reloading console…`;
+          status.className = "status ok";
+          setTimeout(() => location.reload(), 900);
+        } else {
+          status.textContent = probe.status === 401
+            ? "Engine reachable but the token was rejected — copy it from the engine's terminal."
+            : `Could not reach the engine (${probe.error || probe.status || "refused"}). Is it running?`;
+          status.className = "status err";
+        }
+      });
+    }
   }
 
-  window.AetherPlatform = { tryAutoConnect, renderPill, pairing };
-  document.addEventListener("DOMContentLoaded", () => { renderPill(); tryAutoConnect(); });
+  window.AetherPlatform = { tryAutoConnect, renderPill, pairing,
+                            handlePairFragment, generateLauncher };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const viaFragment = handlePairFragment();
+    renderPill();
+    if (!viaFragment) tryAutoConnect();
+    setInterval(checkEngineUpdate, 60000);
+    checkEngineUpdate();
+  });
 })();
