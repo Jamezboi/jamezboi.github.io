@@ -42,10 +42,46 @@ checked against Google's published JWKS via WebCrypto, plus `aud`/`iss`/
 
 ## Pairing the hosted console with your local engine
 
-1. On your computer: `python main.py` (engine + its own local console start).
-2. In the hosted console, click the **Engine: demo** pill.
-3. Enter the engine URL (`http://127.0.0.1:8765`) and the session token
-   printed in the engine's terminal → **Connect**.
+The no-Python flow (recommended, and what the console's *Engine: demo* pill now offers):
+
+1. In the hosted console, click the **Engine: demo** pill → **Download my launcher (.bat)**.
+   The launcher is generated per visitor: it embeds this site's origin, the console URL and the
+   current release version.
+2. Double-click `Start-AetherScan-<version>.bat`. It downloads the portable engine bundle
+   (`engine/aetherscan-portable-<version>.zip`) into `%LOCALAPPDATA%\AetherScan` — the runtime
+   inside is the **official Python.org embeddable build (PSF-signed)**, so **no Python install and
+   no admin rights** are needed — then starts the engine and opens this console automatically.
+3. The engine hands its pairing credentials to the console through the URL fragment
+   (`#pair=...`, never sent to any server); the page pairs itself and the pill flips to
+   **Engine: live**.
+
+Manual pairing (paste engine URL + session token) remains available under
+*Advanced → Manual pairing* in the same dialog.
+
+### Update channel ("lock in, update, release")
+
+- `engine/update.json` is the release manifest: `{"latest": "1.4.0", ...}`.
+- The engine checks it at startup and reports `update.available` via `/api/status`; the console
+  shows an update notice when the paired engine is behind.
+- The launcher compares `version.txt` in `%LOCALAPPDATA%\AetherScan` against the manifest and
+  re-downloads the bundle when a new version ships.
+- **Release checklist:** bump `core/__version__` → rebuild the bundle (see below) → update
+  `update.json:latest` → commit both → push. Users get the update on their next launcher run.
+
+### Rebuilding the portable bundle
+
+```
+# from the project root
+runtime/ = fresh python.org embeddable zip (amd64), with python314._pth edited to:
+             python314.zip / . / ..\engine
+engine/  = main.py + core/ + licensing/ + server/ + web/ + production config.json
+zip both folders at the root as aetherscan-portable-<version>.zip
+```
+
+A PyInstaller one-file `AetherScan-Engine.exe` also builds fine
+(`python -m PyInstaller --onefile --name AetherScan-Engine --add-data "web;web" main.py` with
+frozen-path handling already in `main.py`), but unsigned exes get blocked by Windows Smart App
+Control on many machines — the signed-runtime launcher is the default distribution.
 
 The engine only accepts pairing origins listed in its `config.json`
 (`pair_origins`, which includes `https://jamezboi.github.io` by default, plus
