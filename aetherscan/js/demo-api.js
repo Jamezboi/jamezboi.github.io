@@ -1014,7 +1014,7 @@ Service detection performed.` });
       "powershell -NoProfile -ExecutionPolicy Bypass -Command \"[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://nmap.org/dist/nmap-7.95-setup.exe' -OutFile '%DIR%\\\\nmap-setup.exe'\"",
       "if errorlevel 1 goto nmap_skip",
       "echo Installing nmap (accept the UAC prompt)...",
-      'start /wait "" "%DIR%\\\\nmap-setup.exe" /S',
+      'start /wait "" "%DIR%\\\\nmap-setup.exe"',
       'if exist "C:\\\\Program Files (x86)\\\\Nmap\\\\nmap.exe" xcopy /E /I /Y "C:\\\\Program Files (x86)\\\\Nmap" "%DIR%\\\\nmap" >nul 2>&1',
       'del "%DIR%\\\\nmap-setup.exe" >nul 2>&1',
       "goto nmap_ok",

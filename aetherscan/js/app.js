@@ -996,6 +996,19 @@ $("#btn-tool-trace")?.addEventListener("click", () => runTool("traceroute"));
 $("#btn-tool-dns")?.addEventListener("click", () => runTool("dns"));
 $("#btn-tool-arp")?.addEventListener("click", () => runTool("arp"));
 
+
+// Deep scan preset buttons
+$$("[data-nmap-preset]")?.forEach((btn) => btn.addEventListener("click", () => {
+  $$("[data-nmap-preset]").forEach((b) => b.classList.remove("is-active"));
+  btn.classList.add("is-active");
+  const preset = btn.dataset.nmapPreset;
+  const portSel = $("#deepscan-ports");
+  if (!portSel) return;
+  if (preset === "quick") { portSel.value = "top-1000"; }
+  else if (preset === "service") { portSel.value = "1-1000"; }
+  else if (preset === "deep") { portSel.value = "1-65535"; }
+  $("#deepscan-custom-ports").style.display = "none";
+}));
 $("#btn-deepscan")?.addEventListener("click", async () => {
   const host = $("#deepscan-host")?.value.trim();
   const out = $("#deepscan-out");
