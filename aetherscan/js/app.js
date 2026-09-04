@@ -1070,6 +1070,11 @@ function renderLicense() {
   $("#lic-badge").textContent = s.development ? "DEV" : s.tier.toUpperCase();
   $("#lic-badge").className = `lic-badge ${tier}`;
 
+  // Dev unlock is a developer affordance: only offer it when this install
+  // is already running a development engine (or web demo with dev active).
+  const devBtn = $("#btn-dev-unlock");
+  if (devBtn) devBtn.parentElement.style.display = s.development ? "" : "none";
+
   $("#tier-grid").innerHTML = (s.tiers || []).map((t) => `
     <article class="tier-card ${t.id === tier ? "is-current" : ""}">
       ${t.id === tier ? `<span class="current-tag">Current</span>` : ""}
