@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark" />
   <title>AetherScan — Network Intelligence</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/app.css?v=2300" />
+  <link rel="stylesheet" href="css/app.css?v=2400" />
 </head>
 <body data-theme="auto">
   <div id="app" class="app-shell">
@@ -332,7 +332,7 @@
               </select>
             </label>
             <label>Interface
-              <select id="monitor-iface"><option>Loading…</option></select>
+              <select id="monitor-iface"><option value="">All interfaces</option></select>
             </label>
             <label class="toggle" style="align-self:end;padding-bottom:8px">
               <input type="checkbox" id="monitor-deep" data-min-plan="ultimate" data-upsell="Deep monitoring" />
@@ -345,6 +345,33 @@
           <ul class="feed feed-rich" id="feed-monitor">
             <li class="empty-hint">Start monitoring to see the live stream.</li>
           </ul>
+        </section>
+
+        <section class="card" style="margin-top:16px">
+          <header class="card-head"><h2>Periodic auto-audit</h2><span class="card-hint">Pro · re-audits devices on a schedule</span></header>
+          <div class="tools-bar" style="align-items:center">
+            <label style="font-size:12px;color:var(--text-2)">Every</label>
+            <select id="auto-audit-interval" style="min-width:120px;background:var(--surface-strong);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:13px">
+              <option value="15">15 min</option><option value="30" selected>30 min</option>
+              <option value="60">1 hour</option><option value="120">2 hours</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" id="btn-auto-audit">Start auto-audit</button>
+            <span id="auto-audit-status" style="font-size:12px;color:var(--text-3)"></span>
+          </div>
+        </section>
+
+        <section class="card" style="margin-top:16px">
+          <header class="card-head"><h2>My device exposure</h2><span class="card-hint">Pro · control network visibility</span></header>
+          <p style="font-size:12.5px;color:var(--text-2);margin-bottom:12px">
+            <b style="color:var(--orange)">Go hidden</b> makes this computer invisible to network scans (Windows profile → Public, discovery off).<br/>
+            <b style="color:var(--green)">Make visible</b> restores normal file/printer sharing (Windows profile → Private, discovery on).
+          </p>
+          <div class="tools-bar">
+            <button class="btn btn-ghost btn-sm" id="btn-exposure-visible" data-min-plan="pro" data-upsell="Network exposure controls">🟢 Make visible</button>
+            <button class="btn btn-ghost btn-sm" id="btn-exposure-hidden" data-min-plan="pro" data-upsell="Network exposure controls">🔴 Go hidden</button>
+            <button class="btn btn-ghost btn-sm" id="btn-exposure-status">Check status</button>
+          </div>
+          <pre style="margin-top:12px;background:var(--surface-strong);border:1px solid var(--border);border-radius:10px;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--text-2);display:none" id="exposure-out"></pre>
         </section>
       </main>
 
@@ -544,11 +571,11 @@
   <!-- ══════════════ Toast ══════════════ -->
   <div class="toast-stack" id="toast-stack"></div>
 
-  <script src="js/config.js?v=2300"></script>
-  <script src="js/license-web.js?v=2300"></script>
-  <script src="js/licenses.js?v=2300"></script>
-  <script src="js/demo-api.js?v=2300"></script>
-  <script src="js/auth.js?v=2300"></script>
-  <script src="js/app.js?v=2300"></script>
+  <script src="js/config.js?v=2400"></script>
+  <script src="js/license-web.js?v=2400"></script>
+  <script src="js/licenses.js?v=2400"></script>
+  <script src="js/demo-api.js?v=2400"></script>
+  <script src="js/auth.js?v=2400"></script>
+  <script src="js/app.js?v=2400"></script>
 </body>
 </html>
