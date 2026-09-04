@@ -844,6 +844,8 @@ Service detection performed.` });
             : redeem.error || "The license server rejected this key.";
           return json({ ok: false, message: msg }, 400);
         }
+        // Sync the session plan immediately so feature gating updates.
+        if (redeem.plan) window.AetherCloud.updateUserPlan(redeem.plan);
       }
       licenseState.key = key.toUpperCase();
       licenseState.licensed_to = String(body.licensed_to || "Licensee");

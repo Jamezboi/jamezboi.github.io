@@ -75,6 +75,31 @@
       return r;
     },
     signOut() { saveSession(null); },
+    updateUserPlan(plan) {
+      if (session && session.user) { session.user.plan = plan; saveSession(session); }
+    },
+    async me() {
+      const r = await call("/me", { method: "GET", useSession: true });
+      if (r.ok && r.user) { session = { token: session?.token, user: r.user }; saveSession(session); }
+      return r;
+    },
+    async saveState(patch) {
+      return call("/me/save", { body: patch, useSession: true });
+    },
+    async dev(code) {
+      const r = await call("/auth/dev", { body: { code }, useSession: true });
+      if (r.ok && r.user) { session.user = r.user; saveSession(session); }
+      return r;
+    },
+    async adminOverview() {
+      return call("/admin/overview", { method: "GET", useSession: true });
+    },
+    async setUserPlan(email, plan) {
+      return call("/admin/set-plan", { body: { email, plan }, useSession: true });
+    },
+    async resetUserPlan(email) {
+      return call("/admin/set-plan", { body: { email, plan: "free" }, useSession: true });
+    },
 
     // keys
     async issueKeys(tier, count, adminSecret) {

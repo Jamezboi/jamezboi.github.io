@@ -933,8 +933,23 @@ async function renderAdmin() {
   $("#admin-users tbody").innerHTML = r.users.map((u) => `
     <tr><td><strong>${escT(u.username || u.email)}</strong></td>
       <td style="color:var(--text-3)">${escT(u.email)}</td>
-      <td>${u.dev ? '👑 dev' : escT(u.plan)}</td>
-      <td>${u.verified ? '✓' : '•'}${u.free_scan_credits}s/${u.free_audit_credits}a</td></tr>`).join("");
+      <td><select class="admin-plan-select" data-email="${escT(u.email)}" style="font-size:11px;padding:3px 6px;border-radius:6px;background:var(--surface-strong);border:1px solid var(--border);color:var(--text)">
+        <option value="free" ${u.plan === 'free' ? 'selected' : ''}>Free</option>
+        <option value="pro" ${u.plan === 'pro' ? 'selected' : ''}>Pro</option>
+        <option value="ultimate" ${u.plan === 'ultimate' ? 'selected' : ''}>Ultimate</option>
+      </select>${u.dev ? ' <span style="color:var(--orange);font-size:10px">👑</span>' : ''}</td>
+      <td>${u.verified ? '✓' : '•'} ${u.free_scan_credits ?? 0}s ${u.free_audit_credits ?? 0}a</td>
+      <td><button class="btn btn-ghost btn-sm admin-reset" data-email="${escT(u.email)}" title="Reset to free" style="font-size:10px;padding:3px 8px">Reset</button></td></tr>`).join("");
+  $$(".admin-plan-select").forEach((sel) => sel.addEventListener("change", async () => {
+    const r = await window.AetherCloud.setUserPlan(sel.dataset.email, sel.value);
+    if (r.ok) { toast(`${sel.dataset.email} → ${sel.value}`, "ok"); renderAdmin(); }
+    else toast(r.error || "failed", "err");
+  }));
+  $$(".admin-reset").forEach((btn) => btn.addEventListener("click", async () => {
+    const r = await window.AetherCloud.resetUserPlan(btn.dataset.email);
+    if (r.ok) { toast(`${btn.dataset.email} reset to free`, "ok"); renderAdmin(); }
+    else toast(r.error || "failed", "err");
+  }));
   $("#admin-keys tbody").innerHTML = r.keys.map((k) => `
     <tr><td><code>${escT(k.key)}</code></td><td>${escT(k.tier)}</td>
       <td>${escT(k.status)}</td><td style="color:var(--text-3)">${escT(k.redeemed_by || "")}</td></tr>`).join("");
