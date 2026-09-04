@@ -1,7 +1,7 @@
 {
-  "latest": "1.4.2",
+  "latest": "1.4.3",
   "min_supported": "1.4.0",
   "notes_url": "https://jamezboi.github.io/aetherscan/",
-  "bundle": "aetherscan-portable-1.4.2.zip",
+  "bundle": "aetherscan-portable-1.4.3.zip",
   "released": "2026-09-03"
 }

@@ -933,7 +933,7 @@ Reply from ${host}: bytes=32 time=${(device ? device.latency_ms ?? 2 : 2) + 0.2}
         if (manifest.latest) return String(manifest.latest);
       }
     } catch { /* fall through */ }
-    return "1.4.2";
+    return "1.4.3";
   }
 
   function buildLauncherBat(version, consoleUrl, bundleUrl, siteOrigin) {

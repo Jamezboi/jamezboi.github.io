@@ -1,0 +1,25 @@
+# AetherScan license + account backend (Cloudflare Workers + D1)
+# Copy to wrangler.toml, fill the account_id, then:
+#   npm i -g wrangler && wrangler login
+#   wrangler d1 create aetherscan            # note the database_id
+#   wrangler d1 execute aetherscan --file=./schema.sql
+#   npx wrangler secret put APP_SECRET       # any long random string (for session JWTs)
+#   npx wrangler secret put ADMIN_SECRET     # a secret only you know (key issuance)
+#   npx wrangler secret put RESEND_API_KEY   # optional — email verification delivery
+#   wrangler deploy
+#
+# Your Worker URL will be https://aetherscan.<subdomain>.workers.dev
+
+name = "aetherscan"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "aetherscan"
+database_id = "PUT_DATABASE_ID_HERE"
+
+# Admin email: this Google account may issue keys and list everything.
+# Put the email you sign in with (must match the Google token's email).
+[vars]
+ADMIN_EMAIL = "jamezboyyy@gmail.com"
