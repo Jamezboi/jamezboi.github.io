@@ -158,7 +158,7 @@ function showView(view) {
   if (view === "reports") renderHistory();
   if (view === "license") renderLicense();
   if (view === "settings") loadSettingsView();
-  if (view === "monitor") pollMonitor();
+  if (view === "monitor") { pollMonitor(); populateInterfaces(); }
   if (view === "admin") renderAdmin();
 }
 
@@ -1107,6 +1107,49 @@ async function loadMonitorFeed() {
     }).join("");
   } catch { /* ignore */ }
 }
+
+/* ── Monitor interface dropdown ──────────────────────────────────── */
+async function populateInterfaces() {
+  try {
+    const { interfaces } = await api("/interfaces");
+    const sel = $("#monitor-iface");
+    if (sel && interfaces?.length) {
+      sel.innerHTML = interfaces.map((i) =>
+        `<option value="${esc(i.ip)}">${esc(i.name)} (${esc(i.ip)})</option>`).join("");
+    }
+  } catch { /* ignore */ }
+}
+
+/* ── Periodic auto-audit ──────────────────────────────────────────── */
+$("#btn-auto-audit")?.addEventListener("click", async () => {
+  const interval = parseInt($("#auto-audit-interval")?.value, 10) || 30;
+  const statusEl = $("#auto-audit-status");
+  try {
+    const r = await api("/audit/auto/start", { method: "POST", body: JSON.stringify({ interval_min: interval }) });
+    if (statusEl) statusEl.textContent = `Running — every ${interval} min`;
+    toast(`Auto-audit started (every ${interval} min)`, "ok");
+  } catch (err) {
+    if (err.status === 402) paywallToast(err.body);
+    else toast(err.message, "err");
+  }
+});
+
+/* ── Network exposure controls ────────────────────────────────────── */
+async function setExposure(action) {
+  const out = $("#exposure-out");
+  out.hidden = false;
+  out.textContent = `${action === "status" ? "Checking" : "Setting to " + action}…`;
+  try {
+    const res = await api("/network/exposure", { method: "POST", body: JSON.stringify({ action }) });
+    out.textContent = res.output || res.error || "(done)";
+  } catch (err) {
+    if (err.status === 402) { paywallToast(err.body); out.hidden = true; return; }
+    out.textContent = `Error: ${err.message}`;
+  }
+}
+$("#btn-exposure-visible")?.addEventListener("click", () => setExposure("visible"));
+$("#btn-exposure-hidden")?.addEventListener("click", () => setExposure("hidden"));
+$("#btn-exposure-status")?.addEventListener("click", () => setExposure("status"));
 
 /* ------------------------------------------------------------------ */
 /* 9. Reports                                                          */
