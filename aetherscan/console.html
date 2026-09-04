@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark" />
   <title>AetherScan — Network Intelligence</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/app.css?v=1500" />
+  <link rel="stylesheet" href="css/app.css?v=1600" />
 </head>
 <body data-theme="auto">
   <div id="app" class="app-shell">
@@ -47,7 +47,7 @@
           <span>Monitor</span>
           <em class="nav-badge is-live" id="badge-monitor" hidden></em>
         </button>
-        <button class="nav-item" data-view="reports">
+        <button class="nav-item" data-view="reports" data-min-plan="pro" data-upsell="Reports">
           <svg viewBox="0 0 24 24"><path d="M7 3.8h7.2L19 8.6V20.2H7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 3.8v5h5M9.6 13h5.2M9.6 16.4h5.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           <span>Reports</span>
         </button>
@@ -227,7 +227,7 @@
                exploited or disrupted.</p>
             <div class="sec-counts" id="sec-counts"></div>
             <div class="sec-actions">
-              <button class="btn btn-primary" id="btn-audit-all">Audit all devices</button>
+              <button class="btn btn-primary" id="btn-audit-all" data-min-plan="pro" data-upsell="Security audit">Audit all devices</button>
               <label class="toggle" title="Attempts 5 classic factory logins against YOUR devices' admin pages (read-only)">
                 <input type="checkbox" id="chk-cred-audit" />
                 <span>Include factory-credential check</span>
@@ -246,10 +246,10 @@
           </header>
           <div class="tools-bar">
             <input type="text" id="tools-host" placeholder="IP or hostname (e.g. 192.168.1.1)" spellcheck="false"/>
-            <button class="btn btn-ghost btn-sm" id="btn-tool-ping">Ping</button>
-            <button class="btn btn-ghost btn-sm" id="btn-tool-trace">Traceroute</button>
-            <button class="btn btn-ghost btn-sm" id="btn-tool-dns">DNS</button>
-            <button class="btn btn-ghost btn-sm" id="btn-tool-arp">ARP table</button>
+            <button class="btn btn-ghost btn-sm" id="btn-tool-ping" data-min-plan="pro" data-upsell="Network tools">Ping</button>
+            <button class="btn btn-ghost btn-sm" id="btn-tool-trace" data-min-plan="pro" data-upsell="Network tools">Traceroute</button>
+            <button class="btn btn-ghost btn-sm" id="btn-tool-dns" data-min-plan="pro" data-upsell="Network tools">DNS</button>
+            <button class="btn btn-ghost btn-sm" id="btn-tool-arp" data-min-plan="pro" data-upsell="Network tools">ARP table</button>
           </div>
           <pre class="debug-out" id="tools-out" hidden></pre>
         </section>
@@ -280,7 +280,7 @@
               <select id="monitor-iface"><option>Loading…</option></select>
             </label>
             <label class="toggle" style="align-self:end;padding-bottom:8px">
-              <input type="checkbox" id="monitor-deep" />
+              <input type="checkbox" id="monitor-deep" data-min-plan="ultimate" data-upsell="Deep monitoring" />
               <span>Deep scan (probe silent hosts + port changes · Ultimate)</span>
             </label>
           </div>
@@ -351,11 +351,6 @@
             <input type="text" id="input-licensee" placeholder="Licensed to (optional)" autocomplete="off"/>
             <button class="btn btn-primary" type="submit">Activate</button>
           </form>
-          <div class="dev-unlock">
-            <button class="btn btn-ghost btn-sm" id="btn-dev-unlock">🛠 Activate development unlock</button>
-            <p class="muted small">Development builds unlock every premium feature for testing and evaluation.
-               This ships disabled in production builds.</p>
-          </div>
           <p class="form-note" id="license-note"></p>
         </section>
       </main>
@@ -390,7 +385,7 @@
           <header class="card-head"><h2>Discovery depth</h2></header>
           <div class="setting-row">
             <div><strong>TCP sweep for silent devices</strong><p class="muted small">After the ping sweep, probe common ports on hosts that never answered — catches firewalled laptops, headless IoT and printers. Ultimate.</p></div>
-            <label class="switch"><input type="checkbox" id="set-sweep-tcp"/><span></span></label>
+            <label class="switch"><input type="checkbox" id="set-sweep-tcp" data-min-plan="ultimate" data-upsell="TCP sweep for silent devices"/><span></span></label>
           </div>
           <div class="setting-row">
             <div><strong>Demo devices</strong><p class="muted small">Seeded sample devices can overlap with a real network. Purge them from the inventory entirely.</p></div>
@@ -403,6 +398,18 @@
           <div class="setting-row">
             <div><strong>Factory-credential audit</strong><p class="muted small">Opt-in. Tries 5 classic default logins (read-only) against admin pages on <em>your own</em> devices. Never enables anything, never changes state.</p></div>
             <label class="switch"><input type="checkbox" id="set-cred-audit"/><span></span></label>
+          </div>
+        </section>
+
+        <section class="card">
+          <header class="card-head"><h2>Developer</h2><span class="card-hint">staff only</span></header>
+          <div class="setting-row">
+            <div><strong>Developer access</strong><p class="muted small">Enter a developer code to enable
+               development features on this account. Not shown to regular users.</p></div>
+            <div class="drawer-input-row" style="max-width:260px">
+              <input type="password" id="input-dev-code" placeholder="Developer code" autocomplete="off"/>
+              <button class="btn btn-ghost btn-sm" id="btn-dev-code">Apply</button>
+            </div>
           </div>
         </section>
 
@@ -457,6 +464,6 @@
   <script src="js/licenses.js"></script>
   <script src="js/demo-api.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/app.js?v=1500"></script>
+  <script src="js/app.js?v=1600"></script>
 </body>
 </html>

@@ -109,6 +109,8 @@ const state = {
   overviewMode: false,
   openDeviceId: null,
   monitorPoll: null,
+  account: null,
+  accountPlan: "free",
   config: { profile: "standard", ping: 500, online: false, credAudit: false,
             sweepTcp: false },
 };
@@ -205,6 +207,7 @@ function watchProgress() {
         state.progressTimer = null;
         if (progress.phase === "done") {
           toast(`Scan complete — ${progress.found} devices`, "ok");
+          maybeScanUpsell();
           setTimeout(() => { $("#scan-rail").hidden = true; }, 2500);
         }
         await Promise.all([refreshDevices(), refreshStatus()]);
@@ -1123,21 +1126,18 @@ $("#input-license")?.addEventListener("blur", async () => {
   }
 });
 
-$("#btn-dev-unlock").addEventListener("click", async () => {
+/* Developer access: a code entered in Settings, verified by the cloud. */
+$("#btn-dev-code")?.addEventListener("click", async () => {
+  const code = $("#input-dev-code")?.value.trim();
+  if (!code) return;
   try {
-    const res = await api("/license/activate", {
-      method: "POST",
-      body: JSON.stringify({ key: "AETHER-DEV-2026" }),
-    });
-    $("#license-note").textContent = res.message;
-    $("#license-note").className = "form-note ok";
-    toast(res.message, "ok");
-    await refreshStatus();
-    renderLicense();
-  } catch (err) {
-    $("#license-note").textContent = err.message;
-    $("#license-note").className = "form-note err";
-  }
+    if (!window.AetherCloud) { toast("Developer access needs the license backend", "err"); return; }
+    const r = await window.AetherCloud.dev(code);
+    if (r.ok) {
+      toast(r.message || "Developer access enabled", "ok");
+      setTimeout(() => location.reload(), 800);
+    } else toast(r.error || "Invalid developer code", "err");
+  } catch (err) { toast(err.message, "err"); }
 });
 
 /* ------------------------------------------------------------------ */
@@ -1182,8 +1182,71 @@ $("#set-sweep-tcp")?.addEventListener("change", async (e) => {
 $("#btn-clear-demo")?.addEventListener("click", () => purgeDemoDevices(false));
 
 async function saveConfig() {
-  // Client-side only for now: the server reads config.json at boot.
   localStorage.setItem("aetherscan-config", JSON.stringify(state.config));
+  // Persist to the account (settings sync across browsers).
+  if (window.AetherCloud && window.AetherCloud.enabled()) {
+    try { await window.AetherCloud.saveState({ settings: state.config }); } catch { /* offline */ }
+  }
+}
+
+/* ── Plan gating + upsell ───────────────────────────────────────── */
+const PLAN_RANK = { free: 0, pro: 1, ultimate: 2 };
+
+function planAtLeast(required) {
+  return PLAN_RANK[state.accountPlan || "free"] >= PLAN_RANK[required || "free"];
+}
+
+function applyPlanGating(plan) {
+  state.accountPlan = plan || state.accountPlan || "free";
+  document.body.dataset.plan = state.accountPlan;
+  // Greys any element tagged data-min-plan that the current plan can't use.
+  $$("[data-min-plan]").forEach((el) => {
+    const needed = el.dataset.minPlan;
+    el.classList.toggle("feature-locked", !planAtLeast(needed));
+  });
+  if ($("#btn-audit-all")) $("#btn-audit-all").style.opacity = planAtLeast("pro") ? "" : "";
+}
+
+document.addEventListener("click", (e) => {
+  const locked = e.target.closest(".feature-locked");
+  if (locked) {
+    e.preventDefault(); e.stopPropagation();
+    showUpsell(locked.dataset.upsell || "premium features");
+  }
+}, true);
+
+function showUpsell(feature) {
+  if (document.getElementById("upsell-modal")) return;
+  const dreq = { free: "AetherScan Pro", pro: "AetherScan Ultimate", ultimate: "AetherScan Ultimate" };
+  const backdrop = document.createElement("div");
+  backdrop.className = "aether-modal-backdrop";
+  backdrop.id = "upsell-modal";
+  backdrop.innerHTML = `
+    <div class="aether-modal" style="text-align:center">
+      <div style="font-size:34px;margin-bottom:8px">🔒</div>
+      <h3>${esc(feature).replace(/^Unlock /, "")} is a premium feature</h3>
+      <p>Your ${state.accountPlan} plan doesn't include it. Upgrade to ${dreq[state.accountPlan] || "Pro"}
+         to unlock <b>${esc(feature)}</b>${state.accountPlan === "free"
+           ? ", plus security auditing, network tools, monitoring and reports" : ""}.</p>
+      <div class="row" style="justify-content:center;display:flex;gap:10px;margin-top:16px">
+        <a class="btn primary" href="checkout.html">Upgrade →</a>
+        <button class="btn" id="upsell-close">Not now</button>
+      </div>
+    </div>`;
+  document.body.appendChild(backdrop);
+  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) backdrop.remove(); });
+  backdrop.querySelector("#upsell-close").addEventListener("click", () => backdrop.remove());
+  if (window.AetherCloud && window.AetherCloud.enabled()) {
+    // record interest; no-op unless we add analytics later
+  }
+}
+
+/* After a scan completes on the free plan, show what an upgrade would add. */
+let upsellShownOnce = false;
+function maybeScanUpsell() {
+  if (state.accountPlan !== "free" || upsellShownOnce) return;
+  upsellShownOnce = true;
+  setTimeout(() => showUpsell("Deep device details (port scan, audit, monitoring)"), 1200);
 }
 
 /* Demo-visibility toggle lives in the devices toolbar. */
@@ -1231,17 +1294,26 @@ $("#btn-env-dump").addEventListener("click", async () => {
   } catch { /* ignore */ }
 
   // Signed-in users shouldn't see seeded demo clutter mixed into a real LAN.
-  document.addEventListener("aetherscan:auth", async () => {
+  document.addEventListener("aetherscan:auth", async (e) => {
     state.showDemo = !isLiveMode();
+    state.account = e.detail?.user || null;
     const toolbarToggle = $("#chk-demo");
     if (toolbarToggle) toolbarToggle.checked = state.showDemo;
     if (isLiveMode()) await purgeDemoDevices(true);
+    applyPlanGating(state.account?.plan);
     renderDevices();
   });
 
-  if (window.AetherAuth && window.AetherAuth.getSession()) {
-    state.showDemo = !isLiveMode();
-  }
+  // Cloud profile: restore saved settings/devices and the current plan.
+  document.addEventListener("aetherscan:profile", (e) => {
+    const s = e.detail;
+    if (!s) return;
+    if (s.settings) {
+      Object.assign(state.config, s.settings);
+      // reflect into the settings view on next visit
+    }
+    if (s.plan) { state.accountPlan = s.plan; applyPlanGating(s.plan); }
+  });
 
   await refreshStatus();
   await refreshDevices();

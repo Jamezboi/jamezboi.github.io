@@ -56,6 +56,15 @@
     async verifyEmail(email, code) {
       return call("/auth/verify-email", { body: { email, code } });
     },
+    async dev(code) {
+      return call("/auth/dev", { body: { code } });
+    },
+    async me() {
+      return call("/me", { method: "GET", useSession: true });
+    },
+    async saveState(patch) {
+      return call("/me/save", { body: patch, useSession: true });
+    },
     signOut() { saveSession(null); },
 
     // keys

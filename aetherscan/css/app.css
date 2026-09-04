@@ -903,3 +903,8 @@ code { font-family: var(--mono); font-size: .92em; background: var(--surface-str
 .overview-row:hover { background: var(--surface-strong); }
 
 .toolbar-right { gap: 12px; }
+
+/* ---------- plan gating (greyed premium) ---------- */
+body[data-plan] .feature-locked { opacity: .38; filter: grayscale(.45); cursor: not-allowed; position: relative; }
+.feature-locked::before { content: "🔒"; position: absolute; top: -7px; right: -7px; font-size: 13px; z-index: 2; pointer-events: none; }
+.feature-locked a, .feature-locked button { pointer-events: none; }
