@@ -1,21 +1,16 @@
-/* AetherScan web — deployment configuration. */
+/* AetherScan web — deployment configuration.
+   ▸ Google Sign-In: create an OAuth client ID (type "Web application") in
+     Google Cloud Console → APIs & Services → Credentials, and add these
+     Authorized JavaScript origins:
+        https://jamezboi.github.io
+        http://localhost:8080          (local testing)
+        http://127.0.0.1:8080          (local testing)
+     Then paste the client ID below (or enter it once in the console's
+     sign-in screen — it is stored in this browser only). */
 window.AETHERSCAN_CONFIG = {
-  clientId: "949741347685-arahv0dbp32vosl52fqptsbkuh98408i.apps.googleusercontent.com",
-  engineBase: "http://127.0.0.1:8765",
+  clientId: "949741347685-arahv0dbp32vosl52fqptsbkuh98408i.apps.googleusercontent.com",  // configured by jamezboi
+  engineBase: "http://127.0.0.1:8765",            // local AetherScan engine for Live mode
+  licenseServer: "",                              // Cloudflare Worker URL for one-time keys (empty = offline)
   siteName: "AetherScan",
   ownerSite: "https://jamezboi.github.io",
 };
-
-// Bootstrap a safe license API before demo-api.js loads. This prevents an
-// activation call from crashing if license-web.js is stale or unavailable.
-window.AetherLicense = window.AetherLicense || {};
-window.AetherLicense.isDevKey = async () => false;
-window.AetherLicense.keyValid = window.AetherLicense.keyValid || (async () => false);
-window.AetherLicense.tierOf = window.AetherLicense.tierOf || (async () => "pro");
-
-// Development unlock is not part of the production web console.
-const removeAetherDevUnlock = () => {
-  document.querySelectorAll(".dev-unlock").forEach(el => el.remove());
-};
-removeAetherDevUnlock();
-document.addEventListener("DOMContentLoaded", removeAetherDevUnlock);

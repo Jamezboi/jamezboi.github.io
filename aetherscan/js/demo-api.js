@@ -262,6 +262,15 @@
 
   const tcpSessions = {};
 
+  function webMachineId() {
+    let id = localStorage.getItem("aetherscan-machine-id");
+    if (!id) {
+      id = "web-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem("aetherscan-machine-id", id);
+    }
+    return id;
+  }
+
   function fakeBannerFor(device, port) {
     if (port === 23 || port === 2323) return `\r\nWelcome to ${device.custom_name}\r\nLogin: `;
     if (port === 80) return "HTTP/1.0 200 OK (demo)";
@@ -779,9 +788,24 @@ Reply from ${host}: bytes=32 time=${(device ? device.latency_ms ?? 2 : 2) + 0.2}
           message: "Development unlock active — all premium features enabled." });
       }
       if (!(await window.AetherLicense.keyValid(key))) {
-        return json({ ok: false, message: "That key doesn't look right. Expected format: AETH-XXXX-XXXX-PRO (groups 4·4·4·4)." }, 400);
+        const group = window.AetherLicense.keyTierGroup(key);
+        const message = group
+          ? "Key format is fine, but the check code is wrong — it was copied incorrectly. Re-check the last 4 characters (or generate the key again)."
+          : "That key doesn't look right. Expected format: AETH-XXXX-XXXX-PRO-XXXX (or AETH-XXXX-XXXX-ULTI-XXXX for Ultimate).";
+        return json({ ok: false, message }, 400);
       }
       const tier = await window.AetherLicense.tierOf(key);
+      // One-time enforcement via the cloud backend (empty config = offline).
+      if (window.AetherCloud && window.AetherCloud.enabled()) {
+        const redeem = await window.AetherCloud.redeemKey(key, webMachineId());
+        if (!redeem.ok) {
+          const msg = redeem.error === "key already redeemed"
+            ? "This key has already been redeemed on another device."
+            : redeem.error === "unknown key" ? "This key is not recognized by the license server."
+            : redeem.error || "The license server rejected this key.";
+          return json({ ok: false, message: msg }, 400);
+        }
+      }
       licenseState.key = key.toUpperCase();
       licenseState.licensed_to = String(body.licensed_to || "Licensee");
       licenseState.development = false;
@@ -909,7 +933,7 @@ Reply from ${host}: bytes=32 time=${(device ? device.latency_ms ?? 2 : 2) + 0.2}
         if (manifest.latest) return String(manifest.latest);
       }
     } catch { /* fall through */ }
-    return "1.4.1";
+    return "1.4.2";
   }
 
   function buildLauncherBat(version, consoleUrl, bundleUrl, siteOrigin) {

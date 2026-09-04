@@ -1,1 +1,284 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="robots" content="noindex"><title>Checkout — AetherScan</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><style>:root{--bg:#0b0d12;--s:rgba(255,255,255,.055);--ss:rgba(255,255,255,.085);--b:rgba(255,255,255,.1);--t:#f2f4f8;--t2:#a6adbb;--t3:#6b7280;--a:#0a84ff;--a2:#5e5ce6;--g:#30d158;--y:#ffd60a;--r:#ff453a;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);color:var(--t);background:radial-gradient(1000px 460px at 85% -10%,rgba(94,92,230,.16),transparent 60%),radial-gradient(800px 400px at -10% 110%,rgba(10,132,255,.13),transparent 60%),var(--bg);min-height:100vh;padding:40px 20px 60px}.page{max-width:920px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--t)}.mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--a),var(--a2))}.back{color:var(--t2);text-decoration:none;font-size:13px}h1{font-size:26px;letter-spacing:-.6px;margin-bottom:6px}.sub{color:var(--t2);font-size:14px;margin-bottom:24px}.note{display:flex;gap:10px;font-size:12.5px;color:var(--y);background:rgba(255,214,10,.07);border:1px solid rgba(255,214,10,.22);border-radius:12px;padding:11px 14px;margin-bottom:20px}.layout{display:grid;grid-template-columns:1fr 380px;gap:18px;align-items:start}@media(max-width:860px){.layout{grid-template-columns:1fr}}.card{background:var(--s);border:1px solid var(--b);border-radius:20px;padding:22px;backdrop-filter:blur(20px)}h2{font-size:15px;margin-bottom:14px}.tiers{display:grid;gap:10px}.tier{display:flex;gap:13px;align-items:center;padding:15px 16px;border:1px solid var(--b);border-radius:15px;cursor:pointer}.tier.selected{border-color:var(--a);background:rgba(10,132,255,.07);box-shadow:0 0 0 1px rgba(10,132,255,.25)}.tier input{accent-color:var(--a)}.icon{width:44px;height:44px;flex:0 0 44px}.name{font-weight:750;font-size:14px}.price{color:var(--a);font-weight:800;font-size:13px;margin-left:8px}.feats{font-size:12px;color:var(--t2);margin-top:4px}label{display:block;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--t3);margin:14px 0 5px}input{width:100%;background:var(--ss);border:1px solid var(--b);border-radius:11px;padding:11px 13px;font-size:14px;color:var(--t);outline:none}input:focus{border-color:var(--a)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}.btn{width:100%;margin-top:18px;padding:13px;border:0;border-radius:13px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-size:15px;font-weight:700;cursor:pointer}.btn:disabled{opacity:.55;cursor:not-allowed}.msg{min-height:19px;color:var(--r);font-size:12.5px;margin-top:9px}.secure{text-align:center;font-size:11.5px;color:var(--t3);margin-top:10px}.hidden{display:none}.key{font:700 17px var(--mono);letter-spacing:1px;background:var(--ss);border:1px dashed var(--b);border-radius:13px;padding:15px;margin:16px 0;user-select:all;text-align:center}.actions{display:flex;gap:10px;flex-wrap:wrap}.actions button{flex:1;min-width:150px;padding:10px 15px;border-radius:12px;border:1px solid var(--b);background:var(--ss);color:var(--t);font-weight:650;font-size:13px;cursor:pointer}.actions .primary{background:linear-gradient(135deg,var(--a),var(--a2));border:0;color:#fff}.success{text-align:center}.check{width:64px;height:64px;border-radius:50%;margin:4px auto 16px;background:rgba(48,209,88,.15);border:1px solid rgba(48,209,88,.4);display:grid;place-items:center;font-size:28px;color:var(--g)}footer{text-align:center;margin-top:40px;color:var(--t3);font-size:12px}footer a{color:var(--t2)}</style></head><body><div class="page"><div class="top"><a class="brand" href="index.html"><span class="mark"><svg viewBox="0 0 24 24" width="20" fill="none"><circle cx="12" cy="12" r="2.4" fill="#fff"/><circle cx="12" cy="12" r="6.2" stroke="#fff" stroke-width="1.4" opacity=".55"/><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.2" opacity=".25"/></svg></span><strong>AetherScan</strong></a><a class="back" href="index.html">← Back to site</a></div><div id="checkout"><h1>Upgrade AetherScan</h1><p class="sub">One-time payment. Your license is issued by AetherScan's licensing service and can be redeemed once.</p><div class="note"><span>⚠</span><span><strong>Sandbox checkout:</strong> no real payment is processed. The card form is only a payment simulation; card data stays in your browser.</span></div><div class="layout"><div class="card"><h2>1 · Choose your edition</h2><div class="tiers" id="tiers"><label class="tier selected" data-tier="pro"><input type="radio" name="tier" value="pro" checked><img class="icon" src="assets/icons/pro.svg" alt="Pro"><div><span class="name">AetherScan Pro</span><span class="price">$24 one-time</span><div class="feats">Standard port profiles · fingerprinting · security audit · continuous monitoring · network tools · reports</div></div></label><label class="tier" data-tier="ultimate"><input type="radio" name="tier" value="ultimate"><img class="icon" src="assets/icons/ultimate.svg" alt="Ultimate"><div><span class="name">AetherScan Ultimate</span><span class="price">$59 one-time</span><div class="feats">Everything in Pro, plus deep profiles · UPnP enrichment · Telnet/raw TCP console · deep monitoring</div></div></label></div><h2 style="margin-top:22px">2 · Payment details</h2><form id="pay"><div class="grid"><div class="full"><label>Name on card</label><input id="name" placeholder="Jane Doe" required></div><div class="full"><label>Card number</label><input id="card" inputmode="numeric" maxlength="19" placeholder="4242 4242 4242 4242" required></div><div><label>Expiry</label><input id="exp" maxlength="7" placeholder="MM / YY" required></div><div><label>CVC</label><input id="cvc" inputmode="numeric" maxlength="4" placeholder="123" required></div></div><div class="msg" id="pay-msg"></div><button class="btn" id="pay-btn">Continue to verification</button><p class="secure">No card data is transmitted or stored by this page.</p></form></div><div class="card"><h2>Order summary</h2><div id="summary" style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--t2)">AetherScan Pro</span><strong>$24.00</strong></div><div style="font-size:13px;color:var(--t3);margin-top:9px">One-time license · updates included</div><hr style="border:0;border-top:1px solid var(--b);margin:15px 0"><p style="font-size:12px;color:var(--t3)">After the simulated payment, you'll need the private verification code before a license can be issued.</p></div></div></div><div id="verify" class="hidden"><div class="card" style="max-width:560px;margin:auto"><h1>Verify purchase</h1><p class="sub">Payment simulation completed. Enter the private verification code supplied by AetherScan to issue your license.</p><label for="secret">Verification code</label><input id="secret" type="password" autocomplete="off" placeholder="Private verification code"><div class="msg" id="verify-msg"></div><button class="btn" id="issue">Verify &amp; issue license</button><p class="secure">The verification code is checked server-side.</p></div></div><div id="success" class="hidden success"><div class="card" style="max-width:560px;margin:auto"><div class="check">✓</div><h1>Your license is ready</h1><p class="sub" id="success-sub"></p><div class="key" id="key"></div><div class="actions"><button id="copy">Copy key</button><button id="activate" class="primary">Activate once on this browser</button></div><p style="font-size:12px;color:var(--t3);margin-top:16px">Activation consumes this license. The same key cannot be activated again.</p></div></div><footer>Built by <a href="index.html">James Laliberte</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></footer></div><script>(()=>{const FN="https://mdvbiwmlxsvcmexbsrps.supabase.co/functions/v1/aetherscan-license";let tier="pro",issuedKey="";const $=s=>document.querySelector(s);const price=()=>tier==="ultimate"?59:24;document.querySelectorAll(".tier").forEach(el=>el.addEventListener("click",()=>{tier=el.dataset.tier;document.querySelectorAll(".tier").forEach(x=>x.classList.toggle("selected",x===el));$("#summary").innerHTML=`<span style="color:var(--t2)">AetherScan ${tier==="ultimate"?"Ultimate":"Pro"}</span><strong>$${price()}.00</strong>`}));$("#card").addEventListener("input",e=>{let d=e.target.value.replace(/\D/g,"").slice(0,16);e.target.value=d.replace(/(.{4})/g,"$1 ").trim()});$("#exp").addEventListener("input",e=>{let d=e.target.value.replace(/\D/g,"").slice(0,4);e.target.value=d.length>2?d.slice(0,2)+" / "+d.slice(2):d});$("#pay").addEventListener("submit",async e=>{e.preventDefault();const c=$("#card").value.replace(/\D/g,"");const x=$("#exp").value.replace(/\D/g,"");const v=$("#cvc").value.replace(/\D/g,"");if($("#name").value.trim().length<2||c.length<12||x.length!==4||v.length<3){$("#pay-msg").textContent="Enter valid simulated payment details.";return}$("#pay-btn").disabled=true;$("#pay-btn").textContent="Payment approved — continue…";await new Promise(r=>setTimeout(r,700));$("#checkout").classList.add("hidden");$("#verify").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})});$("#issue").onclick=async()=>{const code=$("#secret").value.trim();if(!code){$("#verify-msg").textContent="Enter the verification code.";return}const b=$("#issue");b.disabled=true;b.textContent="Verifying…";try{const r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"issue",code,tier})});const d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||"Verification failed");issuedKey=d.key;$("#key").textContent=issuedKey;$("#success-sub").textContent=`AetherScan ${tier==="ultimate"?"Ultimate":"Pro"} — license issued successfully.`;sessionStorage.setItem("aetherscan-pending-key",issuedKey);sessionStorage.setItem("aetherscan-pending-tier",tier);$("#verify").classList.add("hidden");$("#success").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})}catch(e){$("#verify-msg").textContent=e.message;b.disabled=false;b.textContent="Verify & issue license"}};$("#copy").onclick=()=>navigator.clipboard.writeText(issuedKey);$("#activate").onclick=async()=>{const b=$("#activate");b.disabled=true;b.textContent="Activating…";try{const r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"redeem",key:issuedKey})});const d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||"Activation failed");localStorage.setItem("aetherscan-web-license",JSON.stringify({key:issuedKey,licensed_to:"Web checkout",development:false,trial_start:Date.now()/1000,scans:{}}));sessionStorage.removeItem("aetherscan-pending-key");sessionStorage.removeItem("aetherscan-pending-tier");b.textContent="Activated ✓";setTimeout(()=>location.href="console.html",500)}catch(e){b.disabled=false;b.textContent="Activate once on this browser";$("#verify-msg").textContent=e.message}}})();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="robots" content="noindex" />
+  <title>Checkout — AetherScan</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #0b0d12; --surface: rgba(255,255,255,.05); --surface-strong: rgba(255,255,255,.085);
+      --border: rgba(255,255,255,.085); --border-strong: rgba(255,255,255,.16);
+      --text: #f2f4f8; --text-2: #a6adbb; --text-3: #6b7280;
+      --accent: #0a84ff; --accent-2: #5e5ce6; --green: #30d158; --yellow: #ffd60a;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); color: var(--text); line-height: 1.55;
+      background:
+        radial-gradient(1000px 460px at 85% -10%, rgba(94,92,230,.16), transparent 60%),
+        radial-gradient(800px 400px at -10% 110%, rgba(10,132,255,.13), transparent 60%),
+        var(--bg);
+      min-height: 100vh; padding: 40px 20px 60px; -webkit-font-smoothing: antialiased; }
+    .page { max-width: 920px; margin: 0 auto; }
+    .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+    .brand-mark { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .back { color: var(--text-2); text-decoration: none; font-size: 13px; }
+    .back:hover { color: var(--text); }
+    h1 { font-size: 26px; letter-spacing: -.6px; margin-bottom: 6px; }
+    .sub { color: var(--text-2); font-size: 14px; margin-bottom: 26px; }
+    .sandbox-note { display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: var(--yellow);
+      background: rgba(255,213,10,.08); border: 1px solid rgba(255,213,10,.25);
+      border-radius: 12px; padding: 10px 14px; margin-bottom: 24px; }
+    .layout { display: grid; grid-template-columns: 1fr 380px; gap: 18px; align-items: start; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 22px; backdrop-filter: blur(20px); }
+    .card h2 { font-size: 15px; margin-bottom: 14px; letter-spacing: -.2px; }
+    .tiers { display: flex; flex-direction: column; gap: 10px; }
+    .tier { display: flex; gap: 13px; align-items: flex-start; padding: 15px 16px;
+      border: 1px solid var(--border); border-radius: 15px; cursor: pointer;
+      transition: border-color .18s, background .18s; }
+    .tier:hover { border-color: var(--border-strong); }
+    .tier.selected { border-color: var(--accent); background: rgba(10,132,255,.07);
+      box-shadow: 0 0 0 1px rgba(10,132,255,.3); }
+    .tier input { margin-top: 3px; accent-color: var(--accent); }
+    .tier .t-name { font-weight: 700; font-size: 14px; }
+    .tier .t-price { color: var(--accent); font-weight: 800; font-size: 13px; margin-left: 8px; }
+    .tier .t-feats { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .6px;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 5px; }
+    input { width: 100%; background: var(--surface-strong); border: 1px solid var(--border);
+      border-radius: 11px; padding: 10px 13px; font-size: 14px; color: var(--text); outline: none;
+      transition: border-color .18s, box-shadow .18s; }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(10,132,255,.35); }
+    input.invalid { border-color: #ff453a; }
+    .pay-btn { width: 100%; margin-top: 18px; padding: 13px; border: none; border-radius: 13px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff;
+      font-size: 15px; font-weight: 700; cursor: pointer; font-family: var(--font);
+      box-shadow: 0 6px 20px rgba(10,132,255,.35); transition: transform .15s, box-shadow .15s; }
+    .pay-btn:hover { box-shadow: 0 9px 28px rgba(10,132,255,.5); }
+    .pay-btn:active { transform: scale(.98); }
+    .secure { text-align: center; font-size: 11.5px; color: var(--text-3); margin-top: 12px; }
+    /* success */
+    #success { display: none; text-align: center; }
+    #success .check { width: 64px; height: 64px; border-radius: 50%; margin: 4px auto 16px;
+      background: rgba(48,209,88,.15); border: 1px solid rgba(48,209,88,.4);
+      display: grid; place-items: center; font-size: 28px; color: var(--green); }
+    .key-box { font-family: var(--mono); font-size: 17px; letter-spacing: 1px;
+      background: var(--surface-strong); border: 1px dashed var(--border-strong);
+      border-radius: 13px; padding: 15px; margin: 16px 0; user-select: all; }
+    .key-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 12px;
+      font-weight: 600; font-size: 13.5px; text-decoration: none; cursor: pointer;
+      border: 1px solid var(--border); background: var(--surface-strong); color: var(--text); }
+    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border: none; color: #fff; box-shadow: 0 4px 14px rgba(10,132,255,.35); }
+    footer { text-align: center; margin-top: 40px; color: var(--text-3); font-size: 12px; }
+    footer a { color: var(--text-2); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+            <circle cx="12" cy="12" r="2.4" fill="#fff"/>
+            <circle cx="12" cy="12" r="6.2" stroke="#fff" stroke-width="1.4" opacity=".55"/>
+            <circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.2" opacity=".25"/>
+          </svg>
+        </span>
+        <strong>AetherScan</strong>
+      </a>
+      <a class="back" href="index.html">← Back to site</a>
+    </div>
+
+    <div id="checkout-view">
+      <h1>Upgrade AetherScan</h1>
+      <p class="sub">One-time payment. License keys verify offline on any machine — no account, no subscription.</p>
+
+      <div class="sandbox-note">
+        <span>⚠</span>
+        <span><strong>Sandbox checkout:</strong> this is a demonstration store. No payment is
+        processed and no card data is sent anywhere — completing the form simply issues a real,
+        working license key generated in your browser.</span>
+      </div>
+
+      <div class="layout">
+        <div class="card">
+          <h2>1 · Choose your edition</h2>
+          <div class="tiers" id="tier-list">
+            <label class="tier" data-tier="pro">
+              <input type="radio" name="tier" value="pro" checked />
+              <div>
+                <span class="t-name">AetherScan Pro</span><span class="t-price">$24 one-time</span>
+                <div class="t-feats">Standard port profiles · fingerprinting · security audit ·
+                  continuous monitoring · network tools · reports · unlimited scans</div>
+              </div>
+            </label>
+            <label class="tier" data-tier="ultimate">
+              <input type="radio" name="tier" value="ultimate" />
+              <div>
+                <span class="t-name">AetherScan Ultimate</span><span class="t-price">$59 one-time</span>
+                <div class="t-feats">Everything in Pro, plus deep port profiles · UPnP enrichment ·
+                  Telnet &amp; raw TCP console · deep continuous monitoring · TCP sweep for silent devices</div>
+              </div>
+            </label>
+            <label class="tier" data-tier="free">
+              <input type="radio" name="tier" value="free" style="display:none" />
+            </label>
+          </div>
+
+          <h2 style="margin-top:22px">2 · Payment details</h2>
+          <form id="pay-form" autocomplete="off">
+            <div class="form-grid">
+              <div class="full">
+                <label for="pay-name">Name on card</label>
+                <input id="pay-name" placeholder="Jane Doe" required />
+              </div>
+              <div class="full">
+                <label for="pay-card">Card number</label>
+                <input id="pay-card" placeholder="4242 4242 4242 4242" inputmode="numeric" maxlength="19" required />
+              </div>
+              <div>
+                <label for="pay-exp">Expiry</label>
+                <input id="pay-exp" placeholder="MM / YY" maxlength="7" required />
+              </div>
+              <div>
+                <label for="pay-cvc">CVC</label>
+                <input id="pay-cvc" placeholder="123" inputmode="numeric" maxlength="4" required />
+              </div>
+            </div>
+            <button class="pay-btn" type="submit" id="pay-submit">Pay $24 and get my key</button>
+            <p class="secure">Nothing leaves your browser. The key is generated locally with the same
+               offline algorithm the engine verifies against.</p>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Order summary</h2>
+          <div id="summary-line" style="display:flex;justify-content:space-between;font-size:14px">
+            <span style="color:var(--text-2)">AetherScan Pro</span><strong>$24.00</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-3);margin-top:8px">
+            <span>Updates</span><span>included forever</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-3);margin-top:6px">
+            <span>Machines per key</span><span>your household / lab</span>
+          </div>
+          <hr style="border:none;border-top:1px solid var(--border);margin:14px 0" />
+          <p style="font-size:12px;color:var(--text-3)">Keys look like <code>AETH-XXXX-XXXX-PRO-····</code>
+             and activate inside the console under <b>License</b>, or on the desktop engine.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="success">
+      <div class="card" style="max-width:520px;margin:0 auto">
+        <div class="check">✓</div>
+        <h1 style="font-size:22px">Your key is ready</h1>
+        <p class="sub" id="success-sub">AetherScan Pro — activated on this browser.</p>
+        <div class="key-box" id="key-box">AETH-····-····-PRO-····</div>
+        <div class="key-actions">
+          <button class="btn" id="copy-key">Copy key</button>
+          <a class="btn primary" href="console.html" id="activate-link">Open console &amp; activate →</a>
+        </div>
+        <p style="font-size:12px;color:var(--text-3);margin-top:16px">Keep this key — it works offline on
+           any of your machines and on the desktop engine too.</p>
+      </div>
+    </div>
+
+    <footer>
+      Built by <a href="index.html">James Laliberte</a> ·
+      <a href="mailto:Jamezboyyy@gmail.com">Jamezboyyy@gmail.com</a> ·
+      <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a>
+    </footer>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/license-web.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      let selectedTier = "pro";
+
+      $$("#tier-list .tier input[name='tier']").forEach((radio) => {
+        radio.addEventListener("change", () => {
+          selectedTier = radio.value;
+          $$("#tier-list .tier").forEach((t) =>
+            t.classList.toggle("selected", t.dataset.tier === selectedTier));
+          $("#summary-line").innerHTML =
+            `<span style="color:var(--text-2)">AetherScan ${selectedTier === "ultimate" ? "Ultimate" : "Pro"}</span>` +
+            `<strong>$${selectedTier === "ultimate" ? "59" : "24"}.00</strong>`;
+          $("#pay-submit").textContent = `Pay $${selectedTier === "ultimate" ? "59" : "24"} and get my key`;
+        });
+      });
+      document.querySelector(".tier[data-tier='pro']").classList.add("selected");
+
+      // card field niceties
+      $("#pay-card").addEventListener("input", (e) => {
+        const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
+        e.target.value = digits.replace(/(.{4})/g, "$1 ").trim();
+      });
+      $("#pay-exp").addEventListener("input", (e) => {
+        const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
+        e.target.value = digits.length > 2 ? digits.slice(0, 2) + " / " + digits.slice(2) : digits;
+      });
+
+      function $(sel, root) { return (root || document).querySelector(sel); }
+      function $$(sel, root) { return [...(root || document).querySelectorAll(sel)]; }
+
+      $("#pay-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const card = $("#pay-card").value.replace(/\D/g, "");
+        const exp = $("#pay-exp").value.replace(/\D/g, "");
+        const cvc = $("#pay-cvc").value.replace(/\D/g, "");
+        let ok = true;
+        [["#pay-card", card.length >= 12], ["#pay-exp", exp.length === 4],
+         ["#pay-cvc", cvc.length >= 3], ["#pay-name", $("#pay-name").value.trim().length > 1]]
+          .forEach(([sel, valid]) => {
+            $(sel).classList.toggle("invalid", !valid);
+            ok = ok && valid;
+          });
+        if (!ok) return;
+
+        const btn = $("#pay-submit");
+        btn.disabled = true;
+        btn.textContent = "Generating your key…";
+        await new Promise((r) => setTimeout(r, 900)); // sandbox "processing"
+
+        const key = await window.AetherLicense.generateKey(selectedTier);
+        // sanity: our own generator must pass our own verifier
+        if (!(await window.AetherLicense.keyValid(key))) {
+          btn.textContent = "Key generation failed — please retry";
+          btn.disabled = false;
+          return;
+        }
+        sessionStorage.setItem("aetherscan-pending-key", key);
+        sessionStorage.setItem("aetherscan-pending-tier", selectedTier);
+        $("#key-box").textContent = key;
+        $("#success-sub").textContent =
+          `AetherScan ${selectedTier === "ultimate" ? "Ultimate" : "Pro"} — activated on this browser.`;
+        $("#checkout-view").style.display = "none";
+        $("#success").style.display = "block";
+        window.scrollTo({ top: 0 });
+      });
+
+      $("#copy-key").addEventListener("click", () => {
+        navigator.clipboard.writeText($("#key-box").textContent).then(() => {
+          $("#copy-key").textContent = "Copied ✓";
+          setTimeout(() => { $("#copy-key").textContent = "Copy key"; }, 1600);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

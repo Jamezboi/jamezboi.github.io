@@ -1105,6 +1105,24 @@ $("#form-activate").addEventListener("submit", async (e) => {
   }
 });
 
+// Live check while typing: catch copy mistakes before submit.
+$("#input-license")?.addEventListener("blur", async () => {
+  const key = $("#input-license").value.trim();
+  const note = $("#license-note");
+  if (!key) return;
+  if (window.AetherLicense?.keyTierGroup && window.AetherLicense.keyValid) {
+    if (!window.AetherLicense.keyTierGroup(key)) {
+      note.textContent = "Format: AETH-XXXX-XXXX-PRO-XXXX (or -ULTI-XXXX).";
+      note.className = "form-note err";
+      return;
+    }
+    const ok = await window.AetherLicense.keyValid(key);
+    note.textContent = ok ? "✓ This key is valid."
+                          : "Check code doesn't match — the key was copied incorrectly.";
+    note.className = ok ? "form-note ok" : "form-note err";
+  }
+});
+
 $("#btn-dev-unlock").addEventListener("click", async () => {
   try {
     const res = await api("/license/activate", {

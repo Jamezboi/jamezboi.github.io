@@ -191,6 +191,12 @@
               try {
                 const session = await verifyGoogleCredential(response.credential, clientId);
                 setSession(session);
+                // Server-side link (authoritative) when a backend is configured.
+                if (window.AetherCloud && window.AetherCloud.enabled()) {
+                  window.AetherCloud.loginGoogle(response.credential)
+                    .then((r) => { if (r.ok && r.user) session.username = r.user.username; })
+                    .catch(() => {});
+                }
                 gate.remove();
                 document.dispatchEvent(new CustomEvent("aetherscan:auth", { detail: session }));
               } catch (err) {
