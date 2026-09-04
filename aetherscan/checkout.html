@@ -255,13 +255,18 @@
         btn.textContent = "Generating your key…";
         await new Promise((r) => setTimeout(r, 900)); // sandbox "processing"
 
-        const key = await window.AetherLicense.generateKey(selectedTier);
-        // sanity: our own generator must pass our own verifier
-        if (!(await window.AetherLicense.keyValid(key))) {
-          btn.textContent = "Key generation failed — please retry";
+        // Claim a real, pre-issued key from the cloud pool (server-side).
+        const claimResp = await fetch(
+          (window.AETHERSCAN_CONFIG?.licenseServer || "") + "/keys/claim",
+          { method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tier: selectedTier }) });
+        const claim = await claimResp.json();
+        if (!claim.ok) {
+          btn.textContent = "No keys in pool — ask the admin to issue more";
           btn.disabled = false;
           return;
         }
+        const key = claim.key;
         sessionStorage.setItem("aetherscan-pending-key", key);
         sessionStorage.setItem("aetherscan-pending-tier", selectedTier);
         $("#key-box").textContent = key;
