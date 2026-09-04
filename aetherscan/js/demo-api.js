@@ -413,6 +413,10 @@
   }
 
   async function currentTier() {
+    // Authoritative when signed in: the account's cloud plan.
+    if (window.AetherCloud && window.AetherCloud.user()) {
+      return window.AetherCloud.user().plan || "free";
+    }
     if (licenseState.development) return "ultimate";
     if (licenseState.key && await window.AetherLicense.keyValid(licenseState.key)) {
       return await window.AetherLicense.tierOf(licenseState.key);
