@@ -142,6 +142,7 @@ const VIEW_META = {
   monitor: ["Monitor", "Live watchman for joins, leaves and changes"],
   reports: ["Reports", "Export the inventory and findings"],
   license: ["License", "Edition, tiers and activation"],
+  deepscan: ["Deep Scan", "Nmap port and service detection"],
   admin: ["Admin", "Users, keys and activity"],
   settings: ["Settings", "Tuning and diagnostics"],
 };
@@ -979,6 +980,28 @@ $("#btn-tool-ping")?.addEventListener("click", () => runTool("ping"));
 $("#btn-tool-trace")?.addEventListener("click", () => runTool("traceroute"));
 $("#btn-tool-dns")?.addEventListener("click", () => runTool("dns"));
 $("#btn-tool-arp")?.addEventListener("click", () => runTool("arp"));
+
+$("#btn-deepscan")?.addEventListener("click", async () => {
+  const host = $("#deepscan-host")?.value.trim();
+  const out = $("#deepscan-out");
+  if (!host) return toast("Enter a target host or IP", "err");
+  let ports = $("#deepscan-ports").value;
+  if (ports === "") ports = $("#deepscan-custom-ports").value.trim() || "1-1000";
+  out.hidden = false;
+  out.textContent = `Running nmap deep scan on ${host} (ports: ${ports})…
+This may take a while.`;
+  try {
+    const res = await api("/tools/nmap", { method: "POST",
+      body: JSON.stringify({ host, ports }) });
+    out.textContent = res.output || res.error || "(no output)";
+  } catch (err) {
+    if (err.status === 402) { paywallToast(err.body); out.hidden = true; return; }
+    out.textContent = `nmap error: ${err.message}`;
+  }
+});
+$("#deepscan-ports")?.addEventListener("change", (e) => {
+  $("#deepscan-custom-ports").style.display = e.target.value === "" ? "" : "none";
+});
 $("#btn-tool-nmap")?.addEventListener("click", async () => {
   const host = $("#tools-host")?.value.trim();
   if (!host) return toast("Enter a host or IP first", "err");
@@ -1112,22 +1135,19 @@ function renderLicense() {
       "Your new key is ready — press Activate to finish.";
     $("#license-note").className = "form-note ok";
   }
-  const tier = s.development ? "dev" : s.tier;
-  $("#lic-title").textContent = s.development ? "Development build"
-    : s.trial_active ? `${s.tier_label} (trial · ${s.trial_days_left}d left)`
-    : `${s.tier_label} edition`;
-  $("#lic-blurb").textContent = s.development
-    ? "Every premium feature is unlocked for testing and evaluation. Ship with --dev removed."
-    : s.tier === "free"
-      ? "Upgrade to unlock the full auditing toolkit — port profiles, security audit, monitoring and reports."
-      : "All premium features are active on this machine. Thank you for supporting AetherScan.";
-  $("#lic-badge").textContent = s.development ? "DEV" : s.tier.toUpperCase();
-  $("#lic-badge").className = `lic-badge ${tier}`;
+const plan = state.accountPlan || s.license?.tier || "free";
+  $("#lic-title").textContent = plan === "ultimate" ? "AetherScan Ultimate"
+    : plan === "pro" ? "AetherScan Pro" : "AetherScan Free";
+  $("#lic-blurb").textContent = plan === "ultimate"
+    ? "Every deep feature is unlocked. Thank you."
+    : plan === "pro" ? "The full auditing toolkit is active."
+    : "Free tier — upgrade for security auditing, network tools, deep monitoring and reports.";
+  $("#lic-badge").textContent = plan.toUpperCase();
+  $("#lic-badge").className = `lic-badge ${plan === "ultimate" ? "ultimate" : plan}`;
+  $$("#tier-grid .tier-card").forEach((c) =>
+    c.classList.toggle("is-current", c.dataset.tier === plan));
 
-  // Dev unlock is a developer affordance: only offer it when this install
-  // is already running a development engine (or web demo with dev active).
-  const devBtn = $("#btn-dev-unlock");
-  if (devBtn) devBtn.parentElement.style.display = s.development ? "" : "none";
+  // Dev unlock: not shown (Settings → Developer code instead)
 
   $("#tier-grid").innerHTML = (s.tiers || []).map((t) => `
     <article class="tier-card ${t.id === tier ? "is-current" : ""}">

@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark" />
   <title>AetherScan — Network Intelligence</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/app.css?v=1900" />
+  <link rel="stylesheet" href="css/app.css?v=2000" />
 </head>
 <body data-theme="auto">
   <div id="app" class="app-shell">
@@ -41,6 +41,11 @@
           <svg viewBox="0 0 24 24"><path d="M12 3.2 5 6v5.2c0 4.4 3 8.2 7 9.6 4-1.4 7-5.2 7-9.6V6l-7-2.8Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9.4 12.2 1.9 1.9 3.5-3.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span>Security</span>
           <em class="nav-badge is-danger" id="badge-security" hidden>!</em>
+        </button>
+        <button class="nav-item" data-view="deepscan" data-min-plan="ultimate" data-upsell="Deep Scan (nmap)">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span>Deep Scan</span>
+          <em class="nav-badge" style="background:rgba(191,90,242,.15);color:var(--purple)">ULT</em>
         </button>
         <button class="nav-item" data-view="monitor">
           <svg viewBox="0 0 24 24"><path d="M3.5 13.5h3.2l2-5 3 10 2.6-7 1.7 4h4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -257,6 +262,36 @@
             <button class="btn btn-ghost btn-sm" id="btn-tool-nmap" data-min-plan="ultimate" data-upsell="Nmap deep scan">Nmap</button>
           </div>
           <pre class="debug-out" id="tools-out" hidden></pre>
+        </section>
+      </main>
+
+      <!-- ════════ VIEW: Deep Scan ════════ -->
+      <main class="view" id="view-deepscan">
+        <section class="card">
+          <header class="card-head">
+            <h2>Nmap deep scan</h2>
+            <span class="card-hint">Ultimate · runs nmap on the engine host</span>
+          </header>
+          <p class="muted" style="margin-bottom:16px">Deep port + service detection using nmap.
+             Requires nmap to be installed on the computer running the engine.
+             Download from <a href="https://nmap.org/download.html" target="_blank" style="color:var(--accent)">nmap.org</a>
+             — installation requests admin permissions for the npcap driver.</p>
+          <div class="tools-bar">
+            <input type="text" id="deepscan-host" placeholder="Target IP or hostname (e.g. 192.168.1.1)" spellcheck="false"/>
+          </div>
+          <div class="tools-bar">
+            <select id="deepscan-ports" style="min-width:200px">
+              <option value="top-1000">Top 1000 ports</option>
+              <option value="1-65535">All ports (1–65535) — slow</option>
+              <option value="22,80,443,445,3389,8080">Common only</option>
+              <option value="">Custom…</option>
+            </select>
+            <input type="text" id="deepscan-custom-ports" placeholder="e.g. 80,443,8080" style="max-width:180px;display:none" spellcheck="false"/>
+          </div>
+          <div class="tools-bar">
+            <button class="btn btn-primary btn-sm" id="btn-deepscan">Run deep scan</button>
+          </div>
+          <pre class="debug-out" id="deepscan-out" hidden></pre>
         </section>
       </main>
 
@@ -499,6 +534,6 @@
   <script src="js/licenses.js"></script>
   <script src="js/demo-api.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/app.js?v=1900"></script>
+  <script src="js/app.js?v=2000"></script>
 </body>
 </html>
