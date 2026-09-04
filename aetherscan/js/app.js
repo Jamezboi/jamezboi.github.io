@@ -1103,8 +1103,16 @@ $$(".report-tile").forEach((tile) => tile.addEventListener("click", async () => 
   const fmt = tile.dataset.fmt;
   const mime = { json: "application/json", csv: "text/csv", md: "text/markdown", html: "text/html", pdf: "text/html" }[fmt] || "text/html";
   try {
-    const resp = await api(`/report?fmt=${fmt === "pdf" ? "html" : fmt}&save=0`);
-    const text = await resp.text();
+    // Use fetch directly — api() parses as JSON which breaks text formats
+    const rawResp = await fetch(`/api/report?fmt=${fmt === "pdf" ? "html" : fmt}&save=0`, {
+      headers: { "X-Aether-Token": TOKEN, "Content-Type": "application/json" }
+    });
+    if (!rawResp.ok) {
+      const errData = await rawResp.json().catch(() => ({}));
+      if (rawResp.status === 402) { paywallToast(errData); return; }
+      throw new Error(errData.message || `HTTP ${rawResp.status}`);
+    }
+    const text = await rawResp.text();
     const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
     const blob = new Blob([text], { type: mime });
     const url = URL.createObjectURL(blob);
@@ -1169,8 +1177,8 @@ const plan = state.accountPlan || s.license?.tier || "free";
   // Dev unlock: not shown (Settings → Developer code instead)
 
   $("#tier-grid").innerHTML = (s.tiers || []).map((t) => `
-    <article class="tier-card ${t.id === tier ? "is-current" : ""}">
-      ${t.id === tier ? `<span class="current-tag">Current</span>` : ""}
+    <article class="tier-card ${t.id === plan ? "is-current" : ""}">
+      ${t.id === plan ? `<span class="current-tag">Current</span>` : ""}
       <span class="tier-name">${esc(t.name)}</span>
       <span class="tier-price">${esc(t.price)}</span>
       <span class="tier-blurb">${esc(t.blurb)}</span>
