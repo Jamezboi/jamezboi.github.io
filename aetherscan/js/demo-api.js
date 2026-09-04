@@ -244,6 +244,7 @@
     d.vendor_profile = d.vendor_profile || null;
     d.era = d.era || null;
     d.os_guess = d.os_guess || "";
+    d.tags = [...new Set([...(d.tags || []), "demo"])];
   }
 
   function deviceView(d) {
@@ -259,11 +260,23 @@
   /* Demo audit engine (mirrors core/vulnscan.py outcomes)               */
   /* ------------------------------------------------------------------ */
 
+  const tcpSessions = {};
+
+  function fakeBannerFor(device, port) {
+    if (port === 23 || port === 2323) return `\r\nWelcome to ${device.custom_name}\r\nLogin: `;
+    if (port === 80) return "HTTP/1.0 200 OK (demo)";
+    return `${device.custom_name} ${port}/tcp demo service ready`;
+  }
+
   const demoFindings = {
     "3c:37:86:9a:11:04": [
       { check_id: "port:7547", title: "TR-069 CWMP management port open", severity: "critical",
         description: "Port 7547 is open (tr069): the port Mirai used to compromise 900k routers.",
-        remediation: "Disable CWMP or firewall it from the LAN edge.", evidence: "TCP 7547/open (tr069)", cve_refs: [] },
+        remediation: "Disable CWMP or firewall it from the LAN edge.", evidence: "TCP 7547/open (tr069)", cve_refs: [],
+        tools: [
+          { label: "Info probe", tool: "curl", command: "curl -m 5 http://192.168.1.1:7547/ -o - | head -20" },
+          { label: "Service sweep", tool: "nmap", command: "nmap -sV -p 7547 192.168.1.1" },
+        ] },
       { check_id: "upnp:wan", title: "Router exposes UPnP WAN connection service", severity: "medium",
         description: "UPnP lets any LAN device open inbound firewall ports automatically.",
         remediation: "Disable UPnP unless a console needs it.", evidence: "SSDP rootdevice", cve_refs: [] },
@@ -271,7 +284,11 @@
     "ac:de:48:00:11:22": [
       { check_id: "port:445", title: "SMB file sharing reachable", severity: "medium",
         description: "Port 445 is open (microsoft-ds): the EternalBlue (CVE-2017-0144) attack surface.",
-        remediation: "Restrict SMB to trusted devices.", evidence: "TCP 445/open", cve_refs: ["CVE-2017-0144"] },
+        remediation: "Restrict SMB to trusted devices.", evidence: "TCP 445/open", cve_refs: ["CVE-2017-0144"],
+        tools: [
+          { label: "Share enumeration", tool: "nmap", command: "nmap --script smb-enum-shares -p 445 192.168.1.20" },
+          { label: "Safe vuln scan", tool: "nmap", command: "nmap --script smb-vuln-ms17-010 -p 445 192.168.1.20" },
+        ] },
       { check_id: "http:headers", title: "Web UI missing security headers", severity: "low",
         description: "Baseline hardening headers absent: x-frame-options, x-content-type-options.",
         remediation: "Enable hardened headers if supported.", evidence: "HTTP 5000", cve_refs: [] },
@@ -284,7 +301,10 @@
       { check_id: "bus:mqtt", title: "MQTT broker listening without TLS companion",
         severity: "medium",
         description: "Port 1883 (plaintext MQTT) is open with no 8883 (MQTT-over-TLS). Many brokers ship with anonymous access.",
-        remediation: "Enable broker authentication + TLS, or bind to localhost.", evidence: "TCP 1883/open", cve_refs: [] },
+        remediation: "Enable broker authentication + TLS, or bind to localhost.", evidence: "TCP 1883/open", cve_refs: [],
+        tools: [
+          { label: "Topic probe (read-only)", tool: "mosquitto_sub", command: "mosquitto_sub -h 192.168.1.42 -t '#' -C 5 -v -W 5" },
+        ] },
     ],
     "00:11:32:12:12:12": [
       { check_id: "port:445", title: "SMB file sharing reachable", severity: "medium",
@@ -345,10 +365,12 @@
     { id: "pro", price: "$24 one-time", name: "AetherScan Pro",
       blurb: "The full auditing toolkit for power users.",
       features: ["Standard port profiles + banners", "Fingerprinting (DNS/mDNS/NetBIOS)",
-                 "Security audit & scoring", "Continuous monitoring", "Report exports", "Unlimited scans"] },
+                 "Security audit & scoring", "Continuous monitoring", "Report exports", "Unlimited scans",
+                 "Network tools: ping, traceroute, DNS, ARP"] },
     { id: "ultimate", price: "$59 one-time", name: "AetherScan Ultimate",
       blurb: "Deep enrichment for professionals and labs.",
       features: ["Deep (1–1024 + curated) port profiles", "UPnP model/serial enrichment",
+                 "Telnet & raw TCP console", "Deep continuous monitoring", "TCP sweep for silent devices",
                  "Webhook alerts", "Priority support"] },
   ];
 
@@ -356,8 +378,10 @@
     discovery: "free", device_list: "free", vendor_lookup: "free", port_scan_quick: "free",
     port_scan_standard: "pro", port_scan_deep: "ultimate", fingerprinting: "pro",
     mdns_upnp_enrichment: "ultimate", security_audit: "pro", credential_audit: "pro",
-    monitoring: "pro", reports: "pro", history: "pro", webhook_alerts: "ultimate",
-    unlimited_scans: "pro", priority_support: "ultimate",
+    monitoring: "pro", reports: "pro", history: "pro",
+    tools_basic: "pro", tools_tcp: "ultimate", deep_monitor: "ultimate",
+    deep_sweep: "ultimate",
+    webhook_alerts: "ultimate", unlimited_scans: "pro", priority_support: "ultimate",
   };
   const RANK = { free: 0, pro: 1, ultimate: 2 };
 
@@ -548,6 +572,89 @@
 
     if (path === "/demo/seed") return json({ ok: true, seeded: demoDevices.length });
 
+    if (path === "/demo/clear" && method === "POST") {
+      const removed = demoDevices.filter(d => (d.tags || []).includes("demo")).length;
+      demoDevices.length = 0;
+      logEvent("demo.cleared", `Removed ${removed} demo device(s)`);
+      return json({ ok: true, removed, has_demo: demoDevices.length > 0 });
+    }
+    if (path === "/demo/status") return json({ ok: true, has_demo: demoDevices.length > 0 });
+
+    // ---- network tools ----
+    if (path === "/tools/ping" && method === "POST") {
+      const gate = gateFor("tools_basic", license.tier);
+      if (gate) return json(gate, 402);
+      const host = String(body.host || "").slice(0, 128);
+      const okHost = demoDevices.some(d => d.ip === host) || /^[\w.-]+$/.test(host);
+      if (!okHost) return json({ ok: false, error: "invalid host" }, 400);
+      const device = demoDevices.find(d => d.ip === host);
+      await new Promise(r => setTimeout(r, 600));
+      return json({ ok: true, tool: "ping", exit_code: device ? 0 : 1, output:
+`Pinging ${host} with 32 bytes of data:
+Reply from ${host}: bytes=32 time=${device ? device.latency_ms ?? 2 : 2}ms TTL=${device?.ttl ?? 64}
+Reply from ${host}: bytes=32 time=${(device ? device.latency_ms ?? 2 : 2) + 0.4}ms TTL=${device?.ttl ?? 64}
+Reply from ${host}: bytes=32 time=${device ? device.latency_ms ?? 2 : 2}ms TTL=${device?.ttl ?? 64}
+Reply from ${host}: bytes=32 time=${(device ? device.latency_ms ?? 2 : 2) + 0.2}ms TTL=${device?.ttl ?? 64}` });
+    }
+    if (path === "/tools/traceroute" && method === "POST") {
+      const gate = gateFor("tools_basic", license.tier);
+      if (gate) return json(gate, 402);
+      const host = String(body.host || "").slice(0, 128);
+      await new Promise(r => setTimeout(r, 900));
+      return json({ ok: true, tool: "traceroute", exit_code: 0, output:
+`Tracing route to ${host} over a maximum of 30 hops
+  1     1 ms    1 ms    1 ms  192.168.1.1
+  2     2 ms    2 ms    2 ms  ${host}` });
+    }
+    if (path === "/tools/dns" && method === "POST") {
+      const gate = gateFor("tools_basic", license.tier);
+      if (gate) return json(gate, 402);
+      const host = String(body.host || "").slice(0, 128);
+      const match = demoDevices.find(d => d.hostname === host);
+      await new Promise(r => setTimeout(r, 400));
+      return json({ ok: true, tool: "dns", exit_code: 0,
+        output: match ? `Server:  router.local\nAddress:  192.168.1.1\n\nName:    ${host}\nAddress:  ${match.ip}`
+                      : `Server:  router.local\nAddress:  192.168.1.1\n\nName:    ${host}\nAddress:  (no record)` });
+    }
+    if (path === "/tools/arp" && method === "POST") {
+      const gate = gateFor("tools_basic", license.tier);
+      if (gate) return json(gate, 402);
+      await new Promise(r => setTimeout(r, 300));
+      const lines = demoDevices.map(d => `  ${d.ip}          ${d.mac}     dynamic`).join("\n");
+      return json({ ok: true, tool: "arp", exit_code: 0,
+        output: `Interface: 192.168.1.64 --- 0x4\n  Internet Address      Physical Address      Type\n${lines}` });
+    }
+    if (path === "/tools/tcp/open" && method === "POST") {
+      const gate = gateFor("tools_tcp", license.tier);
+      if (gate) return json(gate, 402);
+      const host = String(body.host || ""), port = parseInt(body.port, 10) || 23;
+      const device = demoDevices.find(d => d.ip === host);
+      if (!device || !device.ports.some(p => p.port === port)) {
+        return json({ ok: false, error: `connect failed: no service simulated on ${host}:${port}` }, 400);
+      }
+      const session = "demo-" + Math.random().toString(36).slice(2, 10);
+      tcpSessions[session] = { host, port, banner: fakeBannerFor(device, port) };
+      return json({ ok: true, session, host, port });
+    }
+    if (path === "/tools/tcp/send" && method === "POST") {
+      const gate = gateFor("tools_tcp", license.tier);
+      if (gate) return json(gate, 402);
+      const session = tcpSessions[String(body.session || "")];
+      if (!session) return json({ ok: false, error: "no such session" }, 404);
+      const cmd = String(body.data || "").trim().toLowerCase();
+      let extra = "";
+      if (cmd === "help") extra = "\nsupported (demo): help, status, version, quit";
+      else if (cmd === "status") extra = `\n${session.host}:${session.port} demo service ready`;
+      else if (cmd === "version") extra = "\nAetherSim service v1.0";
+      else if (cmd && cmd !== "quit") extra = "\ncommand not recognized (demo)";
+      return json({ ok: true, closed: cmd === "quit",
+        output: session.banner + extra + (cmd === "quit" ? "\nconnection closed" : "") });
+    }
+    if (path === "/tools/tcp/close" && method === "POST") {
+      delete tcpSessions[String(body.session || "")];
+      return json({ ok: true });
+    }
+
     // ---- devices ----
     if (path === "/devices") {
       return json({ ok: true, count: demoDevices.length,
@@ -599,6 +706,10 @@
     // ---- scanning ----
     if (path === "/scan" && method === "POST") {
       const profile = body.profile || "standard";
+      if (body.sweep_tcp) {
+        const gate = gateFor("deep_sweep", license.tier);
+        if (gate) return json(gate, 402);
+      }
       const gate = gateFor(profile === "quick" ? "port_scan_quick" :
         profile === "deep" ? "port_scan_deep" : "port_scan_standard", license.tier);
       if (gate) return json(gate, 402);
@@ -637,6 +748,7 @@
       if (gate) return json(gate, 402);
       monitor.running = true; monitor.status = "running"; monitor.rounds = 1;
       monitor.interval_s = (body && body.interval_s) || 60; monitor.tracked = demoDevices.length;
+      monitor.deep = !!body.deep;
       clearInterval(monitorTimer);
       monitorTimer = setInterval(() => {
         monitor.rounds += 1;
@@ -797,7 +909,7 @@
         if (manifest.latest) return String(manifest.latest);
       }
     } catch { /* fall through */ }
-    return "1.4.0";
+    return "1.4.1";
   }
 
   function buildLauncherBat(version, consoleUrl, bundleUrl, siteOrigin) {

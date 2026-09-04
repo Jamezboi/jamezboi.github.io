@@ -137,19 +137,21 @@
         <div><strong>AetherScan</strong><span>Network Intelligence Suite</span></div>
       </div>
       <a class="nav-link" href="#features">Features</a>
+      <a class="nav-link" href="#tools">Tools</a>
       <a class="nav-link" href="#pricing">Pricing</a>
+      <a class="nav-link" href="admin.html" title="Staff key issuer">Admin</a>
       <a class="btn btn-primary btn-sm" href="console.html">Open console</a>
     </nav>
 
     <header class="hero">
       <div class="eyebrow">◈ v1.4 “Lumen” · web + desktop</div>
-      <h1>Know every device<br/>on <em>your network.</em></h1>
+      <h1>See everything that's<br/>on <em>your network.</em></h1>
       <p class="lead">AetherScan maps your Wi-Fi, identifies who made each device and roughly when
          it was built, fingerprints its services, and runs a strictly non-invasive security audit —
          so you fix the weak spots before someone else finds them.</p>
       <div class="hero-cta">
         <a class="btn btn-primary" href="console.html">Launch the console →</a>
-        <a class="btn btn-ghost" href="#pair">Run a real scan</a>
+        <a class="btn btn-ghost" href="checkout.html">Get a license</a>
       </div>
       <p class="hero-note">Free demo network inside · no install needed for the tour</p>
 
@@ -171,9 +173,9 @@
       </svg>
     </header>
 
-    <section id="features">
+    <section id="features" style="padding-top:20px">
       <h2 class="section">Everything on the network, on one pane.</h2>
-      <p class="section-sub">The desktop engine does the scanning; this console visualizes, audits and watches.</p>
+      <p class="section-sub">The engine does the scanning on your hardware; the console makes sense of it.</p>
       <div class="grid">
         <div class="card"><div class="ic blue">📡</div><h3>Full discovery</h3>
           <p>Parallel ping sweep plus ARP harvest finds every neighbor — including devices that ignore ping.</p></div>
@@ -183,8 +185,10 @@
           <p>Reverse DNS, NetBIOS, mDNS/Bonjour and UPnP reveal hostnames, models and serials.</p></div>
         <div class="card"><div class="ic green">🛡️</div><h3>Non-invasive security audit</h3>
           <p>Risky ports, end-of-life software banners, weak TLS, open admin panels — scored 0–100 with fixes. Never exploits anything.</p></div>
-        <div class="card"><div class="ic orange">📶</div><h3>Live monitoring</h3>
-          <p>Alerts the moment a device joins, leaves or changes address. Gateway changes hint at evil twins.</p></div>
+        <div class="card"><div class="ic orange">📶</div><h3>Live &amp; deep monitoring</h3>
+          <p>Alerts the moment a device joins, leaves or changes address. Deep mode probes hosts that ignore ping and watches for ports opening.</p></div>
+        <div class="card"><div class="ic teal">🧰</div><h3>Network tools &amp; console</h3>
+          <p>Built-in ping, traceroute, DNS lookups and the ARP table, plus a raw TCP/Telnet console for administering your own devices. Findings come with ready-to-run commands.</p></div>
         <div class="card"><div class="ic red">📄</div><h3>Share-ready reports</h3>
           <p>Self-contained HTML, JSON, CSV and Markdown exports of the full inventory and findings.</p></div>
       </div>
@@ -196,10 +200,10 @@
       <div class="steps">
         <div class="step"><div class="n">1</div><div><h3>Explore the demo LAN</h3>
           <p>The console includes a full simulated network — 12 devices, audits, monitoring. Perfect for a tour; no install.</p></div></div>
-        <div class="step"><div class="n">2</div><div><h3>Run the engine locally</h3>
-          <p>Download the Python engine and run <code>python main.py</code> on the machine connected to your Wi-Fi.</p></div></div>
-        <div class="step"><div class="n">3</div><div><h3>Pair this console to it</h3>
-          <p>Click <b>Engine: demo</b> inside the console, paste the engine URL + session token, and the page becomes a live remote for real scans.</p></div></div>
+        <div class="step"><div class="n">2</div><div><h3>Grab the one-click launcher</h3>
+          <p>Inside the console, download your tailored <code>Start-AetherScan.bat</code>. It installs a portable engine — no Python setup, no admin rights.</p></div></div>
+        <div class="step"><div class="n">3</div><div><h3>Double-click. Automatically paired.</h3>
+          <p>The engine starts on your PC, opens this page and pairs itself. Scans now run against your actual network, live.</p></div></div>
       </div>
     </section>
 
@@ -219,20 +223,26 @@
         <div class="tier">
           <h3>AetherScan Free</h3><div class="price">$0</div><div class="per">forever</div>
           <ul><li>Discovery &amp; device inventory</li><li>Vendor + era intelligence</li><li>Quick port profile</li><li>8 scans/day</li></ul>
+          <a class="btn btn-ghost btn-sm" href="console.html" style="margin-top:12px">Start free</a>
         </div>
         <div class="tier hot"><span class="tag">Most popular</span>
           <h3>AetherScan Pro</h3><div class="price">$24</div><div class="per">one-time</div>
-          <ul><li>Standard port profiles + banners</li><li>Security audit &amp; scoring</li><li>Continuous monitoring</li><li>Report exports</li><li>Unlimited scans</li></ul>
+          <ul><li>Standard port profiles + banners</li><li>Security audit with fix &amp; probe commands</li><li>Continuous monitoring</li><li>Network tools: ping, traceroute, DNS, ARP</li><li>Report exports</li><li>Unlimited scans</li></ul>
+          <a class="btn btn-primary btn-sm" href="checkout.html" style="margin-top:12px">Buy Pro</a>
         </div>
         <div class="tier">
           <h3>AetherScan Ultimate</h3><div class="price">$59</div><div class="per">one-time</div>
-          <ul><li>Deep port profiles (1–1024+)</li><li>UPnP model/serial enrichment</li><li>Webhook alerts</li><li>Priority support</li></ul>
+          <ul><li>Deep port profiles (1–1024+)</li><li>Telnet &amp; raw TCP console</li><li>Deep continuous monitoring</li><li>TCP sweep finds silent devices</li><li>UPnP enrichment · webhook alerts</li></ul>
+          <a class="btn btn-ghost btn-sm" href="checkout.html" style="margin-top:12px">Buy Ultimate</a>
         </div>
       </div>
     </section>
 
     <footer>
-      <p>AetherScan Labs · <a href="console.html">Console</a> · <a href="https://github.com/jamezboi">jamezboi</a></p>
+      <p>AetherScan Labs · <a href="console.html">Console</a> · <a href="checkout.html">Pricing</a> ·
+         <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
+      <p style="margin-top:8px">Site built by <strong>James Laliberte</strong> ·
+         <a href="mailto:Jamezboyyy@gmail.com">Jamezboyyy@gmail.com</a> for help &amp; inquiries</p>
       <p style="margin-top:6px">For auditing networks you own or are authorized to assess.</p>
     </footer>
   </div>

@@ -846,3 +846,60 @@ code { font-family: var(--mono); font-size: .92em; background: var(--surface-str
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* ---------- v1.5 additions: tools, overview, tcp console ---------- */
+.tools-bar { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+.tools-bar input {
+  flex: 1; min-width: 220px;
+  background: var(--surface-strong); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 12px; font-size: 13px; outline: none;
+}
+.tools-bar input:focus { border-color: var(--accent); box-shadow: var(--glow); }
+
+.finding-tools { margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 9px; }
+.finding-tools-title {
+  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px;
+  color: var(--text-3); margin-bottom: 6px;
+}
+.tool-cmd {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 8px; margin: 4px 0;
+  background: var(--bg-soft, var(--surface-strong));
+  border: 1px solid var(--border); border-radius: 9px;
+}
+.tool-label {
+  flex: none; font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--accent);
+  background: rgba(10,132,255,.1); border-radius: 6px; padding: 2px 7px;
+}
+.tool-code {
+  flex: 1; font-family: var(--mono); font-size: 11.5px; color: var(--text-2);
+  overflow-x: auto; white-space: nowrap;
+}
+.tool-copy {
+  flex: none; width: 26px; height: 26px; border-radius: 7px;
+  display: grid; place-items: center; color: var(--text-3);
+  background: var(--surface-strong); border: 1px solid var(--border);
+  cursor: pointer; transition: color .15s, border-color .15s;
+}
+.tool-copy:hover { color: var(--accent); border-color: var(--accent); }
+.tool-open-console { flex: none; }
+
+.tcp-bar { display: flex; gap: 8px; margin: 10px 0; }
+.tcp-bar input {
+  flex: 1; background: var(--surface-strong); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 12px; font-size: 13px; outline: none; color: var(--text);
+}
+.tcp-bar input:focus { border-color: var(--accent); box-shadow: var(--glow); }
+.tcp-out {
+  height: 240px; overflow-y: auto;
+  background: var(--bg-soft, var(--bg)); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px;
+  font-family: var(--mono); font-size: 12px; color: var(--text-2);
+  white-space: pre-wrap; word-break: break-all;
+}
+
+#btn-overview.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.overview-row:hover { background: var(--surface-strong); }
+
+.toolbar-right { gap: 12px; }

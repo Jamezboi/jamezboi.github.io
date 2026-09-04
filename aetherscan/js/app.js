@@ -70,6 +70,20 @@ const TYPE_ICONS = {
   unknown: "❓",
 };
 
+function toolsHtml(f) {
+  if (!f.tools || !f.tools.length) return "";
+  return `<div class="finding-tools">
+    <div class="finding-tools-title">Investigate</div>
+    ${f.tools.map((t, i) => `
+      <div class="tool-cmd">
+        <span class="tool-label">${esc(t.tool)}</span>
+        <code class="tool-code">${esc(t.command)}</code>
+        <button class="tool-copy" data-cmd="${esc(t.command)}" title="Copy command">⧉</button>
+        ${t.tool === "tcp-console" ? `<button class="tool-open-console btn btn-ghost btn-sm" data-cmd="${esc(t.command)}">Open console</button>` : ""}
+      </div>`).join("")}
+  </div>`;
+}
+
 function scorePillClass(score) {
   if (score == null) return "";
   if (score >= 85) return "score-good";
@@ -91,10 +105,29 @@ const state = {
   typeFilter: "all",
   search: "",
   favoritesOnly: false,
+  showDemo: true,        // demo-tagged devices; auth flips this off in live mode
+  overviewMode: false,
   openDeviceId: null,
   monitorPoll: null,
-  config: { profile: "standard", ping: 500, online: false, credAudit: false },
+  config: { profile: "standard", ping: 500, online: false, credAudit: false,
+            sweepTcp: false },
 };
+
+/* Live mode = paired with a real engine. Demo-tagged clutter is hidden
+   there by default and can be purged entirely. */
+function isLiveMode() {
+  return !!(window.AetherPlatform && window.AetherPlatform.pairing &&
+            window.AetherPlatform.pairing.connected);
+}
+
+async function purgeDemoDevices(silent) {
+  try {
+    const res = await api("/demo/clear", { method: "POST" });
+    if (!silent) toast(`Removed ${res.removed} demo device(s)`, "ok");
+    await refreshDevices();
+    return res;
+  } catch (err) { if (!silent) toast(err.message, "err"); return null; }
+}
 
 /* ------------------------------------------------------------------ */
 /* 2. View router                                                      */
@@ -145,7 +178,8 @@ async function startScan(profileOverride) {
   try {
     const res = await api("/scan", {
       method: "POST",
-      body: JSON.stringify({ profile, audit: true, deep: true }),
+      body: JSON.stringify({ profile, audit: true, deep: true,
+                             sweep_tcp: !!state.config.sweepTcp }),
     });
     $("#scan-rail").hidden = false;
     $("#scan-spinner").hidden = false;
@@ -372,6 +406,7 @@ function filteredDevices() {
   const q = state.search.toLowerCase();
   return state.devices.filter((d) => {
     if (state.favoritesOnly && !d.favorite) return false;
+    if (!state.showDemo && (d.tags || []).includes("demo")) return false;
     if (state.typeFilter !== "all" && d.device_type !== state.typeFilter) return false;
     if (!q) return true;
     return [d.display_name, d.ip, d.mac, d.vendor, d.hostname, d.model, d.device_type]
@@ -379,7 +414,56 @@ function filteredDevices() {
   });
 }
 
+function renderOverview() {
+  const wrap = $("#overview-wrap");
+  if (!wrap) return;
+  if (!state.overviewMode) { wrap.hidden = true; wrap.innerHTML = ""; return; }
+  wrap.hidden = false;
+  const order = { critical: 4, high: 3, medium: 2, low: 1 };
+  const rows = filteredDevices().map((d) => {
+    const audit = state.audits[d.id];
+    const findings = (audit && !audit.preview ? audit.findings : []) || [];
+    const top = [...findings].sort((a, b) =>
+      (order[b.severity] || 0) - (order[a.severity] || 0))[0];
+    const riskyPorts = (d.ports || []).filter(p => p.risk >= 3);
+    const risk = top ? top.severity : riskyPorts.length ? "high" : "";
+    const ports = (d.ports || []).map(p => p.port);
+    return { d, audit, top, risk, ports };
+  }).sort((a, b) => {
+    const sa = a.audit && !a.audit.preview ? a.audit.score : 100;
+    const sb = b.audit && !b.audit.preview ? b.audit.score : 100;
+    if (sa !== sb) return sa - sb;
+    return (order[b.risk] || 0) - (order[a.risk] || 0);
+  });
+  wrap.innerHTML = `
+    <div class="card" style="margin-bottom:14px">
+      <header class="card-head"><h2>Risk overview</h2>
+        <span class="card-hint">weakest first · click a row for details</span></header>
+      <table class="table">
+        <thead><tr><th>Device</th><th>IP</th><th>Type</th><th>Ports</th><th>Top exposure</th><th>Score</th></tr></thead>
+        <tbody>
+        ${rows.map(({ d, audit, top, risk, ports }) => `
+          <tr class="overview-row" data-device="${esc(d.id)}" style="cursor:pointer">
+            <td><strong>${esc(d.display_name)}</strong>
+                <span style="color:var(--text-3);font-size:11px;display:block">${esc(d.vendor || "")}</span></td>
+            <td><code>${esc(d.ip)}</code></td>
+            <td>${TYPE_ICONS[d.device_type] || "❓"} ${esc(d.device_type)}</td>
+            <td style="font-family:var(--mono);font-size:12px">${ports.length ? ports.join(" ") : "—"}</td>
+            <td>${top ? `<span class="sev-badge ${esc(top.severity)}">${esc(top.severity)}</span> ${esc(top.title)}`
+                      : risk ? `<span class="sev-badge ${esc(risk)}">open</span> risky port exposed`
+                      : `<span style="color:var(--text-3)">no findings yet</span>`}</td>
+            <td>${audit && !audit.preview
+                  ? `<span class="pill ${scorePillClass(audit.score)}">${audit.score}</span>` : "—"}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>`;
+  $$(".overview-row", wrap).forEach((row) =>
+    row.addEventListener("click", () => openDrawer(row.dataset.device)));
+}
+
 function renderDevices() {
+  renderOverview();
   const grid = $("#device-grid");
   const devices = filteredDevices();
   if (!state.devices.length) {
@@ -493,6 +577,7 @@ function renderDrawer(d) {
         <button class="btn btn-ghost btn-sm" data-act="rescan">Re-scan ports</button>
         <button class="btn btn-ghost btn-sm" data-act="audit">Security audit</button>
         <button class="btn btn-ghost btn-sm" data-act="ping">Ping</button>
+        ${(d.ports || []).some(p => [23, 2323].includes(p.port)) ? `<button class="btn btn-ghost btn-sm" data-act="telnet">TCP console</button>` : ""}
         <button class="btn btn-danger btn-sm" data-act="forget">Forget</button>
       </div>
       <div class="drawer-input-row">
@@ -568,6 +653,7 @@ function renderDrawer(d) {
             <span class="sev-badge ${esc(f.severity)}">${esc(f.severity)}</span></div>
             <p class="finding-desc">${esc(f.description)}</p>
             <p class="finding-fix"><b>Fix:</b> ${esc(f.remediation)}</p>
+            ${toolsHtml(f)}
           </div>`).join("")}
       </div>
     </div>` : ""}
@@ -619,6 +705,9 @@ async function drawerAction(action, d) {
       toast(res.ping.alive ? `${d.ip} alive · ${res.ping.latency_ms ?? "?"} ms · TTL ${res.ping.ttl ?? "?"}`
                             : `${d.ip} did not respond`, res.ping.alive ? "ok" : "err");
       await refreshDevices();
+    } else if (action === "telnet") {
+      const telnetPort = (d.ports || []).find(p => [23, 2323].includes(p.port));
+      openTcpConsole(d.ip, telnetPort ? telnetPort.port : 23);
     } else if (action === "forget") {
       await api(`/device/${id}`, { method: "DELETE" });
       toast("Removed from inventory", "info");
@@ -629,6 +718,104 @@ async function drawerAction(action, d) {
     if (err.status === 402) paywallToast(err.body);
     else toast(err.message, "err");
   }
+}
+
+/* ── Raw TCP / Telnet console (Ultimate) ─────────────────────────── */
+let tcpSessionState = { session: null, host: "", port: 0 };
+
+async function openTcpConsole(host, port = 23) {
+  const backdrop = document.createElement("div");
+  backdrop.className = "drawer-backdrop";
+  backdrop.hidden = false;
+  backdrop.innerHTML = "";
+  const modal = document.createElement("div");
+  modal.className = "aether-modal-backdrop";
+  modal.innerHTML = `
+    <div class="aether-modal" style="width:min(560px,94vw)">
+      <h3>TCP console <span style="color:var(--text-3);font-weight:500">· Ultimate</span></h3>
+      <div class="tcp-bar">
+        <input id="tcp-host" value="${esc(host || "")}" placeholder="host" spellcheck="false"/>
+        <input id="tcp-port" value="${port}" placeholder="23" style="max-width:80px"/>
+        <button class="btn btn-primary btn-sm" id="tcp-connect">Connect</button>
+      </div>
+      <pre class="tcp-out" id="tcp-out">Not connected.</pre>
+      <div class="tcp-bar">
+        <input id="tcp-input" placeholder="type a command and press Enter" spellcheck="false"
+               ${"disabled"}/>
+        <button class="btn btn-ghost btn-sm" id="tcp-send" disabled>Send</button>
+        <button class="btn btn-ghost btn-sm" id="tcp-close-conn" disabled>Disconnect</button>
+      </div>
+      <div class="status" id="tcp-status"></div>
+      <div class="row" style="display:flex;justify-content:flex-end;margin-top:10px">
+        <button class="btn btn-ghost btn-sm" id="tcp-dismiss">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  const dismiss = () => {
+    if (tcpSessionState.session) {
+      api("/tools/tcp/close", { method: "POST",
+        body: JSON.stringify({ session: tcpSessionState.session }) }).catch(() => {});
+    }
+    tcpSessionState = { session: null, host: "", port: 0 };
+    modal.remove(); backdrop.remove();
+  };
+  modal.querySelector("#tcp-dismiss").addEventListener("click", dismiss);
+  backdrop.addEventListener("click", dismiss);
+  const out = modal.querySelector("#tcp-out");
+  const status = modal.querySelector("#tcp-status");
+  const input = modal.querySelector("#tcp-input");
+  const sendBtn = modal.querySelector("#tcp-send");
+  const discBtn = modal.querySelector("#tcp-close-conn");
+
+  async function connect() {
+    const h = modal.querySelector("#tcp-host").value.trim();
+    const p = parseInt(modal.querySelector("#tcp-port").value, 10) || 23;
+    status.textContent = `Connecting to ${h}:${p}…`; status.className = "status";
+    try {
+      const res = await api("/tools/tcp/open", { method: "POST",
+        body: JSON.stringify({ host: h, port: p }) });
+      tcpSessionState = { session: res.session, host: h, port: p };
+      status.textContent = `Connected to ${h}:${p}`;
+      status.className = "status ok";
+      input.disabled = false; sendBtn.disabled = false; discBtn.disabled = false;
+      out.textContent = "(session open — type a command)";
+    } catch (err) {
+      if (err.status === 402) { modal.remove(); backdrop.remove(); return paywallToast(err.body); }
+      status.textContent = err.message; status.className = "status err";
+    }
+  }
+  async function send() {
+    const data = input.value;
+    if (!tcpSessionState.session || !data.trim()) return;
+    try {
+      const res = await api("/tools/tcp/send", { method: "POST",
+        body: JSON.stringify({ session: tcpSessionState.session, data }) });
+      out.textContent = (res.output || "").slice(-8000) || "(no output)";
+      out.scrollTop = out.scrollHeight;
+      if (res.closed) {
+        status.textContent = "Remote closed the connection."; status.className = "status err";
+        tcpSessionState.session = null;
+        input.disabled = true; sendBtn.disabled = true; discBtn.disabled = true;
+      }
+    } catch (err) {
+      if (err.status === 402) { dismiss(); return paywallToast(err.body); }
+      status.textContent = err.message; status.className = "status err";
+    }
+  }
+  modal.querySelector("#tcp-connect").addEventListener("click", connect);
+  sendBtn.addEventListener("click", send);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+  discBtn.addEventListener("click", async () => {
+    if (tcpSessionState.session) {
+      await api("/tools/tcp/close", { method: "POST",
+        body: JSON.stringify({ session: tcpSessionState.session }) }).catch(() => {});
+      tcpSessionState.session = null;
+    }
+    status.textContent = "Disconnected."; status.className = "status";
+    input.disabled = true; sendBtn.disabled = true; discBtn.disabled = true;
+    out.textContent = "Not connected.";
+  });
+  setTimeout(() => { if (host) connect(); }, 100);
 }
 
 function setDialFromAll() {
@@ -705,9 +892,48 @@ function renderSecurity() {
       </div>
       <p class="finding-desc">${esc(f.description)}</p>
       <p class="finding-fix"><b>Fix:</b> ${esc(f.remediation)}</p>
+      ${toolsHtml(f)}
       <p class="finding-foot">${esc(f.device.ip)} · ${esc(f.device.display_name)}${f.cve_refs?.length ? " · " + esc(f.cve_refs.join(", ")) : ""}</p>
     </article>`).join("");
+  bindToolHandlers(wrap);
 }
+
+function bindToolHandlers(scope) {
+  $$(".tool-copy", scope).forEach((btn) => btn.addEventListener("click", () => {
+    navigator.clipboard.writeText(btn.dataset.cmd).then(
+      () => toast("Command copied", "ok", 1500),
+      () => toast("Copy failed", "err"));
+  }));
+  $$(".tool-open-console", scope).forEach((btn) =>
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      const ip = btn.closest(".finding-card, .audit-block")?.querySelector(".finding-foot")
+        ?.textContent.split(" · ")[0] || "";
+      openTcpConsole(ip, 23);
+    }));
+}
+
+/* ── Network utilities panel ─────────────────────────────────────── */
+async function runTool(kind) {
+  const host = $("#tools-host")?.value.trim();
+  const out = $("#tools-out");
+  if (!host) return toast("Enter a host or IP first", "err");
+  out.hidden = false;
+  out.textContent = `Running ${kind} on ${host}…`;
+  try {
+    const res = await api("/tools/" + kind, { method: "POST",
+      body: JSON.stringify({ host }) });
+    out.textContent = res.output || "(no output)";
+  } catch (err) {
+    if (err.status === 402) { paywallToast(err.body); out.hidden = true; return; }
+    out.textContent = `Error: ${err.message}`;
+  }
+}
+
+$("#btn-tool-ping")?.addEventListener("click", () => runTool("ping"));
+$("#btn-tool-trace")?.addEventListener("click", () => runTool("traceroute"));
+$("#btn-tool-dns")?.addEventListener("click", () => runTool("dns"));
+$("#btn-tool-arp")?.addEventListener("click", () => runTool("arp"));
 
 /* ------------------------------------------------------------------ */
 /* 8. Monitor                                                          */
@@ -722,7 +948,8 @@ $("#btn-monitor-toggle").addEventListener("click", async () => {
     } else {
       await api("/monitor/start", {
         method: "POST",
-        body: JSON.stringify({ interval_s: parseInt($("#monitor-interval").value, 10) }),
+        body: JSON.stringify({ interval_s: parseInt($("#monitor-interval").value, 10),
+                               deep: $("#monitor-deep")?.checked || false }),
       });
       toast("Watchman on duty", "ok");
     }
@@ -823,6 +1050,14 @@ async function renderHistory() {
 function renderLicense() {
   const s = state.status?.license;
   if (!s) return;
+  // A completed sandbox checkout hands its key over via sessionStorage.
+  const pendingKey = sessionStorage.getItem("aetherscan-pending-key");
+  if (pendingKey && !$("#input-license").value) {
+    $("#input-license").value = pendingKey;
+    $("#license-note").textContent =
+      "Your new key is ready — press Activate to finish.";
+    $("#license-note").className = "form-note ok";
+  }
   const tier = s.development ? "dev" : s.tier;
   $("#lic-title").textContent = s.development ? "Development build"
     : s.trial_active ? `${s.tier_label} (trial · ${s.trial_days_left}d left)`
@@ -891,6 +1126,7 @@ async function loadSettingsView() {
   $("#set-ping-timeout").value = String(state.config.ping);
   $("#set-online-lookup").checked = state.config.online;
   $("#set-cred-audit").checked = state.config.credAudit;
+  if ($("#set-sweep-tcp")) $("#set-sweep-tcp").checked = !!state.config.sweepTcp;
   const s = state.status;
   if (s) {
     $("#about-line").textContent =
@@ -916,11 +1152,27 @@ $("#set-cred-audit").addEventListener("change", (e) => {
   state.config.credAudit = e.target.checked;
   $("#chk-cred-audit").checked = e.target.checked;
 });
+$("#set-sweep-tcp")?.addEventListener("change", async (e) => {
+  state.config.sweepTcp = e.target.checked;
+  await saveConfig();
+});
+$("#btn-clear-demo")?.addEventListener("click", () => purgeDemoDevices(false));
 
 async function saveConfig() {
   // Client-side only for now: the server reads config.json at boot.
   localStorage.setItem("aetherscan-config", JSON.stringify(state.config));
 }
+
+/* Demo-visibility toggle lives in the devices toolbar. */
+$("#chk-demo")?.addEventListener("change", (e) => {
+  state.showDemo = e.target.checked;
+  renderDevices();
+});
+$("#btn-overview")?.addEventListener("click", () => {
+  state.overviewMode = !state.overviewMode;
+  $("#btn-overview").classList.toggle("is-active", state.overviewMode);
+  renderDevices();
+});
 
 $("#btn-selftest").addEventListener("click", async () => {
   const out = $("#debug-out");
@@ -954,6 +1206,19 @@ $("#btn-env-dump").addEventListener("click", async () => {
   try {
     Object.assign(state.config, JSON.parse(localStorage.getItem("aetherscan-config") || "{}"));
   } catch { /* ignore */ }
+
+  // Signed-in users shouldn't see seeded demo clutter mixed into a real LAN.
+  document.addEventListener("aetherscan:auth", async () => {
+    state.showDemo = !isLiveMode();
+    const toolbarToggle = $("#chk-demo");
+    if (toolbarToggle) toolbarToggle.checked = state.showDemo;
+    if (isLiveMode()) await purgeDemoDevices(true);
+    renderDevices();
+  });
+
+  if (window.AetherAuth && window.AetherAuth.getSession()) {
+    state.showDemo = !isLiveMode();
+  }
 
   await refreshStatus();
   await refreshDevices();

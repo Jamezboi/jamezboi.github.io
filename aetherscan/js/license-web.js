@@ -54,5 +54,20 @@
     return (key || "").trim().toUpperCase() === DEV_KEY;
   }
 
-  window.AetherLicense = { keyValid, tierOf, isDevKey, checksumGroup, DEV_KEY };
+  function randomGroup() {
+    let out = "";
+    const rnd = new Uint32Array(4);
+    crypto.getRandomValues(rnd);
+    for (let i = 0; i < 4; i++) out += ALPHABET[rnd[i] % ALPHABET.length];
+    return out;
+  }
+
+  async function generateKey(tier) {
+    const tierGroup = String(tier || "pro").toUpperCase().startsWith("ULT") ? "ULTI" : "PRO";
+    const body = ["AETH", randomGroup(), randomGroup(), tierGroup].join("-");
+    return body + "-" + (await checksumGroup(body));
+  }
+
+  window.AetherLicense = { keyValid, tierOf, isDevKey, checksumGroup,
+                           generateKey, DEV_KEY };
 })();

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Key Issuer — AetherScan Admin</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #0b0d12; --surface: rgba(255,255,255,.05); --surface-strong: rgba(255,255,255,.085);
+      --border: rgba(255,255,255,.085); --border-strong: rgba(255,255,255,.16);
+      --text: #f2f4f8; --text-2: #a6adbb; --text-3: #6b7280;
+      --accent: #0a84ff; --accent-2: #5e5ce6; --green: #30d158; --red: #ff453a; --orange: #ff9f0a;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); color: var(--text); line-height: 1.55;
+      background:
+        radial-gradient(1000px 460px at 85% -10%, rgba(94,92,230,.14), transparent 60%),
+        var(--bg);
+      min-height: 100vh; padding: 40px 20px 60px; -webkit-font-smoothing: antialiased; }
+    .page { max-width: 640px; margin: 0 auto; }
+    .lock-badge { width: 54px; height: 54px; border-radius: 17px; display: grid; place-items: center;
+      background: rgba(255,159,10,.13); border: 1px solid rgba(255,159,10,.35);
+      color: var(--orange); font-size: 24px; margin-bottom: 16px; }
+    h1 { font-size: 24px; letter-spacing: -.5px; margin-bottom: 6px; }
+    .sub { color: var(--text-2); font-size: 13.5px; margin-bottom: 24px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 24px; backdrop-filter: blur(20px); }
+    label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .6px;
+      text-transform: uppercase; color: var(--text-3); margin: 14px 0 5px; }
+    input, select { width: 100%; background: var(--surface-strong); border: 1px solid var(--border);
+      border-radius: 11px; padding: 10px 13px; font-size: 14px; color: var(--text); outline: none; }
+    input:focus, select:focus { border-color: var(--accent); }
+    input.invalid { border-color: var(--red); }
+    .row { display: flex; gap: 10px; margin-top: 16px; }
+    .btn { padding: 10px 18px; border-radius: 12px; font-weight: 600; font-size: 13.5px;
+      cursor: pointer; border: 1px solid var(--border); background: var(--surface-strong);
+      color: var(--text); }
+    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border: none; color: #fff; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .error { color: var(--red); font-size: 13px; margin-top: 10px; min-height: 18px; }
+    .key-list { margin-top: 8px; }
+    .key-line { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      font-family: var(--mono); font-size: 14px; letter-spacing: .5px;
+      background: var(--surface-strong); border: 1px solid var(--border);
+      border-radius: 11px; padding: 10px 13px; margin: 6px 0; }
+    .key-line .tier-tag { font-family: var(--font); font-size: 10px; font-weight: 800;
+      letter-spacing: .8px; padding: 2px 8px; border-radius: 99px; }
+    .tier-tag.pro { background: rgba(10,132,255,.15); color: #6db3ff; }
+    .tier-tag.ultimate { background: rgba(191,90,242,.15); color: #d18af5; }
+    .key-line button { background: none; border: none; color: var(--text-3); cursor: pointer;
+      font-size: 15px; }
+    .key-line button:hover { color: var(--text); }
+    .meta { font-size: 11.5px; color: var(--text-3); margin-top: 14px; line-height: 1.6; }
+    code { font-family: var(--mono); background: var(--surface-strong); padding: 1px 6px;
+      border-radius: 5px; font-size: .9em; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="lock-badge">🔑</div>
+    <h1>AetherScan Key Issuer</h1>
+    <p class="sub">Staff-only. Issues real license keys offline. Change the admin password by
+       replacing <code>ADMIN_PASSWORD_HASH</code> in this file with the SHA-256 hex of your new
+       password.</p>
+
+    <div class="card" id="gate">
+      <label for="admin-pw">Admin password</label>
+      <input type="password" id="admin-pw" placeholder="••••••••••••" autocomplete="off" />
+      <div class="error" id="gate-error"></div>
+      <div class="row">
+        <button class="btn primary" id="unlock-btn">Unlock issuer</button>
+      </div>
+      <p class="meta">Password check runs entirely in this browser. Sessions last until you close the tab.</p>
+    </div>
+
+    <div class="card hidden" id="issuer">
+      <h1 style="font-size:18px">Issue license keys</h1>
+      <label for="key-tier">Edition</label>
+      <select id="key-tier">
+        <option value="pro">AetherScan Pro — $24</option>
+        <option value="ultimate">AetherScan Ultimate — $59</option>
+      </select>
+      <label for="key-count">Quantity</label>
+      <select id="key-count">
+        <option>1</option><option>5</option><option>10</option><option>25</option>
+      </select>
+      <div class="row">
+        <button class="btn primary" id="gen-btn">Generate keys</button>
+        <button class="btn" id="copy-all" disabled>Copy all</button>
+        <button class="btn" id="download-all" disabled>Download .txt</button>
+      </div>
+      <div class="key-list" id="key-list"></div>
+      <p class="meta">Keys are verified with the same offline checksum as the engine
+         (<code>AETH-····-····-PRO-····</code>). Hand them to customers manually —
+         they activate in the console's License view or via <code>/api/license/activate</code>.</p>
+    </div>
+  </div>
+
+  <script src="js/license-web.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      // SHA-256 of the admin password. CHANGE THIS before real use.
+      const ADMIN_PASSWORD_HASH =
+        "6a577cf98f27b8b8a290ace67a28117f47b0e6be883396b18a44d79b8b5e3969"; // lumen-admin-2026
+
+      const $ = (sel) => document.querySelector(sel);
+      let issued = [];
+
+      async function sha256Hex(text) {
+        const digest = await crypto.subtle.digest("SHA-256",
+          new TextEncoder().encode(text));
+        return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
+      }
+
+      $("#unlock-btn").addEventListener("click", async () => {
+        const pw = $("#admin-pw").value;
+        const hash = await sha256Hex(pw);
+        if (hash === ADMIN_PASSWORD_HASH) {
+          sessionStorage.setItem("aetherscan-admin-ok", "1");
+          $("#gate").classList.add("hidden");
+          $("#issuer").classList.remove("hidden");
+        } else {
+          $("#gate-error").textContent = "Wrong password.";
+          $("#admin-pw").classList.add("invalid");
+          setTimeout(() => $("#admin-pw").classList.remove("invalid"), 900);
+        }
+      });
+      $("#admin-pw").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") $("#unlock-btn").click();
+      });
+
+      $("#gen-btn").addEventListener("click", async () => {
+        const tier = $("#key-tier").value;
+        const count = parseInt($("#key-count").value, 10);
+        const btn = $("#gen-btn");
+        btn.disabled = true; btn.textContent = "Generating…";
+        const fresh = [];
+        for (let i = 0; i < count; i++) {
+          const key = await window.AetherLicense.generateKey(tier);
+          if (!(await window.AetherLicense.keyValid(key))) {
+            i--; continue;  // astronomically unlikely; regenerate on the off chance
+          }
+          fresh.push(key);
+        }
+        issued = fresh.concat(issued);
+        renderKeys();
+        btn.disabled = false; btn.textContent = "Generate keys";
+        $("#copy-all").disabled = false; $("#download-all").disabled = false;
+      });
+
+      function renderKeys() {
+        $("#key-list").innerHTML = issued.map((key) => {
+          const tier = key.split("-")[3].startsWith("ULT") ? "ultimate" : "pro";
+          return `<div class="key-line"><span>${key}</span>
+            <span style="display:flex;align-items:center;gap:8px">
+            <span class="tier-tag ${tier}">${tier}</span>
+            <button data-key="${key}" title="Copy">⧉</button></span></div>`;
+        }).join("");
+        $$("#key-list button").forEach((btn) => btn.addEventListener("click", () => {
+          navigator.clipboard.writeText(btn.dataset.key).then(() => {
+            btn.textContent = "✓";
+            setTimeout(() => { btn.textContent = "⧉"; }, 1200);
+          });
+        }));
+      }
+
+      $("#copy-all").addEventListener("click", () =>
+        navigator.clipboard.writeText(issued.join("\n")));
+      $("#download-all").addEventListener("click", () => {
+        const blob = new Blob([issued.join("\n") + "\n"], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "aetherscan-keys.txt";
+        a.click();
+      });
+
+      if (sessionStorage.getItem("aetherscan-admin-ok")) {
+        $("#gate").classList.add("hidden");
+        $("#issuer").classList.remove("hidden");
+      }
+    })();
+  </script>
+</body>
+</html>

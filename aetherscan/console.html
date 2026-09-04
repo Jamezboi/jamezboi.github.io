@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark" />
   <title>AetherScan — Network Intelligence</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/app.css?v=1400" />
+  <link rel="stylesheet" href="css/app.css?v=1500" />
 </head>
 <body data-theme="auto">
   <div id="app" class="app-shell">
@@ -181,11 +181,18 @@
           <div class="chip-row" id="type-chips"></div>
           <div class="toolbar-right">
             <label class="toggle">
+              <input type="checkbox" id="chk-demo" checked />
+              <span>Demo devices</span>
+            </label>
+            <label class="toggle">
               <input type="checkbox" id="chk-favorites" />
               <span>Favorites only</span>
             </label>
+            <button class="btn btn-ghost btn-sm" id="btn-overview">Risk overview</button>
           </div>
         </section>
+
+        <div id="overview-wrap" hidden></div>
 
         <section class="device-grid" id="device-grid">
           <div class="empty-state" id="devices-empty">
@@ -231,6 +238,21 @@
         <section class="sec-grid" id="sec-findings">
           <p class="empty-hint">Run an audit to see findings, prioritized by severity.</p>
         </section>
+
+        <section class="card" style="margin-top:16px">
+          <header class="card-head">
+            <h2>Network tools</h2>
+            <span class="card-hint">Pro · runs on the engine host</span>
+          </header>
+          <div class="tools-bar">
+            <input type="text" id="tools-host" placeholder="IP or hostname (e.g. 192.168.1.1)" spellcheck="false"/>
+            <button class="btn btn-ghost btn-sm" id="btn-tool-ping">Ping</button>
+            <button class="btn btn-ghost btn-sm" id="btn-tool-trace">Traceroute</button>
+            <button class="btn btn-ghost btn-sm" id="btn-tool-dns">DNS</button>
+            <button class="btn btn-ghost btn-sm" id="btn-tool-arp">ARP table</button>
+          </div>
+          <pre class="debug-out" id="tools-out" hidden></pre>
+        </section>
       </main>
 
       <!-- ════════ VIEW: Monitor ════════ -->
@@ -256,6 +278,10 @@
             </label>
             <label>Interface
               <select id="monitor-iface"><option>Loading…</option></select>
+            </label>
+            <label class="toggle" style="align-self:end;padding-bottom:8px">
+              <input type="checkbox" id="monitor-deep" />
+              <span>Deep scan (probe silent hosts + port changes · Ultimate)</span>
             </label>
           </div>
         </section>
@@ -361,6 +387,18 @@
         </section>
 
         <section class="card">
+          <header class="card-head"><h2>Discovery depth</h2></header>
+          <div class="setting-row">
+            <div><strong>TCP sweep for silent devices</strong><p class="muted small">After the ping sweep, probe common ports on hosts that never answered — catches firewalled laptops, headless IoT and printers. Ultimate.</p></div>
+            <label class="switch"><input type="checkbox" id="set-sweep-tcp"/><span></span></label>
+          </div>
+          <div class="setting-row">
+            <div><strong>Demo devices</strong><p class="muted small">Seeded sample devices can overlap with a real network. Purge them from the inventory entirely.</p></div>
+            <button class="btn btn-ghost btn-sm" id="btn-clear-demo">Clear demo devices</button>
+          </div>
+        </section>
+
+        <section class="card">
           <header class="card-head"><h2>Security audit</h2></header>
           <div class="setting-row">
             <div><strong>Factory-credential audit</strong><p class="muted small">Opt-in. Tries 5 classic default logins (read-only) against admin pages on <em>your own</em> devices. Never enables anything, never changes state.</p></div>
@@ -382,6 +420,8 @@
         <section class="card">
           <header class="card-head"><h2>About</h2></header>
           <p class="muted" id="about-line">AetherScan</p>
+          <p class="muted small">Built by <strong>James Laliberte</strong> · site &amp; console ·
+             reach out at <a href="mailto:Jamezboyyy@gmail.com" style="color:var(--accent)">Jamezboyyy@gmail.com</a> for help or inquiries.</p>
           <p class="muted small">AetherScan performs only non-invasive checks against devices it
              discovers. It never attempts exploits beyond the opt-in factory-credential audit,
              and it is designed exclusively for networks you own or are authorized to assess.
@@ -416,6 +456,6 @@
   <script src="js/license-web.js"></script>
   <script src="js/demo-api.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/app.js?v=1400"></script>
+  <script src="js/app.js?v=1500"></script>
 </body>
 </html>
