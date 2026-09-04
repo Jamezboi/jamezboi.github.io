@@ -8,184 +8,155 @@
   <title>Key Issuer — AetherScan Admin</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <style>
-    :root {
-      --bg: #0b0d12; --surface: rgba(255,255,255,.05); --surface-strong: rgba(255,255,255,.085);
-      --border: rgba(255,255,255,.085); --border-strong: rgba(255,255,255,.16);
-      --text: #f2f4f8; --text-2: #a6adbb; --text-3: #6b7280;
-      --accent: #0a84ff; --accent-2: #5e5ce6; --green: #30d158; --red: #ff453a; --orange: #ff9f0a;
-      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
-      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: var(--font); color: var(--text); line-height: 1.55;
-      background:
-        radial-gradient(1000px 460px at 85% -10%, rgba(94,92,230,.14), transparent 60%),
-        var(--bg);
-      min-height: 100vh; padding: 40px 20px 60px; -webkit-font-smoothing: antialiased; }
-    .page { max-width: 640px; margin: 0 auto; }
-    .lock-badge { width: 54px; height: 54px; border-radius: 17px; display: grid; place-items: center;
-      background: rgba(255,159,10,.13); border: 1px solid rgba(255,159,10,.35);
-      color: var(--orange); font-size: 24px; margin-bottom: 16px; }
-    h1 { font-size: 24px; letter-spacing: -.5px; margin-bottom: 6px; }
-    .sub { color: var(--text-2); font-size: 13.5px; margin-bottom: 24px; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
-      padding: 24px; backdrop-filter: blur(20px); }
-    label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .6px;
-      text-transform: uppercase; color: var(--text-3); margin: 14px 0 5px; }
-    input, select { width: 100%; background: var(--surface-strong); border: 1px solid var(--border);
-      border-radius: 11px; padding: 10px 13px; font-size: 14px; color: var(--text); outline: none; }
-    input:focus, select:focus { border-color: var(--accent); }
-    input.invalid { border-color: var(--red); }
-    .row { display: flex; gap: 10px; margin-top: 16px; }
-    .btn { padding: 10px 18px; border-radius: 12px; font-weight: 600; font-size: 13.5px;
-      cursor: pointer; border: 1px solid var(--border); background: var(--surface-strong);
-      color: var(--text); }
-    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      border: none; color: #fff; }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
-    .error { color: var(--red); font-size: 13px; margin-top: 10px; min-height: 18px; }
-    .key-list { margin-top: 8px; }
-    .key-line { display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      font-family: var(--mono); font-size: 14px; letter-spacing: .5px;
-      background: var(--surface-strong); border: 1px solid var(--border);
-      border-radius: 11px; padding: 10px 13px; margin: 6px 0; }
-    .key-line .tier-tag { font-family: var(--font); font-size: 10px; font-weight: 800;
-      letter-spacing: .8px; padding: 2px 8px; border-radius: 99px; }
-    .tier-tag.pro { background: rgba(10,132,255,.15); color: #6db3ff; }
-    .tier-tag.ultimate { background: rgba(191,90,242,.15); color: #d18af5; }
-    .key-line button { background: none; border: none; color: var(--text-3); cursor: pointer;
-      font-size: 15px; }
-    .key-line button:hover { color: var(--text); }
-    .meta { font-size: 11.5px; color: var(--text-3); margin-top: 14px; line-height: 1.6; }
-    code { font-family: var(--mono); background: var(--surface-strong); padding: 1px 6px;
-      border-radius: 5px; font-size: .9em; }
-    .hidden { display: none; }
+    :root { --bg:#0b0d12; --surface:rgba(255,255,255,.05); --surface-strong:rgba(255,255,255,.085);
+      --border:rgba(255,255,255,.1); --text:#f2f4f8; --text-2:#a6adbb; --text-3:#6b7280;
+      --accent:#0a84ff; --green:#30d158; --red:#ff453a; --orange:#ff9f0a; --purple:#bf5af2;
+      --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif; --mono:ui-monospace,Menlo,Consolas,monospace; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:var(--font); color:var(--text); line-height:1.55; min-height:100vh; padding:40px 20px 60px;
+      background:radial-gradient(1000px 460px at 85% -10%, rgba(94,92,230,.14), transparent 60%), var(--bg); -webkit-font-smoothing:antialiased; }
+    .page { max-width:680px; margin:0 auto; }
+    .badge { width:52px; height:52px; border-radius:16px; display:grid; place-items:center; font-size:22px;
+      background:rgba(255,159,10,.13); border:1px solid rgba(255,159,10,.35); color:var(--orange); margin-bottom:14px; }
+    h1 { font-size:24px; letter-spacing:-.5px; margin-bottom:6px; }
+    .sub { color:var(--text-2); font-size:13.5px; margin-bottom:24px; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:24px; }
+    label { display:block; font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--text-3); margin:14px 0 5px; }
+    input, select { width:100%; background:var(--surface-strong); border:1px solid var(--border); border-radius:11px;
+      padding:10px 13px; font-size:14px; color:var(--text); outline:none; }
+    .row { display:flex; gap:10px; }
+    .row > * { flex:1; }
+    .btn { padding:11px 18px; border-radius:12px; font-weight:600; font-size:14px; cursor:pointer;
+      border:1px solid var(--border); background:var(--surface-strong); color:var(--text); }
+    .btn.primary { background:linear-gradient(135deg,var(--accent),#5e5ce6); border:none; color:#fff; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; }
+    .note { font-size:12px; color:var(--text-3); margin-top:10px; }
+    .key-line { display:flex; align-items:center; justify-content:space-between; gap:10px;
+      font-family:var(--mono); font-size:14px; background:var(--surface-strong); border:1px solid var(--border);
+      border-radius:11px; padding:10px 13px; margin:6px 0; }
+    .key-line button { background:none; border:none; color:var(--text-3); cursor:pointer; font-size:15px; }
+    .tier-tag { font-family:var(--font); font-size:10px; font-weight:800; letter-spacing:.8px; padding:2px 8px; border-radius:99px; }
+    .tier-tag.pro { background:rgba(10,132,255,.15); color:#6db3ff; }
+    .tier-tag.ultimate { background:rgba(191,90,242,.15); color:#d18af5; }
+    .hidden { display:none; }
+    .error { color:var(--red); font-size:13px; margin-top:10px; min-height:18px; }
+    .admbadge { display:inline-block; font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
+      padding:3px 10px; border-radius:99px; background:rgba(48,209,88,.15); color:var(--green); margin-top:10px; }
   </style>
 </head>
 <body>
   <div class="page">
-    <div class="lock-badge">🔑</div>
+    <div class="badge">🔑</div>
     <h1>AetherScan Key Issuer</h1>
-    <p class="sub">Staff-only. Issues real license keys offline. Change the admin password by
-       replacing <code>ADMIN_PASSWORD_HASH</code> in this file with the SHA-256 hex of your new
-       password.</p>
+    <p class="sub">Issues <b>real, server-side</b> licenses. Keys are stored in the cloud database and redeem
+       exactly once — this is what makes activation work.</p>
 
-    <div class="card" id="gate">
-      <label for="admin-pw">Admin password</label>
-      <input type="password" id="admin-pw" placeholder="••••••••••••" autocomplete="off" />
-      <div class="error" id="gate-error"></div>
-      <div class="row">
-        <button class="btn primary" id="unlock-btn">Unlock issuer</button>
-      </div>
-      <p class="meta">Password check runs entirely in this browser. Sessions last until you close the tab.</p>
+    <div class="card hidden" id="signin">
+      <h2 style="font-size:16px;margin-bottom:6px">Sign in as the admin</h2>
+      <p class="sub" style="margin-bottom:14px">Use the Google account you registered as <b>ADMIN_EMAIL</b> in Cloudflare.</p>
+      <div id="google-slot"></div>
+      <div class="error" id="signin-error"></div>
     </div>
 
     <div class="card hidden" id="issuer">
-      <h1 style="font-size:18px">Issue license keys</h1>
-      <label for="key-tier">Edition</label>
-      <select id="key-tier">
-        <option value="pro">AetherScan Pro — $24</option>
-        <option value="ultimate">AetherScan Ultimate — $59</option>
-      </select>
-      <label for="key-count">Quantity</label>
-      <select id="key-count">
-        <option>1</option><option>5</option><option>10</option><option>25</option>
-      </select>
+      <h2 style="font-size:16px;margin-bottom:4px">Issue keys</h2>
+      <p class="sub">Generated on the server so they're already in the license database.</p>
       <div class="row">
-        <button class="btn primary" id="gen-btn">Generate keys</button>
-        <button class="btn" id="copy-all" disabled>Copy all</button>
-        <button class="btn" id="download-all" disabled>Download .txt</button>
+        <div><label>Edition</label>
+          <select id="key-tier"><option value="pro">Pro — $24</option><option value="ultimate">Ultimate — $59</option></select></div>
+        <div><label>Quantity</label>
+          <select id="key-count"><option>1</option><option>5</option><option>10</option><option>25</option></select></div>
       </div>
-      <div class="key-list" id="key-list"></div>
-      <p class="meta">Keys are verified with the same offline checksum as the engine
-         (<code>AETH-····-····-PRO-····</code>). Hand them to customers manually —
-         they activate in the console's License view or via <code>/api/license/activate</code>.</p>
+      <div class="row" style="margin-top:16px">
+        <button class="btn primary" id="gen-btn">Issue keys</button>
+        <button class="btn" id="list-btn">List all keys</button>
+        <button class="btn" id="logout-btn">Sign out</button>
+      </div>
+      <div class="error" id="gen-error"></div>
+      <div id="key-list"></div>
+      <div id="all-keys" style="margin-top:12px"></div>
     </div>
   </div>
 
+  <script src="js/config.js"></script>
   <script src="js/license-web.js"></script>
+  <script src="js/licenses.js"></script>
   <script>
     (function () {
       "use strict";
-      // SHA-256 of the admin password. CHANGE THIS before real use.
-      const ADMIN_PASSWORD_HASH =
-        "6a577cf98f27b8b8a290ace67a28117f47b0e6be883396b18a44d79b8b5e3969"; // lumen-admin-2026
-
-      const $ = (sel) => document.querySelector(sel);
+      const $ = (s) => document.querySelector(s);
+      const $$ = (s) => [...document.querySelectorAll(s)];
+      const cloud = window.AetherCloud;
       let issued = [];
 
-      async function sha256Hex(text) {
-        const digest = await crypto.subtle.digest("SHA-256",
-          new TextEncoder().encode(text));
-        return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
+      function showIssuer(user) {
+        $("#signin").classList.add("hidden");
+        $("#issuer").classList.remove("hidden");
+        $("#issuer").insertAdjacentHTML("beforeend",
+          `<p class="admbadge">signed in as ${user.username || user.email} · ${user.plan}</p>`);
       }
 
-      $("#unlock-btn").addEventListener("click", async () => {
-        const pw = $("#admin-pw").value;
-        const hash = await sha256Hex(pw);
-        if (hash === ADMIN_PASSWORD_HASH) {
-          sessionStorage.setItem("aetherscan-admin-ok", "1");
-          $("#gate").classList.add("hidden");
-          $("#issuer").classList.remove("hidden");
-        } else {
-          $("#gate-error").textContent = "Wrong password.";
-          $("#admin-pw").classList.add("invalid");
-          setTimeout(() => $("#admin-pw").classList.remove("invalid"), 900);
-        }
-      });
-      $("#admin-pw").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") $("#unlock-btn").click();
-      });
+      async function signInViaGoogle(credential) {
+        const r = await cloud.loginGoogle(credential);
+        if (r.ok && (r.user.admin || r.user.dev)) showIssuer(r.user);
+        else $("#signin-error").textContent = r.error || "Not an admin account.";
+      }
+
+      const clientId = (window.AETHERSCAN_CONFIG?.clientId || "").trim();
+      if (clientId) {
+        const s = document.createElement("script");
+        s.src = "https://accounts.google.com/gsi/client";
+        s.onload = () => {
+          google.accounts.id.initialize({ client_id: clientId, callback: (r) => signInViaGoogle(r.credential) });
+          google.accounts.id.renderButton($("#google-slot"), { theme: "filled_black", size: "large", shape: "pill", width: 320 });
+        };
+        document.head.appendChild(s);
+      } else {
+        $("#signin-error").textContent = "Google client ID not configured.";
+      }
+
+      // already signed in (session persisted)?
+      (async () => {
+        if (!cloud.enabled()) { $("#signin").classList.remove("hidden"); $("#signin-error").textContent = "No license server configured."; return; }
+        const u = cloud.user();
+        if (u) {
+          const me = await cloud.me().catch(() => null);
+          if (me?.ok && (me.user.admin || me.user.dev)) showIssuer(me.user);
+          else $("#signin").classList.remove("hidden");
+        } else $("#signin").classList.remove("hidden");
+      })();
 
       $("#gen-btn").addEventListener("click", async () => {
         const tier = $("#key-tier").value;
         const count = parseInt($("#key-count").value, 10);
-        const btn = $("#gen-btn");
-        btn.disabled = true; btn.textContent = "Generating…";
-        const fresh = [];
-        for (let i = 0; i < count; i++) {
-          const key = await window.AetherLicense.generateKey(tier);
-          if (!(await window.AetherLicense.keyValid(key))) {
-            i--; continue;  // astronomically unlikely; regenerate on the off chance
-          }
-          fresh.push(key);
-        }
-        issued = fresh.concat(issued);
-        renderKeys();
-        btn.disabled = false; btn.textContent = "Generate keys";
-        $("#copy-all").disabled = false; $("#download-all").disabled = false;
+        $("#gen-error").textContent = "";
+        const r = await cloud.issueKeys(tier, count);
+        if (!r.ok) { $("#gen-error").textContent = r.error || "issue failed"; return; }
+        issued = r.keys.concat(issued);
+        render(issued);
       });
 
-      function renderKeys() {
-        $("#key-list").innerHTML = issued.map((key) => {
-          const tier = key.split("-")[3].startsWith("ULT") ? "ultimate" : "pro";
-          return `<div class="key-line"><span>${key}</span>
-            <span style="display:flex;align-items:center;gap:8px">
-            <span class="tier-tag ${tier}">${tier}</span>
-            <button data-key="${key}" title="Copy">⧉</button></span></div>`;
+      function render(keys) {
+        $("#key-list").innerHTML = keys.map((k) => {
+          const t = k.split("-")[3].startsWith("ULT") ? "ultimate" : "pro";
+          return `<div class="key-line"><span>${k}</span>
+            <span style="display:flex;align-items:center;gap:8px"><span class="tier-tag ${t}">${t}</span>
+            <button data-k="${k}">⧉</button></span></div>`;
         }).join("");
-        $$("#key-list button").forEach((btn) => btn.addEventListener("click", () => {
-          navigator.clipboard.writeText(btn.dataset.key).then(() => {
-            btn.textContent = "✓";
-            setTimeout(() => { btn.textContent = "⧉"; }, 1200);
-          });
+        $$("#key-list button").forEach((b) => b.addEventListener("click", () => {
+          navigator.clipboard.writeText(b.dataset.k); b.textContent = "✓"; setTimeout(() => b.textContent = "⧉", 1200);
         }));
       }
 
-      $("#copy-all").addEventListener("click", () =>
-        navigator.clipboard.writeText(issued.join("\n")));
-      $("#download-all").addEventListener("click", () => {
-        const blob = new Blob([issued.join("\n") + "\n"], { type: "text/plain" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "aetherscan-keys.txt";
-        a.click();
+      $("#list-btn").addEventListener("click", async () => {
+        const r = await cloud.listKeys();
+        if (!r.ok) { $("#gen-error").textContent = r.error || "list failed"; return; }
+        $("#all-keys").innerHTML = `<h3 style="font-size:14px;margin:16px 0 6px">All keys (${r.keys.length})</h3>` +
+          r.keys.map((k) => `<div class="key-line"><span>${k.key}</span>
+            <span class="tier-tag ${k.tier}">${k.status}${k.redeemed_by ? " · " + k.redeemed_by : ""}</span></div>`).join("");
       });
 
-      if (sessionStorage.getItem("aetherscan-admin-ok")) {
-        $("#gate").classList.add("hidden");
-        $("#issuer").classList.remove("hidden");
-      }
+      $("#logout-btn").addEventListener("click", () => { cloud.signOut(); location.reload(); });
     })();
   </script>
 </body>

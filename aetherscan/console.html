@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark" />
   <title>AetherScan — Network Intelligence</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/app.css?v=1600" />
+  <link rel="stylesheet" href="css/app.css?v=1800" />
 </head>
 <body data-theme="auto">
   <div id="app" class="app-shell">
@@ -50,6 +50,10 @@
         <button class="nav-item" data-view="reports" data-min-plan="pro" data-upsell="Reports">
           <svg viewBox="0 0 24 24"><path d="M7 3.8h7.2L19 8.6V20.2H7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 3.8v5h5M9.6 13h5.2M9.6 16.4h5.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           <span>Reports</span>
+        </button>
+        <button class="nav-item" data-view="admin" id="nav-admin" hidden>
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5 19c.8-3.4 3.4-5 7-5s6.2 1.6 7 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M12 2v2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span>Admin</span>
         </button>
         <button class="nav-item" data-view="license">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m8.8 12.2 2.2 2.2 4.2-4.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -355,6 +359,36 @@
         </section>
       </main>
 
+      <!-- ════════ VIEW: Admin ════════ -->
+      <main class="view" id="view-admin">
+        <section class="card">
+          <header class="card-head"><h2>Issue license keys</h2><span class="card-hint">server-side · redeemable once</span></header>
+          <div class="tools-bar">
+            <select id="admin-tier" style="min-width:150px"><option value="pro">Pro — $24</option><option value="ultimate">Ultimate — $59</option></select>
+            <select id="admin-count" style="min-width:90px"><option>1</option><option>5</option><option>10</option><option>25</option></select>
+            <button class="btn btn-primary btn-sm" id="btn-admin-issue">Issue keys</button>
+          </div>
+          <p class="muted small" style="margin-top:8px">Keys are created in the cloud database (not generated in your browser), so they activate and are one-time use.</p>
+          <div class="key-list" id="admin-issued"></div>
+        </section>
+
+        <section class="grid-2" style="margin-top:16px">
+          <article class="card">
+            <header class="card-head"><h2>Connected users</h2><span class="card-hint" id="admin-user-count"></span></header>
+            <table class="table" id="admin-users"><tbody><tr><td class="empty-hint">Loading…</td></tr></tbody></table>
+          </article>
+          <article class="card">
+            <header class="card-head"><h2>Activity</h2></header>
+            <ul class="feed" id="admin-activity"><li class="empty-hint">Loading…</li></ul>
+          </article>
+        </section>
+
+        <section class="card" style="margin-top:16px">
+          <header class="card-head"><h2>All keys</h2><span class="card-hint" id="admin-key-count"></span></header>
+          <table class="table" id="admin-keys"><tbody><tr><td class="empty-hint">Loading…</td></tr></tbody></table>
+        </section>
+      </main>
+
       <!-- ════════ VIEW: Settings ════════ -->
       <main class="view" id="view-settings">
         <section class="card">
@@ -464,6 +498,6 @@
   <script src="js/licenses.js"></script>
   <script src="js/demo-api.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/app.js?v=1600"></script>
+  <script src="js/app.js?v=1800"></script>
 </body>
 </html>

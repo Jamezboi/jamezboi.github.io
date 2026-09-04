@@ -395,8 +395,7 @@
   const RANK = { free: 0, pro: 1, ultimate: 2 };
 
   const licenseState = {
-    key: null, licensed_to: "", development: false,
-    trial_start: Date.now() / 1000, scans: {},  // day -> count
+    key: null, licensed_to: "", development: false, scans: {},  // day -> count
   };
 
   try {
@@ -408,8 +407,10 @@
     localStorage.setItem(LS_LICENSE, JSON.stringify(licenseState));
   }
 
-  function trialDaysLeft() {
-    return Math.max(0, 14 - Math.floor((Date.now() / 1000 - licenseState.trial_start) / day));
+  // Free accounts get exactly ONE premium scan and ONE audit (cloud-enforced).
+  function freeCredits() {
+    const u = window.AetherCloud && window.AetherCloud.user();
+    return u ? { scan: u.free_scan_credits ?? 0, audit: u.free_audit_credits ?? 0 } : { scan: 0, audit: 0 };
   }
 
   async function currentTier() {
@@ -421,7 +422,7 @@
     if (licenseState.key && await window.AetherLicense.keyValid(licenseState.key)) {
       return await window.AetherLicense.tierOf(licenseState.key);
     }
-    return trialDaysLeft() > 0 ? "pro" : "free";
+    return "free";
   }
 
   function todayKey() { return new Date().toISOString().slice(0, 10); }
@@ -432,16 +433,25 @@
     for (const [f, min] of Object.entries(FEATURE_MIN)) {
       features[f] = RANK[tier] >= RANK[min];
     }
+    const credits = freeCredits();
     return {
       tier, tier_label: tier.charAt(0).toUpperCase() + tier.slice(1),
       development: licenseState.development,
-      trial_days_left: licenseState.development ? null : trialDaysLeft(),
-      trial_active: !licenseState.development && !licenseState.key && trialDaysLeft() > 0,
       licensed_to: licenseState.licensed_to,
+      free_scan_credits: credits.scan, free_audit_credits: credits.audit,
       features, tiers: TIERS,
       scans_today: licenseState.scans[todayKey()] || 0,
-      scan_cap: tier === "free" ? 8 : null,
+      scan_cap: tier === "free" ? null : null,
     };
+  }
+
+  // Consume a free-account allowance (one scan / one audit), cloud-authoritative.
+  async function consumeFree(kind) {
+    if (!(window.AetherCloud && window.AetherCloud.enabled() && window.AetherCloud.user())) return true;
+    const u = window.AetherCloud.user();
+    if (kind === "audit" && (u.free_audit_credits ?? 0) > 0) return window.AetherCloud.consume("audit");
+    if (kind === "scan" && (u.free_scan_credits ?? 0) > 0) return window.AetherCloud.consume("scan");
+    return { ok: false, error: "free allowance used" };
   }
 
   function gateFor(feature, tier) {
@@ -629,6 +639,21 @@ Reply from ${host}: bytes=32 time=${(device ? device.latency_ms ?? 2 : 2) + 0.2}
         output: match ? `Server:  router.local\nAddress:  192.168.1.1\n\nName:    ${host}\nAddress:  ${match.ip}`
                       : `Server:  router.local\nAddress:  192.168.1.1\n\nName:    ${host}\nAddress:  (no record)` });
     }
+    if (path === "/tools/nmap" && method === "POST") {
+      const gate = gateFor("tools_tcp", license.tier);
+      if (gate) return json(gate, 402);
+      const host = String(body.host || "").slice(0, 128);
+      await new Promise(r => setTimeout(r, 1200));
+      const dev = demoDevices.find(x => x.ip === host);
+      const ports = dev ? dev.ports.map(p => p.port).join(",") : "80,443";
+      return json({ ok: true, tool: "nmap", exit_code: 0, output:
+`Starting Nmap (AetherScan bundled) at ${new Date().toISOString()}
+Nmap scan report for ${host}
+PORT      STATE  SERVICE   VERSION
+${(dev ? dev.ports : []).slice(0, 6).map((p,i) => `${String(p.port).padEnd(9)} open   ${p.service.padEnd(9)} ${p.desc}` ).join("
+") || "  (no open ports in demo)"}
+Service detection performed.` });
+    }
     if (path === "/tools/arp" && method === "POST") {
       const gate = gateFor("tools_basic", license.tier);
       if (gate) return json(gate, 402);
@@ -707,7 +732,14 @@ Reply from ${host}: bytes=32 time=${(device ? device.latency_ms ?? 2 : 2) + 0.2}
       }
       if (devMatch[3] === "audit") {
         const gate = gateFor("security_audit", license.tier);
-        if (gate) return json(gate, 402);
+        if (gate) {
+          if (license.tier === "free") {
+            const use = await consumeFree("audit");
+            if (!use.ok) return json({ ...gate, message: "Your free audit is used — upgrade to run more audits." }, 402);
+          } else {
+            return json(gate, 402);
+          }
+        }
         await new Promise(r => setTimeout(r, 1100));
         const report = auditFor(device.id);
         auditStore[device.id] = report;
@@ -725,10 +757,14 @@ Reply from ${host}: bytes=32 time=${(device ? device.latency_ms ?? 2 : 2) + 0.2}
       }
       const gate = gateFor(profile === "quick" ? "port_scan_quick" :
         profile === "deep" ? "port_scan_deep" : "port_scan_standard", license.tier);
-      if (gate) return json(gate, 402);
-      const cap = license.scan_cap;
-      if (cap !== null && (licenseState.scans[todayKey()] || 0) >= cap) {
-        return json(gateFor("unlimited_scans", license.tier), 402);
+      if (gate) {
+        // Free accounts may use their single free premium scan instead.
+        if (license.tier === "free" && profile === "standard") {
+          const use = await consumeFree("scan");
+          if (!use.ok) return json({ ...gate, message: "Your free scan is used — upgrade to run more scans." }, 402);
+        } else {
+          return json(gate, 402);
+        }
       }
       if (scanSim.running) return json({ ok: false, message: "A scan is already running." }, 409);
       licenseState.scans[todayKey()] = (licenseState.scans[todayKey()] || 0) + 1;

@@ -142,6 +142,7 @@ const VIEW_META = {
   monitor: ["Monitor", "Live watchman for joins, leaves and changes"],
   reports: ["Reports", "Export the inventory and findings"],
   license: ["License", "Edition, tiers and activation"],
+  admin: ["Admin", "Users, keys and activity"],
   settings: ["Settings", "Tuning and diagnostics"],
 };
 
@@ -157,6 +158,7 @@ function showView(view) {
   if (view === "license") renderLicense();
   if (view === "settings") loadSettingsView();
   if (view === "monitor") pollMonitor();
+  if (view === "admin") renderAdmin();
 }
 
 $$(".nav-item").forEach((btn) => btn.addEventListener("click", () => showView(btn.dataset.view)));
@@ -916,6 +918,47 @@ function bindToolHandlers(scope) {
     }));
 }
 
+/* ── Admin dashboard ─────────────────────────────────────────────── */
+async function renderAdmin() {
+  if (!window.AetherCloud || !window.AetherCloud.enabled()) return;
+  const r = await window.AetherCloud.adminOverview().catch(() => null);
+  if (!r || !r.ok) {
+    $("#admin-users tbody").innerHTML = `<tr><td class="empty-hint">${r?.error || "unauthorized"} — sign in as the admin account.</td></tr>`;
+    return;
+  }
+  const escT = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  $("#admin-user-count").textContent = `${r.users.length} accounts`;
+  $("#admin-key-count").textContent = `${r.keys.length} keys`;
+  $("#admin-users tbody").innerHTML = r.users.map((u) => `
+    <tr><td><strong>${escT(u.username || u.email)}</strong></td>
+      <td style="color:var(--text-3)">${escT(u.email)}</td>
+      <td>${u.dev ? '👑 dev' : escT(u.plan)}</td>
+      <td>${u.verified ? '✓' : '•'}${u.free_scan_credits}s/${u.free_audit_credits}a</td></tr>`).join("");
+  $("#admin-keys tbody").innerHTML = r.keys.map((k) => `
+    <tr><td><code>${escT(k.key)}</code></td><td>${escT(k.tier)}</td>
+      <td>${escT(k.status)}</td><td style="color:var(--text-3)">${escT(k.redeemed_by || "")}</td></tr>`).join("");
+  $("#admin-activity").innerHTML = r.activity.slice(0, 30).map((a) => `
+    <li><time>${escT((a.at || "").slice(11, 16))}</time>
+      <span class="feed-tag info">${escT(a.kind)}</span><span>${escT(a.email || a.user_id || "")} — ${escT(a.detail || "")}</span></li>`).join("");
+}
+
+$("#btn-admin-issue")?.addEventListener("click", async () => {
+  const tier = $("#admin-tier").value;
+  const count = parseInt($("#admin-count").value, 10);
+  const r = await window.AetherCloud.issueKeys(tier, count).catch(() => null);
+  const wrap = $("#admin-issued");
+  if (!r || !r.ok) { toast(r?.error || "issue failed — are you the admin?"); return; }
+  wrap.innerHTML = `<div class="card" style="margin-top:12px"><header class="card-head"><h2>Issued</h2>
+    <button class="btn btn-ghost btn-sm" id="admin-copy-keys">Copy all</button></header>
+    ${r.keys.map((k) => `<div class="key-line"><span>${k}</span><button data-k="${k}">⧉</button></div>`).join("")}</div>`;
+  wrap.querySelector("#admin-copy-keys").addEventListener("click", () =>
+    navigator.clipboard.writeText(r.keys.join("
+")));
+  wrap.querySelectorAll("[data-k]").forEach((b) => b.addEventListener("click", () =>
+    navigator.clipboard.writeText(b.dataset.k)));
+  toast(`${r.keys.length} key(s) issued (cloud)`, "ok");
+});
+
 /* ── Network utilities panel ─────────────────────────────────────── */
 async function runTool(kind) {
   const host = $("#tools-host")?.value.trim();
@@ -937,6 +980,15 @@ $("#btn-tool-ping")?.addEventListener("click", () => runTool("ping"));
 $("#btn-tool-trace")?.addEventListener("click", () => runTool("traceroute"));
 $("#btn-tool-dns")?.addEventListener("click", () => runTool("dns"));
 $("#btn-tool-arp")?.addEventListener("click", () => runTool("arp"));
+$("#btn-tool-nmap")?.addEventListener("click", async () => {
+  const host = $("#tools-host")?.value.trim();
+  if (!host) return toast("Enter a host or IP first", "err");
+  const out = $("#tools-out"); out.hidden = false; out.textContent = `Running nmap on ${host}…`;
+  try {
+    const res = await api("/tools/nmap", { method: "POST", body: JSON.stringify({ host, ports: "" }) });
+    out.textContent = res.output || res.error || "(no output)";
+  } catch (err) { out.textContent = `nmap failed: ${err.message}`; }
+});
 
 /* ------------------------------------------------------------------ */
 /* 8. Monitor                                                          */
@@ -1297,6 +1349,10 @@ $("#btn-env-dump").addEventListener("click", async () => {
   document.addEventListener("aetherscan:auth", async (e) => {
     state.showDemo = !isLiveMode();
     state.account = e.detail?.user || null;
+    if (state.account && (state.account.admin || state.account.dev)) {
+      const nav = $("#nav-admin");
+      if (nav) nav.hidden = false;
+    }
     const toolbarToggle = $("#chk-demo");
     if (toolbarToggle) toolbarToggle.checked = state.showDemo;
     if (isLiveMode()) await purgeDemoDevices(true);

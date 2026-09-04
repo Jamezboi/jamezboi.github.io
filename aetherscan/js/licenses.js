@@ -65,6 +65,15 @@
     async saveState(patch) {
       return call("/me/save", { body: patch, useSession: true });
     },
+    async consume(kind) {
+      const r = await call("/me/consume", { body: { kind }, useSession: true });
+      if (r.ok && session?.user) {
+        if (kind === "audit") session.user.free_audit_credits = r.free_audit_credits;
+        else session.user.free_scan_credits = r.free_scan_credits;
+        saveSession(session);
+      }
+      return r;
+    },
     signOut() { saveSession(null); },
 
     // keys
@@ -79,6 +88,9 @@
     },
     async listKeys(adminSecret) {
       return call("/keys/list", { method: "GET", adminSecret });
+    },
+    async adminOverview() {
+      return call("/admin/overview", { method: "GET", useSession: true });
     },
   };
 })();

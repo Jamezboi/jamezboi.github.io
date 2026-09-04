@@ -908,3 +908,8 @@ code { font-family: var(--mono); font-size: .92em; background: var(--surface-str
 body[data-plan] .feature-locked { opacity: .38; filter: grayscale(.45); cursor: not-allowed; position: relative; }
 .feature-locked::before { content: "🔒"; position: absolute; top: -7px; right: -7px; font-size: 13px; z-index: 2; pointer-events: none; }
 .feature-locked a, .feature-locked button { pointer-events: none; }
+.key-line { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  font-family: var(--mono); font-size: 13px; background: var(--surface-strong);
+  border: 1px solid var(--border); border-radius: 10px; padding: 9px 13px; margin: 5px 0; }
+.key-line button { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 15px; }
+.key-line button:hover { color: var(--text); }
