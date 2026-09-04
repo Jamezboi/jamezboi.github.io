@@ -1101,18 +1101,22 @@ async function loadMonitorFeed() {
 
 $$(".report-tile").forEach((tile) => tile.addEventListener("click", async () => {
   const fmt = tile.dataset.fmt;
-  if (fmt === "pdf") {
-    window.open(`/api/report?fmt=html&token=${encodeURIComponent(TOKEN)}`, "_blank");
-    toast("Tip: use your browser's Print → Save as PDF", "info", 4200);
-    return;
-  }
+  const mime = { json: "application/json", csv: "text/csv", md: "text/markdown", html: "text/html", pdf: "text/html" }[fmt] || "text/html";
   try {
-    if (fmt === "html") {
-      window.open(`/api/report?fmt=html&token=${encodeURIComponent(TOKEN)}`, "_blank");
-      return;
+    const resp = await api(`/report?fmt=${fmt === "pdf" ? "html" : fmt}&save=0`);
+    const text = await resp.text();
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+    const blob = new Blob([text], { type: mime });
+    const url = URL.createObjectURL(blob);
+    if (fmt === "pdf" || fmt === "html") {
+      window.open(url, "_blank");
+      if (fmt === "pdf") toast("Tip: use your browser's Print → Save as PDF", "info", 4200);
+    } else {
+      const a = document.createElement("a");
+      a.href = url; a.download = `aetherscan-report-${stamp}.${fmt}`;
+      document.body.appendChild(a); a.click(); a.remove();
+      toast(`${fmt.toUpperCase()} report downloaded`, "ok");
     }
-    await api(`/report?fmt=${fmt}&save=1`);
-    toast(`${fmt.toUpperCase()} report saved to the reports/ folder`, "ok");
   } catch (err) {
     if (err.status === 402) paywallToast(err.body);
     else toast(err.message, "err");

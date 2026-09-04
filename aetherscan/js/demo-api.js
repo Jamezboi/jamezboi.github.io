@@ -1006,6 +1006,24 @@ Service detection performed.` });
       '  del "%DIR%\\bundle.zip" >nul 2>&1',
       '  echo %LATEST%>"%DIR%\\version.txt"',
       ")",
+      "echo Checking for nmap...",
+      "where nmap >nul 2>&1 && goto nmap_ok",
+      'if exist "C:\\\\Program Files (x86)\\\\Nmap\\\\nmap.exe" goto nmap_ok',
+      'if exist "%DIR%\\\\nmap\\\\nmap.exe" goto nmap_ok',
+      "echo Downloading nmap (will ask for admin permission)...",
+      "powershell -NoProfile -ExecutionPolicy Bypass -Command \"[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://nmap.org/dist/nmap-7.95-setup.exe' -OutFile '%DIR%\\\\nmap-setup.exe'\"",
+      "if errorlevel 1 goto nmap_skip",
+      "echo Installing nmap (accept the UAC prompt)...",
+      'start /wait "" "%DIR%\\\\nmap-setup.exe" /S',
+      'if exist "C:\\\\Program Files (x86)\\\\Nmap\\\\nmap.exe" xcopy /E /I /Y "C:\\\\Program Files (x86)\\\\Nmap" "%DIR%\\\\nmap" >nul 2>&1',
+      'del "%DIR%\\\\nmap-setup.exe" >nul 2>&1',
+      "goto nmap_ok",
+      ":nmap_skip",
+      "echo nmap download skipped - deep scan will be limited.",
+      "goto after_nmap",
+      ":nmap_ok",
+      "echo nmap ready.",
+      ":after_nmap",
       "echo Starting AetherScan in the background (no console window)...",
       'start "" /D "%DIR%\\engine" "%DIR%\\runtime\\pythonw.exe" "%DIR%\\engine\\main.py" --pair "%CONSOLE_URL%" --origin "%ORIGIN%" --no-browser',
       "echo.",
@@ -1115,8 +1133,10 @@ Service detection performed.` });
 
   window.open = function (url, ...rest) {
     const u = typeof url === "string" ? url : url?.url || "";
-    if (pairing.connected || !u.startsWith("/api/report")) {
-      return origOpen(url, ...rest);
+    if (!u.startsWith("/api/report")) return origOpen(url, ...rest);
+    if (pairing.connected) {
+      // proxy report URLs to the engine
+      return origOpen(`${pairing.base}${u}&token=${pairing.token}`, "_blank");
     }
     const blob = new Blob([demoReportHtml()], { type: "text/html" });
     return origOpen(URL.createObjectURL(blob), "_blank");
