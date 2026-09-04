@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark" />
   <title>AetherScan — Network Intelligence</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="css/app.css?v=2100" />
+  <link rel="stylesheet" href="css/app.css?v=2200" />
 </head>
 <body data-theme="auto">
   <div id="app" class="app-shell">
@@ -279,6 +279,11 @@
           <div class="tools-bar">
             <input type="text" id="deepscan-host" placeholder="Target IP or hostname (e.g. 192.168.1.1)" spellcheck="false"/>
           </div>
+          <div class="chip-row" style="margin-bottom:10px">
+            <button class="chip is-active" data-nmap-preset="quick">⚡ Quick sweep</button>
+            <button class="chip" data-nmap-preset="service">🔍 Service detection</button>
+            <button class="chip" data-nmap-preset="deep">🔬 Full deep scan</button>
+          </div>
           <div class="tools-bar">
             <select id="deepscan-ports" style="min-width:200px">
               <option value="top-1000">Top 1000 ports</option>
@@ -292,6 +297,16 @@
             <button class="btn btn-primary btn-sm" id="btn-deepscan">Run deep scan</button>
           </div>
           <pre class="debug-out" id="deepscan-out" hidden></pre>
+          <div class="card" style="margin-top:16px">
+            <header class="card-head"><h2>Recommended commands</h2><span class="card-hint">for advanced users</span></header>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="tool-cmd"><span class="tool-label">Full audit</span><code class="tool-code" id="cmd-full">nmap -sV -sC -O -T4 -p- &lt;target&gt;</code><button class="tool-copy" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">⧉</button></div>
+              <div class="tool-cmd"><span class="tool-label">Quick sweep</span><code class="tool-code">nmap -T4 -F &lt;target&gt;</code><button class="tool-copy" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">⧉</button></div>
+              <div class="tool-cmd"><span class="tool-label">UDP top ports</span><code class="tool-code">nmap -sU --top-ports 50 &lt;target&gt;</code><button class="tool-copy" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">⧉</button></div>
+              <div class="tool-cmd"><span class="tool-label">OS detect</span><code class="tool-code">nmap -O --osscan-guess &lt;target&gt;</code><button class="tool-copy" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">⧉</button></div>
+              <div class="tool-cmd"><span class="tool-label">Vuln scripts</span><code class="tool-code">nmap --script vuln &lt;target&gt;</code><button class="tool-copy" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent)">⧉</button></div>
+            </div>
+          </div>
         </section>
       </main>
 
@@ -534,6 +549,6 @@
   <script src="js/licenses.js"></script>
   <script src="js/demo-api.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/app.js?v=2100"></script>
+  <script src="js/app.js?v=2200"></script>
 </body>
 </html>
