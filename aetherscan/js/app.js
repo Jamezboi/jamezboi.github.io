@@ -952,8 +952,7 @@ $("#btn-admin-issue")?.addEventListener("click", async () => {
     <button class="btn btn-ghost btn-sm" id="admin-copy-keys">Copy all</button></header>
     ${r.keys.map((k) => `<div class="key-line"><span>${k}</span><button data-k="${k}">⧉</button></div>`).join("")}</div>`;
   wrap.querySelector("#admin-copy-keys").addEventListener("click", () =>
-    navigator.clipboard.writeText(r.keys.join("
-")));
+    navigator.clipboard.writeText(r.keys.join("\n")));
   wrap.querySelectorAll("[data-k]").forEach((b) => b.addEventListener("click", () =>
     navigator.clipboard.writeText(b.dataset.k)));
   toast(`${r.keys.length} key(s) issued (cloud)`, "ok");

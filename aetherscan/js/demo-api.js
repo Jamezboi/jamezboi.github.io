@@ -650,8 +650,7 @@ Reply from ${host}: bytes=32 time=${(device ? device.latency_ms ?? 2 : 2) + 0.2}
 `Starting Nmap (AetherScan bundled) at ${new Date().toISOString()}
 Nmap scan report for ${host}
 PORT      STATE  SERVICE   VERSION
-${(dev ? dev.ports : []).slice(0, 6).map((p,i) => `${String(p.port).padEnd(9)} open   ${p.service.padEnd(9)} ${p.desc}` ).join("
-") || "  (no open ports in demo)"}
+${(dev ? dev.ports : []).slice(0, 6).map((p,i) => `${String(p.port).padEnd(9)} open   ${p.service.padEnd(9)} ${p.desc}` ).join("\n") || "  (no open ports in demo)"}
 Service detection performed.` });
     }
     if (path === "/tools/arp" && method === "POST") {
