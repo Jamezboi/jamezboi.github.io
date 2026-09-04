@@ -974,7 +974,7 @@ Service detection performed.` });
         if (manifest.latest) return String(manifest.latest);
       }
     } catch { /* fall through */ }
-    return "1.4.3";
+    return "1.4.4";
   }
 
   function buildLauncherBat(version, consoleUrl, bundleUrl, siteOrigin) {
