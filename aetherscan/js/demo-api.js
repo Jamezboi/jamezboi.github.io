@@ -747,6 +747,42 @@ Service detection performed.` });
       }
     }
 
+    // ---- network exposure (demo simulates) ----
+    if (path === "/network/exposure" && method === "POST") {
+      const gate = gateFor("tools_basic", license.tier);
+      if (gate) return json(gate, 402);
+      const action = String(body.action || "status");
+      await new Promise(r => setTimeout(r, 500));
+      if (action === "status")
+        return json({ ok: true, tool: "exposure", output: JSON.stringify([{ Name: "Wi-Fi", NetworkCategory: "Private", InterfaceAlias: "Wi-Fi" }]) });
+      if (action === "visible")
+        return json({ ok: true, tool: "exposure", output: "Network profile set to Private. Network Discovery: enabled. File and Printer Sharing: enabled." });
+      if (action === "hidden")
+        return json({ ok: true, tool: "exposure", output: "Network profile set to Public. Network Discovery: disabled. File and Printer Sharing: disabled." });
+    }
+
+    // ---- periodic auto-audit (demo) ----
+    if (path === "/audit/auto/start" && method === "POST") {
+      const gate = gateFor("security_audit", license.tier);
+      if (gate) return json(gate, 402);
+      return json({ ok: true, running: true, interval_min: body.interval_min || 30 });
+    }
+    if (path === "/audit/auto/stop" && method === "POST")
+      return json({ ok: true, running: false });
+    if (path === "/audit/auto/status")
+      return json({ ok: true, running: false, interval_min: 30, last_run: null });
+
+    // ---- network probe (demo) ----
+    if (path === "/network/probe" && method === "POST") {
+      const gate = gateFor("tools_basic", license.tier);
+      if (gate) return json(gate, 402);
+      const host = String(body.host || ""), port = parseInt(body.port, 10) || 80;
+      const dev = demoDevices.find(x => x.ip === host);
+      const open = dev && dev.ports.some(p => p.port === port);
+      return json({ ok: true, reachable: !!open, host, port, latency_ms: open ? (dev?.latency_ms ?? 2) : undefined,
+        error: open ? undefined : "connection refused" });
+    }
+
     // ---- scanning ----
     if (path === "/scan" && method === "POST") {
       const profile = body.profile || "standard";
@@ -974,7 +1010,7 @@ Service detection performed.` });
         if (manifest.latest) return String(manifest.latest);
       }
     } catch { /* fall through */ }
-    return "1.4.4";
+    return "1.4.5";
   }
 
   function buildLauncherBat(version, consoleUrl, bundleUrl, siteOrigin) {
