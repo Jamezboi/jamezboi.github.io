@@ -1255,6 +1255,14 @@ $("#form-activate").addEventListener("submit", async (e) => {
     note.className = "form-note ok";
     toast(res.message, "ok");
     await refreshStatus();
+    // Re-sync plan from cloud so feature gating unlocks immediately
+    if (window.AetherCloud && window.AetherCloud.user) {
+      const user = window.AetherCloud.user();
+      if (user && user.plan) {
+        state.accountPlan = user.plan;
+        applyPlanGating(user.plan);
+      }
+    }
     renderLicense();
   } catch (err) {
     note.textContent = err.message;
