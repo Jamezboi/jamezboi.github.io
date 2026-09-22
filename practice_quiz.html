@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Chemistry (202-SN1-AB) - Unit I Master Quiz</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- KaTeX for crisp LaTeX Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <!-- FontAwesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .katex-display { margin: 0.5em 0 !important; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-800/90 border-b border-slate-700 backdrop-blur sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white font-bold text-xl flex items-center justify-center h-10 w-10 shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-flask-vial"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white">General Chemistry (202-SN1-AB)</h1>
+                    <p class="text-xs text-slate-400">Unit I Master Quiz &bull; Fall 2026</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Tools -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button onclick="toggleModal('referenceModal')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md text-xs sm:text-sm font-medium transition flex items-center space-x-1.5 border border-slate-600">
+                    <i class="fa-solid fa-book-bookmark text-indigo-400"></i>
+                    <span class="hidden sm:inline">Formula &amp; Ref Sheet</span>
+                </button>
+                <button onclick="toggleModal('qnValidatorModal')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md text-xs sm:text-sm font-medium transition flex items-center space-x-1.5 border border-slate-600">
+                    <i class="fa-solid fa-[#000] fa-atom text-cyan-400"></i>
+                    <span class="hidden sm:inline">Quantum Validator</span>
+                </button>
+                <button onclick="toggleModal('sigfigModal')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md text-xs sm:text-sm font-medium transition flex items-center space-x-1.5 border border-slate-600">
+                    <i class="fa-solid fa-calculator text-emerald-400"></i>
+                    <span class="hidden sm:inline">Sig Fig Tool</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        <!-- Sidebar Navigation Drawer / Progress Overview -->
+        <aside class="lg:col-span-1 space-y-6">
+            <!-- Progress & Score Card -->
+            <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="font-semibold text-slate-200 text-sm uppercase tracking-wider">Quiz Progress</h2>
+                    <span id="completionBadge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">0 / 25 Answered</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div>
+                    <div class="w-full bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                        <div id="progressBar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Live Score Counters -->
+                <div class="grid grid-cols-3 gap-2 text-center pt-2">
+                    <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/50">
+                        <span class="block text-xs text-slate-400">Score</span>
+                        <span id="scoreDisplay" class="text-base font-bold text-white">0 / 0</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/50">
+                        <span class="block text-xs text-slate-400">Accuracy</span>
+                        <span id="accuracyDisplay" class="text-base font-bold text-emerald-400">0%</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/50">
+                        <span class="block text-xs text-slate-400">Timer</span>
+                        <span id="timerDisplay" class="text-base font-bold text-amber-400">00:00</span>
+                    </div>
+                </div>
+
+                <!-- Control Actions -->
+                <div class="flex space-x-2 pt-1">
+                    <button onclick="finishQuiz()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center space-x-1 shadow-md">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                        <span>Submit &amp; Results</span>
+                    </button>
+                    <button onclick="resetQuiz()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium py-2 px-3 rounded-lg text-xs transition" title="Reset All Answers">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question Jump Matrix -->
+            <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-xl space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-200 text-xs uppercase tracking-wider">Question Matrix</h3>
+                    <div class="flex space-x-2 text-[10px]">
+                        <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 mr-1"></span> Correct</span>
+                        <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-rose-500 mr-1"></span> Incorrect</span>
+                    </div>
+                </div>
+
+                <div id="questionGrid" class="grid grid-cols-5 gap-2 custom-scrollbar max-h-60 overflow-y-auto pr-1">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Category Topic Breakdown Filter -->
+            <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-xl space-y-3">
+                <h3 class="font-semibold text-slate-200 text-xs uppercase tracking-wider">Topic Filter</h3>
+                <div class="space-y-1.5 text-xs" id="categoryFilterContainer">
+                    <button onclick="filterCategory('ALL')" class="w-full text-left px-3 py-1.5 rounded-md bg-indigo-600/30 text-indigo-200 border border-indigo-500/40 font-medium flex justify-between items-center">
+                        <span>All Topics</span>
+                        <span class="bg-indigo-900/60 px-1.5 py-0.5 rounded text-[10px]">25</span>
+                    </button>
+                    <button onclick="filterCategory('LAB')" class="w-full text-left px-3 py-1.5 rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600/50 flex justify-between items-center">
+                        <span>Lab Safety &amp; Uncertainty</span>
+                        <span class="bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">5</span>
+                    </button>
+                    <button onclick="filterCategory('SIGFIG')" class="w-full text-left px-3 py-1.5 rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600/50 flex justify-between items-center">
+                        <span>Significant Figures &amp; Units</span>
+                        <span class="bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">4</span>
+                    </button>
+                    <button onclick="filterCategory('NOMEN')" class="w-full text-left px-3 py-1.5 rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600/50 flex justify-between items-center">
+                        <span>Nomenclature &amp; Isotopes</span>
+                        <span class="bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">5</span>
+                    </button>
+                    <button onclick="filterCategory('STOICH')" class="w-full text-left px-3 py-1.5 rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600/50 flex justify-between items-center">
+                        <span>Stoichiometry &amp; Conversions</span>
+                        <span class="bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">6</span>
+                    </button>
+                    <button onclick="filterCategory('QUANTUM')" class="w-full text-left px-3 py-1.5 rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600/50 flex justify-between items-center">
+                        <span>Quantum Mechanics &amp; Atomic Model</span>
+                        <span class="bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">5</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Question Content Area -->
+        <main class="lg:col-span-3 space-y-6">
+
+            <!-- Question Card -->
+            <div id="questionCard" class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl space-y-6 relative">
+
+                <!-- Question Header Banner -->
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 pb-4">
+                    <div class="flex items-center space-x-2">
+                        <span id="questionNumBadge" class="bg-indigo-600 text-white font-bold text-xs px-2.5 py-1 rounded-md">Question 1 of 25</span>
+                        <span id="categoryBadge" class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-md border border-slate-600">Lab Safety &amp; Uncertainty</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span id="difficultyBadge" class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs px-2 py-0.5 rounded-full font-medium"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Hard</span>
+                        <button onclick="toggleBookmark()" id="bookmarkBtn" class="text-slate-400 hover:text-amber-400 transition text-lg" title="Bookmark for review">
+                            <i class="fa-regular fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Question Text -->
+                <div class="space-y-4">
+                    <div id="questionText" class="text-slate-100 text-base sm:text-lg leading-relaxed font-normal">
+                        <!-- Dynamic content loaded via JS -->
+                    </div>
+
+                    <!-- Context Table / Diagram Container (Optional per question) -->
+                    <div id="questionDataContainer" class="hidden bg-slate-900/80 p-4 rounded-lg border border-slate-700 text-xs sm:text-sm">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Answer Options Container -->
+                <div id="optionsContainer" class="space-y-3">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Explanation Box (Appears immediately after selecting an answer) -->
+                <div id="explanationBox" class="hidden rounded-xl p-5 border transition-all duration-300 space-y-3">
+                    <div class="flex items-center space-x-2 font-bold text-sm" id="explanationHeader">
+                        <!-- Correct/Incorrect Icon & Title -->
+                    </div>
+                    <div id="explanationBody" class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-2">
+                        <!-- Detailed Step-by-Step Solution & Rationale -->
+                    </div>
+                </div>
+
+                <!-- Navigation Bar -->
+                <div class="flex items-center justify-between border-t border-slate-700 pt-4 mt-6">
+                    <button onclick="navigateQuestion(-1)" id="prevBtn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs sm:text-sm font-medium transition flex items-center space-x-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Previous</span>
+                    </button>
+
+                    <div class="text-xs text-slate-400 font-mono">
+                        <span id="currentPosIndicator">1 / 25</span>
+                    </div>
+
+                    <button onclick="navigateQuestion(1)" id="nextBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs sm:text-sm font-medium transition flex items-center space-x-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-md">
+                        <span>Next</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Final Results Overlay / Modal -->
+    <div id="resultsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8">
+            <div class="text-center space-y-2">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-600/20 text-indigo-400 text-3xl mb-2 border border-indigo-500/30">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white">Unit I Exam Performance Report</h2>
+                <p class="text-xs sm:text-sm text-slate-400">General Chemistry (202-SN1-AB) &bull; Evaluation Summary</p>
+            </div>
+
+            <!-- Grade Card Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Final Score</span>
+                    <span id="modalFinalScore" class="text-2xl sm:text-3xl font-extrabold text-white">0 / 25</span>
+                </div>
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Percentage</span>
+                    <span id="modalPercentage" class="text-2xl sm:text-3xl font-extrabold text-emerald-400">0%</span>
+                </div>
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Letter Grade</span>
+                    <span id="modalGrade" class="text-2xl sm:text-3xl font-extrabold text-indigo-400">F</span>
+                </div>
+            </div>
+
+            <!-- Topic Performance Breakdown -->
+            <div class="space-y-3">
+                <h3 class="font-semibold text-slate-200 text-sm uppercase tracking-wider">Sub-Discipline Mastery Breakdown</h3>
+                <div class="space-y-2 text-xs sm:text-sm" id="topicBreakdownContainer">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-3 pt-4 border-t border-slate-700">
+                <button onclick="toggleModal('resultsModal')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-xl text-sm transition text-center shadow-lg">
+                    Review Questions
+                </button>
+                <button onclick="resetQuiz(); toggleModal('resultsModal');" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2.5 px-4 rounded-xl text-sm transition text-center">
+                    Retake Full Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reference Sheet Modal -->
+    <div id="referenceModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl">
+            <div class="p-5 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-book-open text-indigo-400"></i>
+                    <span>General Chemistry Formula &amp; Reference Sheet</span>
+                </h3>
+                <button onclick="toggleModal('referenceModal')" class="text-slate-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 text-xs sm:text-sm text-slate-300">
+                
+                <!-- Fundamental Equations -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 space-y-2">
+                        <h4 class="font-bold text-indigo-400 text-xs uppercase tracking-wider">Uncertainty &amp; Statistics</h4>
+                        <p>Sample standard deviation: $s = \sqrt{\frac{\sum (x_i - \bar{x})^2}{N - 1}}$</p>
+                        <p>Percent Error: $\text{\% Error} = \frac{|\text{Experimental} - \text{Theoretical}|}{\text{Theoretical}} \times 100\%$</p>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 space-y-2">
+                        <h4 class="font-bold text-indigo-400 text-xs uppercase tracking-wider">Atomic Physics &amp; Rydberg</h4>
+                        <p>Rydberg Equation: $\frac{1}{\lambda} = R_H \left( \frac{1}{n_1^2} - \frac{1}{n_2^2} \right)$ where $R_H = 1.097 \times 10^7 \text{ m}^{-1}$</p>
+                        <p>Bohr Energy: $\Delta E = -2.18 \times 10^{-18} \text{ J} \left( \frac{Z^2}{n_f^2} - \frac{Z^2}{n_i^2} \right)$</p>
+                        <p>de Broglie wavelength: $\lambda = \frac{h}{p} = \frac{h}{m v}$ where $h = 6.626 \times 10^{-34} \text{ J s}$</p>
+                    </div>
+                </div>
+
+                <!-- Polyatomic Ion Rules -->
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 space-y-3">
+                    <h4 class="font-bold text-indigo-400 text-xs uppercase tracking-wider">Common Polyatomic Ions Reference</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px]">
+                        <div>Ammonium: $\text{NH}_4^+$</div>
+                        <div>Hydronium: $\text{H}_3\text{O}^+$</div>
+                        <div>Acetate: $\text{C}_2\text{H}_3\text{O}_2^-$</div>
+                        <div>Carbonate: $\text{CO}_3^{2-}$</div>
+                        <div>Bicarbonate: $\text{HCO}_3^-$</div>
+                        <div>Cyanide: $\text{CN}^-$</div>
+                        <div>Hydroxide: $\text{OH}^-$</div>
+                        <div>Nitrate: $\text{NO}_3^-$</div>
+                        <div>Nitrite: $\text{NO}_2^-$</div>
+                        <div>Permanganate: $\text{MnO}_4^-$</div>
+                        <div>Phosphate: $\text{PO}_4^{3-}$</div>
+                        <div>Sulphate: $\text{SO}_4^{2-}$</div>
+                        <div>Sulphite: $\text{SO}_3^{2-}$</div>
+                        <div>Perchlorate: $\text{ClO}_4^-$</div>
+                        <div>Chlorate: $\text{ClO}_3^-$</div>
+                        <div>Chlorite: $\text{ClO}_2^-$</div>
+                        <div>Hypochlorite: $\text{ClO}^-$</div>
+                    </div>
+                </div>
+
+                <!-- Quantum Rules -->
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 space-y-2">
+                    <h4 class="font-bold text-indigo-400 text-xs uppercase tracking-wider">Quantum Number Constraints</h4>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Principal Quantum Number: $n = 1, 2, 3, \dots, \infty$</li>
+                        <li>Angular Momentum Quantum Number: $l = 0, 1, 2, \dots, n-1$ ($s=0, p=1, d=2, f=3$)</li>
+                        <li>Magnetic Quantum Number: $m_l = -l, \dots, 0, \dots, +l$</li>
+                        <li>Spin Quantum Number: $m_s = +\frac{1}{2}, -\frac{1}{2}$</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quantum Number Permissibility Validator Modal -->
+    <div id="qnValidatorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 class="font-bold text-white text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-atom text-cyan-400"></i>
+                    <span>Quantum Number Validator</span>
+                </h3>
+                <button onclick="toggleModal('qnValidatorModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-400">Input a set of quantum numbers to verify if it represents a physically allowed electronic state in Schrödinger's hydrogen atom model.</p>
+            
+            <div class="grid grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-xs font-mono text-slate-300 mb-1">n</label>
+                    <input type="number" id="qn_n" value="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-center text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-slate-300 mb-1">l</label>
+                    <input type="number" id="qn_l" value="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-center text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-slate-300 mb-1">m_l</label>
+                    <input type="number" id="qn_ml" value="-1" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-center text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-slate-300 mb-1">m_s</label>
+                    <select id="qn_ms" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1 py-1.5 text-xs text-center text-white focus:outline-none focus:border-indigo-500">
+                        <option value="0.5">+1/2</option>
+                        <option value="-0.5">-1/2</option>
+                        <option value="1">+1 (Invalid)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="validateQuantumNumbers()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg text-xs transition">
+                Check Permissibility
+            </button>
+
+            <div id="qnResult" class="hidden p-3 rounded-lg text-xs leading-relaxed border"></div>
+        </div>
+    </div>
+
+    <!-- Sig Fig Calculator Modal -->
+    <div id="sigfigModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 class="font-bold text-white text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-calculator text-emerald-400"></i>
+                    <span>Sig Fig Analyzer</span>
+                </h3>
+                <button onclick="toggleModal('sigfigModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Enter a measurement number:</label>
+                    <input type="text" id="sigfigInput" value="0.004810" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="analyzeSigFig()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 rounded-lg text-xs transition">
+                    Analyze Significant Figures
+                </button>
+            </div>
+
+            <div id="sigfigResult" class="hidden p-3 rounded-lg text-xs leading-relaxed bg-slate-900 border border-slate-700 space-y-1"></div>
+        </div>
+    </div>
+
+    <!-- Application Core Script -->
+    <script>
+        // Question Data Structure
+        const questions = [
+            // Category: LAB - Lab Safety & Uncertainty
+            {
+                id: 1,
+                category: "LAB",
+                categoryLabel: "Lab Safety & Uncertainty",
+                difficulty: "Hard",
+                question: "Natalia transferred water into a Corning 100-mL Pyrex beaker until the bottom of the meniscus aligned with the 60-mL mark. She determined the mass and calculated the true volume using $\\rho = 0.9978 \\text{ g mL}^{-1}$ across six trials. Her mean measured volume was $55.95 \\text{ mL}$ with a sample standard deviation $s = 2.71 \\text{ mL}$. Knowing the manufacturer specifies a $\\pm 5\\%$ beaker tolerance, do her results reflect the expected accuracy and precision?",
+                data: `<table class="w-full text-center border-collapse border border-slate-700">
+                        <thead><tr class="bg-slate-800 text-slate-300"><th class="border border-slate-700 p-1">Trial</th><th class="border border-slate-700 p-1">m (g)</th><th class="border border-slate-700 p-1">V (mL)</th></tr></thead>
+                        <tbody>
+                            <tr><td class="border border-slate-700 p-1">Mean</td><td class="border border-slate-700 p-1">55.95</td><td class="border border-slate-700 p-1">55.95</td></tr>
+                            <tr><td class="border border-slate-700 p-1">s</td><td class="border border-slate-700 p-1">2.71</td><td class="border border-slate-700 p-1">2.71</td></tr>
+                        </tbody>
+                       </table>`,
+                options: [
+                    "High accuracy and high precision.",
+                    "High accuracy but poor precision.",
+                    "Poor accuracy but high precision.",
+                    "Poor accuracy and poor precision."
+                ],
+                correct: 3,
+                explanation: "<b>Accuracy Analysis:</b> Target mark = $60.0 \\text{ mL}$. Percent error = $\\frac{|55.95 - 60.0|}{60.0} \\times 100\\% = 6.75\\%$. Since $6.75\\%$ exceeds the manufacturer's $\\pm 5\\%$ tolerance limit ($3.0 \\text{ mL}$ deviation max), accuracy is poor.<br><b>Precision Analysis:</b> A sample standard deviation of $s = 2.71 \\text{ mL}$ on a $60 \\text{ mL}$ reading corresponds to a relative uncertainty of $4.8\\%$, demonstrating large random scatter. Pyrex beakers are non-volumetric glassware designed for coarse storage, not high-precision volume measurements."
+            },
+            {
+                id: 2,
+                category: "LAB",
+                categoryLabel: "Lab Safety & Uncertainty",
+                difficulty: "Hard",
+                question: "Three general chemistry students independently read a 25-mL volumetric burette with a certified uncertainty of $\\pm 0.03 \\text{ mL}$. Pierre reads $16.43 \\text{ mL}$, Jean reads $16.49 \\text{ mL}$, and Jacques reads $16.41 \\text{ mL}$. Are any of these readings significantly different from one another?",
+                options: [
+                    "No, because the maximum difference between any two readings ($0.08 \\text{ mL}$) is smaller than the burette's total capacity.",
+                    "Yes, Pierre and Jacques differ significantly from Jean because the spread ($16.49 - 16.41 = 0.08 \\text{ mL}$) exceeds twice the uncertainty ($2 \\times 0.03 = 0.06 \\text{ mL}$).",
+                    "No, because all three readings round to $16.4 \\text{ mL}$ when limited to three significant figures.",
+                    "Yes, Jacques' reading is significantly different because burettes must always be read to two decimal places with an even last digit."
+                ],
+                correct: 1,
+                explanation: "Two individual experimental measurements are considered significantly different if their difference exceeds the sum of their absolute uncertainties ($0.03 + 0.03 = 0.06 \\text{ mL}$). Here, Jean ($16.49 \\text{ mL}$) and Jacques ($16.41 \\text{ mL}$) differ by $0.08 \\text{ mL}$, which is greater than $0.06 \\text{ mL}$. Thus, Jean's reading is significantly higher than Jacques'."
+            },
+            {
+                id: 3,
+                category: "LAB",
+                categoryLabel: "Lab Safety & Uncertainty",
+                difficulty: "Medium",
+                question: "Which of the following physical quantities represents an <b>exact number</b> with zero experimental uncertainty ($\\\\pm 0$)?",
+                options: [
+                    "The mass of a Uline stainless steel 100-g standard calibration weight.",
+                    "The exact conversion factor of 3,600 seconds per hour.",
+                    "The measured speed of light in a vacuum ($2.99792 \\times 10^8 \\text{ m s}^{-1}$).",
+                    "The equatorial circumference of Earth ($40,075.017 \\text{ km}$)."
+                ],
+                correct: 1,
+                explanation: "Exact numbers are defined by explicit mathematical definitions (e.g., $1 \\text{ h} = 3,600 \\text{ s}$, $1 \\text{ m} = 100 \\text{ cm}$) or direct counting of discrete integer objects. Physical standards, calibration masses, and physical constants obtained via measurement carry inherent instrumental/experimental uncertainty."
+            },
+            {
+                id: 4,
+                category: "LAB",
+                categoryLabel: "Lab Safety & Uncertainty",
+                difficulty: "Hard",
+                question: "According to standard scientific measurement reporting guidelines, which of the following quantities is presented in a manner that <b>violates</b> uncertainty formatting rules?",
+                options: [
+                    "$50 \\pm 10 \\text{ mL}$",
+                    "$47.002 \\pm 0.01 \\text{ g}$",
+                    "$37.4 \\pm 0.3 ^\\circ\\text{C}$",
+                    "$110 \\pm 20 \\text{ m}$"
+                ],
+                correct: 1,
+                explanation: "In scientific notation/reporting, the experimental measurement and its reported uncertainty <b>must share the exact same decimal place precision</b>. In option B, $47.002$ extends to three decimal places (thousandths), whereas the uncertainty $\\pm 0.01$ is specified to two decimal places (hundredths). It should properly be written as $47.00 \\pm 0.01 \\text{ g}$."
+            },
+            {
+                id: 5,
+                category: "LAB",
+                categoryLabel: "Lab Safety & Uncertainty",
+                difficulty: "Medium",
+                question: "Under the mandatory General Chemistry laboratory rules at John Abbott College, what is the policy regarding the first five individual lab reports?",
+                options: [
+                    "They are graded on a letter scale (A, B, C, F) and cannot be resubmitted under any circumstances.",
+                    "They are awarded 0, 0.5, or 1 mark, and reports marked less than 1 can be resubmitted until perfect within two weeks.",
+                    "Students may use pencils and erasing tape provided data is recorded in a spiral notebook.",
+                    "Lab reports are completed in pairs and graded strictly at the end of the semester."
+                ],
+                correct: 1,
+                explanation: "According to the course syllabus, the first 5 individual lab reports are graded as 0, 0.5 (needs fixing), or 1 (perfect). Any report scoring less than 1 can be fixed and resubmitted within the first two weeks until a perfect mark of 1 is achieved. Pencil and correction fluid (whiteout) are strictly prohibited."
+            },
+
+            // Category: SIGFIG - Significant Figures & Units
+            {
+                id: 6,
+                category: "SIGFIG",
+                categoryLabel: "Significant Figures & Units",
+                difficulty: "Hard",
+                question: "Evaluate the following multi-step arithmetic expression adhering strictly to significant figure rounding rules:<br>$$\\text{Result} = (67.2 \\times 1.1) - 10.48$$",
+                options: [
+                    "$63.44$",
+                    "$63.4$",
+                    "$63$",
+                    "$60$"
+                ],
+                correct: 1,
+                explanation: "<b>Step 1: Multiplication</b> $(67.2 \\text{ [3 sf]} \\times 1.1 \\text{ [2 sf]}) = 73.92$. Since $1.1$ has 2 significant figures, the intermediate product is precise to the tenths place ($73.9_2$, 2 sf). Keep guard digits.<br><b>Step 2: Subtraction</b> $73.9_2 \\text{ [1 decimal place]} - 10.48 \\text{ [2 decimal places]} = 63.44$. The result must be rounded to match the least precise decimal place (1 decimal place).<br>Rounding $63.44$ to 1 decimal place yields <b>63.4</b>."
+            },
+            {
+                id: 7,
+                category: "SIGFIG",
+                categoryLabel: "Significant Figures & Units",
+                difficulty: "Hard",
+                question: "How many significant figures are present in the measurement $0.004810 \\text{ kg}$, and what is its value in scientific notation?",
+                options: [
+                    "3 significant figures; $4.81 \\times 10^{-3} \\text{ kg}$",
+                    "4 significant figures; $4.810 \\times 10^{-3} \\text{ kg}$",
+                    "5 significant figures; $4.8100 \\times 10^{-3} \\text{ kg}$",
+                    "6 significant figures; $0.4810 \\times 10^{-2} \\text{ kg}$"
+                ],
+                correct: 1,
+                explanation: "Leading zeros in $0.004810$ are non-significant placeholders. The digits '4', '8', and '1' are significant, and trailing zeros following a decimal point are significant. Therefore, $0.004810$ has <b>4 significant figures</b> and is written in scientific notation as $4.810 \\times 10^{-3} \\text{ kg}$."
+            },
+            {
+                id: 8,
+                category: "SIGFIG",
+                categoryLabel: "Significant Figures & Units",
+                difficulty: "Medium",
+                question: "Match the SI metric prefix **nano-** (n) with its exact mathematical exponential power multiplier:",
+                options: [
+                    "$10^{-3}$",
+                    "$10^{-6}$",
+                    "$10^{-9}$",
+                    "$10^{-12}$"
+                ],
+                correct: 2,
+                explanation: "The SI prefix <b>nano-</b> ($n$) represents $10^{-9}$ (billionth). milli- ($m$) = $10^{-3}$, micro- ($\\mu$) = $10^{-6}$, and pico- ($p$) = $10^{-12}$."
+            },
+            {
+                id: 9,
+                category: "SIGFIG",
+                categoryLabel: "Significant Figures & Units",
+                difficulty: "Hard",
+                question: "Calculate the value of the following operational expression to the correct number of significant figures:<br>$$\\text{Value} = \\frac{(370.47 - 362.4) \\times 100.00}{43}$$",
+                options: [
+                    "$18.767$",
+                    "$18.8$",
+                    "$19$",
+                    "$20$"
+                ],
+                correct: 2,
+                explanation: "<b>Numerator subtraction:</b> $370.47 \\text{ (2 dec. places)} - 362.4 \\text{ (1 dec. place)} = 8.07 \\rightarrow 8.1 \\text{ (1 dec. place, 2 sf)}$.<br><b>Multiplication & Division:</b> $\\frac{8.0_7 \\text{ [2 sf]} \\times 100.00 \\text{ [5 sf]}}{43 \\text{ [2 sf]}} = 18.767...$<br>The limiting factor is 2 significant figures. Thus, $18.767$ rounds up to <b>19</b>."
+            },
+
+            // Category: NOMEN - Nomenclature & Isotopes
+            {
+                id: 10,
+                category: "NOMEN",
+                categoryLabel: "Nomenclature & Isotopes",
+                difficulty: "Hard",
+                question: "Which element exists as a liquid at $25 ^\\circ\\text{C}$ and $1 \\text{ bar}$ pressure **AND** consists of discrete molecular units rather than metallic structure?",
+                options: [
+                    "Mercury",
+                    "Bromine",
+                    "Gallium",
+                    "Fluorine"
+                ],
+                correct: 1,
+                explanation: "Only two elements on the periodic table are liquids under standard conditions ($25 ^\\circ\\text{C}, 1 \\text{ bar}$): Mercury ($\text{Hg}$) and Bromine ($\text{Br}_2$). Mercury is a metallic liquid consisting of individual metal atoms in a metallic lattice, whereas Bromine is a nonmetal existing as discrete diatomic molecules ($\text{Br}_2$)."
+            },
+            {
+                id: 11,
+                category: "NOMEN",
+                categoryLabel: "Nomenclature & Isotopes",
+                difficulty: "Hard",
+                question: "Select the group of elements that are **ALL metalloids** (semimetals):",
+                options: [
+                    "Aluminum, Silicon, Phosphorus",
+                    "Boron, Silicon, Germanium, Arsenic",
+                    "Gallium, Germanium, Selenium",
+                    "Carbon, Silicon, Lead"
+                ],
+                correct: 1,
+                explanation: "Metalloids lie along the diagonal staircase boundary between metals and nonmetals: Boron ($\text{B}$), Silicon ($\text{Si}$), Germanium ($\text{Ge}$), Arsenic ($\text{As}$), Antimony ($\text{Sb}$), and Tellurium ($\text{Te}$). Note: Aluminum ($\text{Al}$) is classified as a post-transition metal."
+            },
+            {
+                id: 12,
+                category: "NOMEN",
+                categoryLabel: "Nomenclature & Isotopes",
+                difficulty: "Hard",
+                question: "An element on Earth has 17 protons. $76\\%$ of its atoms contain 18 neutrons, while $24\\%$ contain 20 neutrons. What is the total number of electrons present in its stable monoatomic ion?",
+                options: [
+                    "17 electrons",
+                    "18 electrons",
+                    "35 electrons",
+                    "36 electrons"
+                ],
+                correct: 1,
+                explanation: "An element with $Z = 17$ protons is Chlorine ($\text{Cl}$). Its neutral state has 17 electrons ($1s^2 2s^2 2p^6 3s^2 3p^5$). As a halogen (Group 17), Chlorine gains 1 electron to complete its valence octet, forming the stable chloride anion ($\text{Cl}^-$) with $17 + 1 = 18$ electrons."
+            },
+            {
+                id: 13,
+                category: "NOMEN",
+                categoryLabel: "Nomenclature & Isotopes",
+                difficulty: "Hard",
+                question: "Which row correctly matches the systematic IUPAC chemical name, formula, and bonding nature for all three given compounds?",
+                data: `<table class="w-full text-xs text-left border border-slate-700">
+                        <tr class="bg-slate-800"><th class="p-1 border border-slate-700">Set</th><th class="p-1 border border-slate-700">Compound 1</th><th class="p-1 border border-slate-700">Compound 2</th><th class="p-1 border border-slate-700">Compound 3</th></tr>
+                        <tr><td class="p-1 border border-slate-700">A</td><td class="p-1 border border-slate-700">CuSO3 (Ionic)</td><td class="p-1 border border-slate-700">HCN (Molecular / Acid)</td><td class="p-1 border border-slate-700">Cl2O7 (Molecular)</td></tr>
+                       </table>`,
+                options: [
+                    "Copper(II) sulphite [Ionic], Hydrocyanic acid [Acid], Dichlorine heptoxide [Molecular]",
+                    "Copper(I) sulphate [Ionic], Cyanic acid [Acid], Chlorine oxide [Molecular]",
+                    "Copper(II) sulphide [Ionic], Hydrogen cyanide [Ionic], Heptachlorine dioxide [Molecular]",
+                    "Copper(II) sulphate [Molecular], Hydrocyanic acid [Ionic], Dichlorine hexoxide [Molecular]"
+                ],
+                correct: 0,
+                explanation: "1. $\\text{CuSO}_3$: Copper(II) cation ($\text{Cu}^{2+}$) + Sulphite anion ($\text{SO}_3^{2-}$), Ionic.<br>2. $\\text{HCN}(aq)$: Hydrocyanic acid (binary acid convention), Molecular acid.<br>3. $\\text{Cl}_2\\text{O}_7$: Dichlorine heptoxide (nonmetal + nonmetal covalent), Binary molecular."
+            },
+            {
+                id: 14,
+                category: "NOMEN",
+                categoryLabel: "Nomenclature & Isotopes",
+                difficulty: "Hard",
+                question: "Identify the systematic name for the ternary oxyacid $\\text{HClO}_2(aq)$ and its corresponding sodium salt $\\text{NaClO}_2$:",
+                options: [
+                    "Perchloric acid and sodium perchlorate",
+                    "Chloric acid and sodium chlorate",
+                    "Chlorous acid and sodium chlorite",
+                    "Hypochlorous acid and sodium hypochlorite"
+                ],
+                correct: 2,
+                explanation: "The halogen oxyanion series is:<br>$\\text{ClO}^-$ = hypochlorite $\\rightarrow \\text{HClO}$ = hypochlorous acid<br>$\\text{ClO}_2^-$ = chlorite $\\rightarrow \\text{HClO}_2$ = chlorous acid (<i>-ite</i> ion becomes <i>-ous</i> acid)<br>$\\text{ClO}_3^-$ = chlorate $\\rightarrow \\text{HClO}_3$ = chloric acid<br>$\\text{ClO}_4^-$ = perchlorate $\\rightarrow \\text{HClO}_4$ = perchloric acid."
+            },
+
+            // Category: STOICH - Stoichiometry & Conversions
+            {
+                id: 15,
+                category: "STOICH",
+                categoryLabel: "Stoichiometry & Conversions",
+                difficulty: "Extreme",
+                question: "According to air quality monitoring, the atmospheric concentration of nitrogen dioxide ($\\text{NO}_2$, $M = 46.01 \\text{ g mol}^{-1}$) in Montreal was $5.3 \\space \\mu\\text{g m}^{-3}$. Convert this concentration into **moles per litre** ($M$):",
+                options: [
+                    "$1.15 \\times 10^{-10} \\text{ mol L}^{-1}$",
+                    "$1.15 \\times 10^{-7} \\text{ mol L}^{-1}$",
+                    "$5.30 \\times 10^{-9} \\text{ mol L}^{-1}$",
+                    "$2.44 \\times 10^{-8} \\text{ mol L}^{-1}$"
+                ],
+                correct: 0,
+                explanation: "<b>Step 1: Convert $\\mu\\text{g}$ to grams:</b> $5.3 \\space \\mu\\text{g} = 5.3 \\times 10^{-6} \\text{ g}$.<br><b>Step 2: Convert mass to moles:</b> $n = \\frac{5.3 \\times 10^{-6} \\text{ g}}{46.01 \\text{ g mol}^{-1}} = 1.1519 \\times 10^{-7} \\text{ mol}$.<br><b>Step 3: Convert volume from $\\text{m}^3$ to Litres:</b> $1 \\text{ m}^3 = 1000 \\text{ L}$.<br>$\\text{Molarity} = \\frac{1.1519 \\times 10^{-7} \\text{ mol}}{1000 \\text{ L}} = \\mathbf{1.15 \\times 10^{-10} \\text{ mol L}^{-1}}$."
+            },
+            {
+                id: 16,
+                category: "STOICH",
+                categoryLabel: "Stoichiometry & Conversions",
+                difficulty: "Extreme",
+                question: "The combustion of gasoline (approximated as pure octane, $\\text{C}_8\\text{H}_{18}$, $\\rho = 750 \\text{ g L}^{-1}$, $M = 114.22 \\text{ g mol}^{-1}$) produces carbon dioxide gas and water vapour according to:<br>$$2\\text{C}_8\\text{H}_{18}(l) + 25\\text{O}_2(g) \\rightarrow 16\\text{CO}_2(g) + 18\\text{H}_2\\text{O}(g)$$<br>How many grams of $\\text{CO}_2$ ($M = 44.01 \\text{ g mol}^{-1}$) are produced per Litre of gasoline burnt?",
+                options: [
+                    "$2.31 \\times 10^3 \\text{ g}$",
+                    "$3.09 \\times 10^3 \\text{ g}$",
+                    "$1.16 \\times 10^3 \\text{ g}$",
+                    "$5.80 \\times 10^2 \\text{ g}$"
+                ],
+                correct: 0,
+                explanation: "<b>1. Mass of 1 L octane:</b> $1.00 \\text{ L} \\times 750 \\text{ g L}^{-1} = 750 \\text{ g C}_8\\text{H}_{18}$.<br><b>2. Moles of octane:</b> $n = \\frac{750 \\text{ g}}{114.22 \\text{ g mol}^{-1}} = 6.566 \\text{ mol C}_8\\text{H}_{18}$.<br><b>3. Stoichiometric ratio:</b> $\\frac{16 \\text{ mol CO}_2}{2 \\text{ mol C}_8\\text{H}_{18}} = 8 \\text{ mol CO}_2 / \\text{mol C}_8\\text{H}_{18}$.<br>$n(\\text{CO}_2) = 6.566 \\times 8 = 52.53 \\text{ mol CO}_2$.<br><b>4. Mass of $\\text{CO}_2$:</b> $m = 52.53 \\text{ mol} \\times 44.01 \\text{ g mol}^{-1} = \\mathbf{2312 \\text{ g}} = \\mathbf{2.31 \\times 10^3 \\text{ g}}$."
+            },
+            {
+                id: 17,
+                category: "STOICH",
+                categoryLabel: "Stoichiometry & Conversions",
+                difficulty: "Extreme",
+                question: "Reacting solid manganese(IV) oxide with aqueous hydrochloric acid produces chlorine gas, water, and aqueous manganese(II) chloride according to:<br>$$\\text{MnO}_2(s) + 4\\text{HCl}(aq) \\rightarrow \\text{MnCl}_2(aq) + 2\\text{H}_2\\text{O}(l) + \\text{Cl}_2(g)$$<br>If $0.50 \\text{ L}$ of $0.10 \\text{ mol L}^{-1} \\text{ HCl}$ reacts with $1.262 \\text{ g}$ of $\\text{MnO}_2(s)$ ($M = 86.94 \\text{ g mol}^{-1}$), how many moles of $\\text{Cl}_2(g)$ will be produced?",
+                options: [
+                    "$0.0125 \\text{ mol}$",
+                    "$0.0145 \\text{ mol}$",
+                    "$0.0500 \\text{ mol}$",
+                    "$0.0250 \\text{ mol}$"
+                ],
+                correct: 0,
+                explanation: "<b>Step 1: Calculate initial moles:</b><br>$n(\\text{HCl}) = 0.50 \\text{ L} \\times 0.10 \\text{ M} = 0.0500 \\text{ mol}$.<br>$n(\\text{MnO}_2) = \\frac{1.262 \\text{ g}}{86.94 \\text{ g mol}^{-1}} = 0.014515 \\text{ mol}$.<br><b>Step 2: Limiting reactant test:</b><br>$\text{HCl}$ needed to consume all $\text{MnO}_2$: $0.014515 \\times 4 = 0.05806 \\text{ mol HCl}$.<br>Since available $\text{HCl}$ ($0.0500 \\text{ mol}$) < $0.05806 \\text{ mol}$, <b>$\\text{HCl}$ is the limiting reactant</b>.<br><b>Step 3: Yield calculation:</b><br>$n(\\text{Cl}_2) = 0.0500 \\text{ mol HCl} \\times \\frac{1 \\text{ mol Cl}_2}{4 \\text{ mol HCl}} = \\mathbf{0.0125 \\text{ mol Cl}_2}$."
+            },
+            {
+                id: 18,
+                category: "STOICH",
+                categoryLabel: "Stoichiometry & Conversions",
+                difficulty: "Extreme",
+                question: "Addition of $200. \\space \\mu\\text{L}$ of concentrated phosphoric acid ($14.8 \\text{ M } \\text{H}_3\\text{PO}_4$) to $48.0 \\text{ mL}$ of $0.0400 \\text{ M}$ silver sulphate ($\\text{Ag}_2\\text{SO}_4$) yields a precipitate of silver phosphate ($\\text{Ag}_3\\text{PO}_4$, $M = 418.58 \\text{ g mol}^{-1}$). What is the mass of the precipitate and the final concentration of $\\text{H}^+$ in solution?",
+                options: [
+                    "$0.536 \\text{ g Ag}_3\\text{PO}_4$ and $[\\text{H}^+] = 0.0797 \\text{ M}$",
+                    "$0.824 \\text{ g Ag}_3\\text{PO}_4$ and $[\\text{H}^+] = 0.124 \\text{ M}$",
+                    "$0.268 \\text{ g Ag}_3\\text{PO}_4$ and $[\\text{H}^+] = 0.0398 \\text{ M}$",
+                    "$1.07 \\text{ g Ag}_3\\text{PO}_4$ and $[\\text{H}^+] = 0.159 \\text{ M}$"
+                ],
+                correct: 0,
+                explanation: "<b>Step 1: Net Ionic Equation:</b> $\\text{H}_3\\text{PO}_4(aq) + 3\\text{Ag}^+(aq) \\rightarrow \\text{Ag}_3\\text{PO}_4(s) + 3\\text{H}^+(aq)$.<br><b>Step 2: Calculate initial millimoles:</b><br>$n(\\text{H}_3\\text{PO}_4) = 0.200 \\text{ mL} \\times 14.8 \\text{ mmol/mL} = 2.96 \\text{ mmol}$.<br>$n(\\text{Ag}^+) = 48.0 \\text{ mL} \\times 0.0400 \\text{ M} \\times 2 \\text{ Ag}^+/\\text{Ag}_2\\text{SO}_4 = 3.84 \\text{ mmol Ag}^+$.<br><b>Step 3: Limiting Reactant:</b> $3.84 \\text{ mmol Ag}^+$ requires $\\frac{3.84}{3} = 1.28 \\text{ mmol H}_3\\text{PO}_4$. Thus $\\text{Ag}^+$ is limiting.<br><b>Step 4: Mass Precipitate:</b> $1.28 \\text{ mmol Ag}_3\\text{PO}_4 \\times 418.58 \\text{ g/mol} = \\mathbf{0.536 \\text{ g}}$.<br><b>Step 5: $[\\text{H}^+]$ concentration:</b> $n(\\text{H}^+) = 3.84 \\text{ mmol}$. Total Volume $= 48.0 + 0.200 = 48.2 \\text{ mL}$.<br>$[\\text{H}^+] = \\frac{3.84 \\text{ mmol}}{48.2 \\text{ mL}} = \\mathbf{0.0797 \\text{ M}}$."
+            },
+            {
+                id: 19,
+                category: "STOICH",
+                categoryLabel: "Stoichiometry & Conversions",
+                difficulty: "Hard",
+                question: "Select the correct **net ionic equation** for the reaction occurring when aqueous solutions of silver nitrate and sodium chloride are mixed:",
+                options: [
+                    "$\\text{Na}^+(aq) + \\text{Cl}^-(aq) + \\text{Ag}^+(aq) + \\text{NO}_3^-(aq) \\rightarrow \\text{NaNO}_3(aq) + \\text{AgCl}(s)$",
+                    "$\\text{Ag}^+(aq) + \\text{Cl}^-(aq) \\rightarrow \\text{AgCl}(s)$",
+                    "$\\text{Na}^+(aq) + \\text{NO}_3^-(aq) \\rightarrow \\text{NaNO}_3(s)$",
+                    "$\\text{AgNO}_3(aq) + \\text{NaCl}(aq) \\rightarrow \\text{AgCl}(s) + \\text{NaNO}_3(aq)$"
+                ],
+                correct: 1,
+                explanation: "In aqueous solution, both $\\text{AgNO}_3$ and $\\text{NaCl}$ are strong electrolytes that dissociate completely into free ions. Sodium ($\\text{Na}^+$) and nitrate ($\\text{NO}_3^-$) remain unreacted in solution as spectator ions. Canceling spectator ions yields the net ionic equation: $\\mathbf{\\text{Ag}^+(aq) + \\text{Cl}^-(aq) \\rightarrow \\text{AgCl}(s)}$."
+            },
+            {
+                id: 20,
+                category: "STOICH",
+                categoryLabel: "Stoichiometry & Conversions",
+                difficulty: "Medium",
+                question: "Which list contains **ONLY strong acids** that dissociate $100\\%$ completely in aqueous solution?",
+                options: [
+                    "$\\text{HCl}, \\text{HNO}_3, \\text{H}_2\\text{SO}_4, \\text{HClO}_4, \\text{HBr}, \\text{HI}$",
+                    "$\\text{HF}, \\text{HCl}, \\text{HNO}_2, \\text{H}_2\\text{SO}_3, \\text{H}_3\\text{PO}_4$",
+                    "$\\text{HCl}, \\text{HCN}, \\text{CH}_3\\text{COOH}, \\text{HNO}_3$",
+                    "$\\text{HClO}, \\text{HClO}_2, \\text{HClO}_3, \\text{HClO}_4$"
+                ],
+                correct: 0,
+                explanation: "The six standard strong acids are $\\text{HCl}, \\text{HBr}, \\text{HI}, \\text{HNO}_3, \\text{HClO}_4$, and $\\text{H}_2\\text{SO}_4$ (first proton dissociation). All other inorganic and organic acids (including $\\text{HF}, \\text{HCN}, \\text{HNO}_2, \\text{H}_3\\text{PO}_4$) are weak electrolytes."
+            },
+
+            // Category: QUANTUM - Quantum Mechanics & Atomic Model
+            {
+                id: 21,
+                category: "QUANTUM",
+                categoryLabel: "Quantum Mechanics & Atomic Model",
+                difficulty: "Hard",
+                question: "In what key conceptual respect does **Schrödinger's quantum mechanical model** of the hydrogen atom agree with **Bohr's model**, and how do they fundamentally differ?",
+                options: [
+                    "Both model the electron as a localized particle following classical Newtonian orbits, but Schrödinger added spin quantum numbers.",
+                    "Both models incorporate quantized electronic energy levels, but Bohr assigned electrons to fixed 2D orbits while Schrödinger describes 3D probability density wavefunctions.",
+                    "Both models reject the presence of a central dense positive nucleus, but Schrödinger incorporated de Broglie's particle theory.",
+                    "Both models predict identical continuous emission spectra for multielectron atoms, but Bohr used polar coordinates."
+                ],
+                correct: 1,
+                explanation: "<b>Similarity:</b> Both models incorporate discrete, quantized electronic energy states for hydrogen.<br><b>Difference:</b> Bohr assumed electrons move as classical planetary particles along rigid, well-defined 2D circular orbits of fixed radius ($r$). Schrödinger treated the electron as a 3D standing matter wave described by a wavefunction ($\\psi$), where $|\\psi|^2$ represents spatial probability density (orbitals) rather than a definite trajectory."
+            },
+            {
+                id: 22,
+                category: "QUANTUM",
+                categoryLabel: "Quantum Mechanics & Atomic Model",
+                difficulty: "Extreme",
+                question: "Which of the following sets of quantum numbers $(n, l, m_l, m_s)$ is **physically forbidden** in Schrödinger's wave mechanics model of the atom?",
+                options: [
+                    "$(n=3, l=2, m_l=-2, m_s=+1/2)$",
+                    "$(n=2, l=2, m_l=0, m_s=-1/2)$",
+                    "$(n=4, l=1, m_l=-1, m_s=+1/2)$",
+                    "$(n=1, l=0, m_l=0, m_s=-1/2)$"
+                ],
+                correct: 1,
+                explanation: "According to quantum mechanical rules:<br>1. $n$ can be any integer $1, 2, 3, \\dots$<br>2. $l$ must satisfy $0 \\le l < n$. For $n = 2$, allowed values of $l$ are $0$ ($s$) and $1$ ($p$).<br>A value of $l = 2$ ($d$ orbital) for $n = 2$ is strictly <b>forbidden</b> because $l$ cannot equal $n$."
+            },
+            {
+                id: 23,
+                category: "QUANTUM",
+                categoryLabel: "Quantum Mechanics & Atomic Model",
+                difficulty: "Hard",
+                question: "What is the physical significance of the mathematical wavefunction $\\psi(r, \\theta, \\phi)$ and its square magnitude $\\psi^2$ in quantum chemistry?",
+                options: [
+                    "$\\psi$ represents the physical velocity of an electron, while $\\psi^2$ represents its exact orbital trajectory.",
+                    "$\\psi$ has no direct physical meaning, but $\\psi^2$ represents the probability density of finding the electron at a given position in space.",
+                    "$\\psi$ represents the total electrostatic force on the nucleus, while $\\psi^2$ measures nuclear charge density.",
+                    "$\\psi$ gives the energy of a photon emitted, while $\\psi^2$ is the Rydberg constant."
+                ],
+                correct: 1,
+                explanation: "The wavefunction $\\psi$ is a mathematical solution to Schrödinger's wave equation ($\\hat{H}\\psi = E\\psi$). While $\\psi$ itself has no direct physical interpretation, Born showed that its square magnitude $\\mathbf{\\psi^2}$ (or $|\\psi|^2$) represents the <b>probability density</b> of locating the electron at a specific coordinate $(r, \\theta, \\phi)$ in 3D space."
+            },
+            {
+                id: 24,
+                category: "QUANTUM",
+                categoryLabel: "Quantum Mechanics & Atomic Model",
+                difficulty: "Extreme",
+                question: "Calculate the energy change ($\\Delta E$) associated with an electronic transition in a hydrogen atom ($Z=1$) from the $n_i = 4$ state down to the $n_f = 2$ state using Bohr's formula:<br>$$\\Delta E = -2.18 \\times 10^{-18} \\text{ J} \\left( \\frac{1}{n_f^2} - \\frac{1}{n_i^2} \\right)$$",
+                options: [
+                    "$-4.09 \\times 10^{-19} \\text{ J}$ (Emission)",
+                    "$+4.09 \\times 10^{-19} \\text{ J}$ (Absorption)",
+                    "$-5.45 \\times 10^{-19} \\text{ J}$ (Emission)",
+                    "$-2.18 \\times 10^{-18} \\text{ J}$ (Emission)"
+                ],
+                correct: 0,
+                explanation: "$\\Delta E = -2.18 \\times 10^{-18} \\text{ J} \\left( \\frac{1}{2^2} - \\frac{1}{4^2} \\right) = -2.18 \\times 10^{-18} \\text{ J} \\left( \\frac{1}{4} - \\frac{1}{16} \\right)$<br>$\\Delta E = -2.18 \\times 10^{-18} \\text{ J} \\times \\frac{3}{16} = \\mathbf{-4.0875 \\times 10^{-19} \\text{ J}}$.<br>The negative sign indicates energy release (photon emission, corresponding to the green $486 \\text{ nm}$ Balmer spectral line)."
+            },
+            {
+                id: 25,
+                category: "QUANTUM",
+                categoryLabel: "Quantum Mechanics & Atomic Model",
+                difficulty: "Medium",
+                question: "Which quantum number directly dictates the 3D **spatial orientation** of an atomic orbital in space?",
+                options: [
+                    "The Principal Quantum Number ($n$)",
+                    "The Angular Momentum Quantum Number ($l$)",
+                    "The Magnetic Quantum Number ($m_l$)",
+                    "The Spin Quantum Number ($m_s$)"
+                ],
+                correct: 2,
+                explanation: "1. Principal quantum number $n$: orbital size and energy level.<br>2. Angular momentum quantum number $l$: orbital shape ($s, p, d, f$).<br>3. <b>Magnetic quantum number $m_l$</b>: spatial orientation of the orbital relative to an external magnetic field.<br>4. Spin quantum number $m_s$: intrinsic magnetic spin orientation of the electron."
+            }
+        ];
+
+        // State Tracking
+        let currentQuestionIdx = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let bookmarkedQuestions = new Set();
+        let activeCategoryFilter = 'ALL';
+        let startTime = Date.now();
+        let timerInterval = null;
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            startTimer();
+            renderQuestionGrid();
+            loadQuestion(0);
+            renderMathInPage();
+        });
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+                const mins = Math.floor(elapsedSec / 60).toString().padStart(2, '0');
+                const secs = (elapsedSec % 60).toString().padStart(2, '0');
+                document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function renderQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+
+            questions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.onclick = () => jumpToQuestion(idx);
+                
+                let statusClasses = 'bg-slate-700/60 text-slate-300 border-slate-600 hover:bg-slate-700';
+                if (userAnswers[idx] !== null) {
+                    if (userAnswers[idx] === q.correct) {
+                        statusClasses = 'bg-emerald-600/30 text-emerald-300 border-emerald-500/50 font-bold';
+                    } else {
+                        statusClasses = 'bg-rose-600/30 text-rose-300 border-rose-500/50 font-bold';
+                    }
+                }
+
+                if (idx === currentQuestionIdx) {
+                    statusClasses += ' ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-800';
+                }
+
+                btn.className = `w-full h-8 rounded-lg text-xs border font-mono transition flex items-center justify-center relative ${statusClasses}`;
+                btn.innerHTML = `${idx + 1}`;
+
+                if (bookmarkedQuestions.has(idx)) {
+                    const mark = document.createElement('span');
+                    mark.className = 'absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 border border-slate-800';
+                    btn.appendChild(mark);
+                }
+
+                grid.appendChild(btn);
+            });
+        }
+
+        function loadQuestion(idx) {
+            currentQuestionIdx = idx;
+            const q = questions[idx];
+
+            document.getElementById('questionNumBadge').innerText = `Question ${idx + 1} of ${questions.length}`;
+            document.getElementById('categoryBadge').innerText = q.categoryLabel;
+            document.getElementById('difficultyBadge').innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> ${q.difficulty}`;
+            document.getElementById('currentPosIndicator').innerText = `${idx + 1} / ${questions.length}`;
+            
+            document.getElementById('questionText').innerHTML = q.question;
+
+            // Handle optional extra data container (tables, etc.)
+            const dataContainer = document.getElementById('questionDataContainer');
+            if (q.data) {
+                dataContainer.innerHTML = q.data;
+                dataContainer.classList.remove('hidden');
+            } else {
+                dataContainer.classList.add('hidden');
+            }
+
+            // Bookmark button state
+            const bookmarkBtn = document.getElementById('bookmarkBtn');
+            if (bookmarkedQuestions.has(idx)) {
+                bookmarkBtn.className = 'text-amber-400 hover:text-amber-300 transition text-lg';
+                bookmarkBtn.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+            } else {
+                bookmarkBtn.className = 'text-slate-400 hover:text-amber-400 transition text-lg';
+                bookmarkBtn.innerHTML = '<i class="fa-regular fa-bookmark"></i>';
+            }
+
+            // Navigation Buttons
+            document.getElementById('prevBtn').disabled = (idx === 0);
+            document.getElementById('nextBtn').disabled = (idx === questions.length - 1);
+
+            // Options Container
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            const isAnswered = userAnswers[idx] !== null;
+
+            q.options.forEach((optText, optIdx) => {
+                const optBtn = document.createElement('button');
+                optBtn.onclick = () => handleAnswerSelect(optIdx);
+                optBtn.disabled = isAnswered;
+
+                let btnStyle = 'bg-slate-900/60 hover:bg-slate-700/60 border-slate-700 text-slate-200';
+
+                if (isAnswered) {
+                    if (optIdx === q.correct) {
+                        btnStyle = 'bg-emerald-950/70 border-emerald-500 text-emerald-200 font-medium ring-1 ring-emerald-500';
+                    } else if (optIdx === userAnswers[idx]) {
+                        btnStyle = 'bg-rose-950/70 border-rose-500 text-rose-200 font-medium ring-1 ring-rose-500';
+                    } else {
+                        btnStyle = 'bg-slate-900/40 border-slate-800 text-slate-500 opacity-60';
+                    }
+                }
+
+                const optChar = String.fromCharCode(65 + optIdx);
+                optBtn.className = `w-full text-left p-3.5 sm:p-4 rounded-xl border transition flex items-start space-x-3 text-xs sm:text-sm ${btnStyle}`;
+                
+                optBtn.innerHTML = `
+                    <span class="w-6 h-6 rounded-md bg-slate-800 border border-slate-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 text-slate-300">${optChar}</span>
+                    <span class="leading-snug pt-0.5 flex-1">${optText}</span>
+                `;
+
+                optionsContainer.appendChild(optBtn);
+            });
+
+            // Explanation Box
+            const explanationBox = document.getElementById('explanationBox');
+            if (isAnswered) {
+                const isCorrect = userAnswers[idx] === q.correct;
+                explanationBox.classList.remove('hidden');
+
+                if (isCorrect) {
+                    explanationBox.className = 'rounded-xl p-5 border transition-all duration-300 space-y-3 bg-emerald-950/30 border-emerald-500/40 text-emerald-100';
+                    document.getElementById('explanationHeader').innerHTML = `
+                        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+                        <span class="text-emerald-300">Correct Answer</span>
+                    `;
+                } else {
+                    explanationBox.className = 'rounded-xl p-5 border transition-all duration-300 space-y-3 bg-rose-950/30 border-rose-500/40 text-rose-100';
+                    document.getElementById('explanationHeader').innerHTML = `
+                        <i class="fa-solid fa-circle-xmark text-rose-400 text-lg"></i>
+                        <span class="text-rose-300">Incorrect Answer</span>
+                    `;
+                }
+
+                document.getElementById('explanationBody').innerHTML = q.explanation;
+            } else {
+                explanationBox.classList.add('hidden');
+            }
+
+            renderQuestionGrid();
+            renderMathInPage();
+        }
+
+        function handleAnswerSelect(optIdx) {
+            if (userAnswers[currentQuestionIdx] !== null) return;
+
+            userAnswers[currentQuestionIdx] = optIdx;
+            updateStats();
+            loadQuestion(currentQuestionIdx);
+        }
+
+        function updateStats() {
+            let answered = 0;
+            let correct = 0;
+
+            userAnswers.forEach((ans, idx) => {
+                if (ans !== null) {
+                    answered++;
+                    if (ans === questions[idx].correct) correct++;
+                }
+            });
+
+            document.getElementById('completionBadge').innerText = `${answered} / ${questions.length} Answered`;
+            document.getElementById('scoreDisplay').innerText = `${correct} / ${answered}`;
+            
+            const pct = answered > 0 ? Math.round((correct / answered) * 100) : 0;
+            document.getElementById('accuracyDisplay').innerText = `${pct}%`;
+            document.getElementById('progressBar').style.width = `${(answered / questions.length) * 100}%`;
+        }
+
+        function navigateQuestion(delta) {
+            const nextIdx = currentQuestionIdx + delta;
+            if (nextIdx >= 0 && nextIdx < questions.length) {
+                loadQuestion(nextIdx);
+            }
+        }
+
+        function jumpToQuestion(idx) {
+            loadQuestion(idx);
+        }
+
+        function toggleBookmark() {
+            if (bookmarkedQuestions.has(currentQuestionIdx)) {
+                bookmarkedQuestions.delete(currentQuestionIdx);
+            } else {
+                bookmarkedQuestions.add(currentQuestionIdx);
+            }
+            loadQuestion(currentQuestionIdx);
+        }
+
+        function filterCategory(cat) {
+            activeCategoryFilter = cat;
+            // Update filter button styles
+            const container = document.getElementById('categoryFilterContainer');
+            const buttons = container.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.className = 'w-full text-left px-3 py-1.5 rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 border border-slate-600/50 flex justify-between items-center text-xs';
+            });
+
+            // Find first question matching category
+            if (cat !== 'ALL') {
+                const matchIdx = questions.findIndex(q => q.category === cat);
+                if (matchIdx !== -1) loadQuestion(matchIdx);
+            }
+        }
+
+        function finishQuiz() {
+            let totalCorrect = 0;
+            const categoryStats = {};
+
+            questions.forEach((q, idx) => {
+                if (!categoryStats[q.categoryLabel]) {
+                    categoryStats[q.categoryLabel] = { total: 0, correct: 0 };
+                }
+                categoryStats[q.categoryLabel].total++;
+
+                if (userAnswers[idx] === q.correct) {
+                    totalCorrect++;
+                    categoryStats[q.categoryLabel].correct++;
+                }
+            });
+
+            const pct = Math.round((totalCorrect / questions.length) * 100);
+            
+            document.getElementById('modalFinalScore').innerText = `${totalCorrect} / ${questions.length}`;
+            document.getElementById('modalPercentage').innerText = `${pct}%`;
+
+            // Calculate letter grade
+            let grade = 'F';
+            if (pct >= 90) grade = 'A+';
+            else if (pct >= 85) grade = 'A';
+            else if (pct >= 80) grade = 'B+';
+            else if (pct >= 75) grade = 'B';
+            else if (pct >= 70) grade = 'C+';
+            else if (pct >= 60) grade = 'C';
+            document.getElementById('modalGrade').innerText = grade;
+
+            // Render category breakdown
+            const breakdownContainer = document.getElementById('topicBreakdownContainer');
+            breakdownContainer.innerHTML = '';
+
+            for (const [catName, stat] of Object.entries(categoryStats)) {
+                const catPct = Math.round((stat.correct / stat.total) * 100);
+                const row = document.createElement('div');
+                row.className = 'bg-slate-900/60 p-3 rounded-lg border border-slate-700 space-y-1.5';
+                row.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-slate-200">${catName}</span>
+                        <span class="font-bold text-indigo-400">${stat.correct} / ${stat.total} (${catPct}%)</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${catPct}%"></div>
+                    </div>
+                `;
+                breakdownContainer.appendChild(row);
+            }
+
+            toggleModal('resultsModal');
+        }
+
+        function resetQuiz() {
+            if (confirm("Are you sure you want to reset all quiz progress and answers?")) {
+                userAnswers = new Array(questions.length).fill(null);
+                bookmarkedQuestions.clear();
+                startTime = Date.now();
+                updateStats();
+                loadQuestion(0);
+            }
+        }
+
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Interactive Tool: Quantum Validator
+        function validateQuantumNumbers() {
+            const n = parseInt(document.getElementById('qn_n').value);
+            const l = parseInt(document.getElementById('qn_l').value);
+            const ml = parseInt(document.getElementById('qn_ml').value);
+            const ms = parseFloat(document.getElementById('qn_ms').value);
+
+            const resultDiv = document.getElementById('qnResult');
+            resultDiv.classList.remove('hidden');
+
+            const errors = [];
+            if (isNaN(n) || n < 1) errors.push("Principal quantum number n must be a positive integer (n ≥ 1).");
+            if (isNaN(l) || l < 0 || l >= n) errors.push(`Angular momentum quantum number l must satisfy 0 ≤ l < n (for n=${n}, l can be 0 to ${n-1}).`);
+            if (isNaN(ml) || Math.abs(ml) > l) errors.push(`Magnetic quantum number m_l must satisfy -l ≤ m_l ≤ +l (for l=${l}, m_l can be -${l} to +${l}).`);
+            if (ms !== 0.5 && ms !== -0.5) errors.push("Spin quantum number m_s must equal strictly +1/2 or -1/2.");
+
+            if (errors.length === 0) {
+                resultDiv.className = 'p-3 rounded-lg text-xs leading-relaxed bg-emerald-950/60 border border-emerald-500/50 text-emerald-200';
+                resultDiv.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> <b>ALLOWED STATE:</b> The quantum state (n=${n}, l=${l}, m_l=${ml}, m_s=${ms === 0.5 ? '+1/2' : '-1/2'}) is physically permissible in Schrödinger's hydrogen atom model.`;
+            } else {
+                resultDiv.className = 'p-3 rounded-lg text-xs leading-relaxed bg-rose-950/60 border border-rose-500/50 text-rose-200 space-y-1';
+                resultDiv.innerHTML = `<div class="font-bold"><i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1"></i> FORBIDDEN STATE:</div><ul class="list-disc list-inside">${errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+            }
+        }
+
+        // Interactive Tool: Sig Fig Analyzer
+        function analyzeSigFig() {
+            const val = document.getElementById('sigfigInput').value.trim();
+            const resultDiv = document.getElementById('sigfigResult');
+            resultDiv.classList.remove('hidden');
+
+            if (!val || isNaN(Number(val))) {
+                resultDiv.innerHTML = `<span class="text-rose-400">Please enter a valid numeric measurement.</span>`;
+                return;
+            }
+
+            // Simple Sig Fig Analysis Algorithm
+            let str = val.toLowerCase().replace('e', '');
+            let count = 0;
+            let explanation = '';
+
+            if (str.includes('.')) {
+                // Remove leading zeros
+                const stripped = str.replace(/^0+/, '').replace('.', '');
+                count = stripped.length;
+                explanation = "Trailing zeros after a decimal point and all non-zero digits are significant. Leading zeros are non-significant placeholders.";
+            } else {
+                const stripped = str.replace(/^0+/, '');
+                // Trailing zeros without decimal point are ambiguous, usually counted up to last non-zero
+                const noTrailing = stripped.replace(/0+$/, '');
+                count = noTrailing.length;
+                explanation = "In integers without a decimal point, trailing zeros are considered non-significant placeholders.";
+            }
+
+            resultDiv.innerHTML = `
+                <div>Count: <b class="text-emerald-400 font-mono text-sm">${count} Significant Figures</b></div>
+                <div class="text-slate-400 text-[11px] pt-1">${explanation}</div>
+            `;
+        }
+
+        // Helper: Render LaTeX math equations across the page
+        function renderMathInPage() {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+    </script>
+</body>
+</html>
