@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chemistry Nomenclature & Polyatomic Ion Quiz</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --primary: #38bdf8;
+      --correct: #22c55e;
+      --incorrect: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; color: var(--primary); }
+    p.subtitle { color: var(--muted); font-size: 0.95rem; }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-container {
+      flex: 1;
+      margin: 0 1.5rem;
+      background: var(--border);
+      border-radius: 8px;
+      height: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .badge {
+      font-weight: 600;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+    }
+
+    .table-wrapper {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    th {
+      background: #0f172a;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    input[type="text"]:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    .given-text {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .sub-preview {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+      min-height: 1.2em;
+    }
+
+    .btn-check {
+      background: var(--primary);
+      color: #0f172a;
+      border: none;
+      padding: 0.5rem 0.9rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-check:hover { opacity: 0.9; }
+
+    .correct-field {
+      border-color: var(--correct) !important;
+      background: rgba(34, 197, 94, 0.1) !important;
+    }
+
+    .incorrect-field {
+      border-color: var(--incorrect) !important;
+      background: rgba(239, 68, 68, 0.1) !important;
+    }
+
+    .hint-box {
+      font-size: 0.8rem;
+      margin-top: 0.35rem;
+      color: var(--warning);
+      display: none;
+    }
+
+    .status-cell {
+      min-width: 140px;
+    }
+
+    .btn-reset {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-reset:hover { background: var(--border); color: var(--text); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Nomenclature & Polyatomic Ions Quiz</h1>
+    <p class="subtitle">Complete the table for 15 compounds containing memorizable ions and common substances.</p>
+  </header>
+
+  <div class="stats-bar">
+    <span class="badge" id="scoreBadge">Score: 0 / 15</span>
+    <div class="progress-container">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <button class="btn-reset" onclick="resetQuiz()">Reset Quiz</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 5%;">#</th>
+          <th style="width: 32%;">Name</th>
+          <th style="width: 28%;">Formula</th>
+          <th style="width: 22%;">Nature</th>
+          <th style="width: 13%;">Action</th>
+        </tr>
+      </thead>
+      <tbody id="quizBody">
+        <!-- Rows dynamically rendered -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // 15 items mixing given Names and Formulas
+  const quizData = [
+    {
+      id: 1,
+      givenType: 'name',
+      name: 'Iron(III) nitrate',
+      formula: 'Fe(NO3)3',
+      nature: 'Ionic',
+      formulaAliases: ['Fe(NO3)3', 'Fe(NO3)3(s)'],
+      hint1: 'Iron(III) has a 3+ charge. Nitrate is NO3(-1). You need 3 nitrates.',
+      hint2: 'Formula pattern: Fe(NO3)3. Polyatomic ion present → Ionic.'
+    },
+    {
+      id: 2,
+      givenType: 'name',
+      name: 'Diphosphorus pentoxide',
+      formula: 'P2O5',
+      nature: 'Molecular',
+      formulaAliases: ['P2O5'],
+      hint1: 'Di- means 2, penta- means 5.',
+      hint2: 'P and O are both non-metals → Molecular compound.'
+    },
+    {
+      id: 3,
+      givenType: 'formula',
+      name: 'Nitric acid',
+      formula: 'HNO3(aq)',
+      nature: 'Molecular',
+      nameAliases: ['nitric acid', 'acide nitrique'],
+      hint1: 'HNO3 in aqueous solution is a binary/oxyacid derived from nitrate.',
+      hint2: 'Name: Nitric acid. Hydrogen covalently bonded to NO3 → Molecular.'
+    },
+    {
+      id: 4,
+      givenType: 'formula',
+      name: 'Calcium chloride',
+      formula: 'CaCl2',
+      nature: 'Ionic',
+      nameAliases: ['calcium chloride', 'chlorure de calcium'],
+      hint1: 'Ca is alkaline earth metal, Cl is halogen.',
+      hint2: 'Name: Calcium chloride. Metal + non-metal → Ionic.'
+    },
+    {
+      id: 5,
+      givenType: 'name',
+      name: 'Ammonium sulfate',
+      formula: '(NH4)2SO4',
+      nature: 'Ionic',
+      formulaAliases: ['(NH4)2SO4'],
+      hint1: 'Ammonium is NH4(+1), Sulfate is SO4(2-). Balance charges 2:1.',
+      hint2: '(NH4)2SO4. Made entirely of polyatomic ions → Ionic.'
+    },
+    {
+      id: 6,
+      givenType: 'formula',
+      name: 'Potassium permanganate',
+      formula: 'KMnO4',
+      nature: 'Ionic',
+      nameAliases: ['potassium permanganate', 'permanganate de potassium'],
+      hint1: 'K is potassium, MnO4 is the permanganate polyatomic ion.',
+      hint2: 'Name: Potassium permanganate. Ionic structure.'
+    },
+    {
+      id: 7,
+      givenType: 'name',
+      name: 'Sodium hydrogen carbonate',
+      formula: 'NaHCO3',
+      nature: 'Ionic',
+      formulaAliases: ['NaHCO3'],
+      nameAliases: ['sodium hydrogen carbonate', 'sodium bicarbonate'],
+      hint1: 'Sodium is Na(+1), Hydrogen carbonate (bicarbonate) is HCO3(-1).',
+      hint2: 'Formula: NaHCO3. Contains polyatomic HCO3(-) → Ionic.'
+    },
+    {
+      id: 8,
+      givenType: 'formula',
+      name: 'Copper(II) sulfate',
+      formula: 'CuSO4',
+      nature: 'Ionic',
+      nameAliases: ['copper(ii) sulfate', 'copper ii sulfate', 'copper sulfate', 'sulfate de cuivre'],
+      hint1: 'Cu is copper, SO4 is sulfate (2- charge). Copper must be +2.',
+      hint2: 'Name: Copper(II) sulfate. Metal cation + polyatomic anion → Ionic.'
+    },
+    {
+      id: 9,
+      givenType: 'name',
+      name: 'Sulfur trioxide',
+      formula: 'SO3',
+      nature: 'Molecular',
+      formulaAliases: ['SO3'],
+      hint1: 'Sulfur (1), Trioxide (3 oxygens).',
+      hint2: 'Non-metal + Non-metal → Molecular.'
+    },
+    {
+      id: 10,
+      givenType: 'formula',
+      name: 'Aluminum hydroxide',
+      formula: 'Al(OH)3',
+      nature: 'Ionic',
+      nameAliases: ['aluminum hydroxide', 'aluminium hydroxide', 'hydroxide d\'aluminium'],
+      hint1: 'Al has a 3+ charge, Hydroxide (OH) has 1- charge.',
+      hint2: 'Name: Aluminum hydroxide. Metal + polyatomic ion → Ionic.'
+    },
+    {
+      id: 11,
+      givenType: 'name',
+      name: 'Carbon dioxide',
+      formula: 'CO2',
+      nature: 'Molecular',
+      formulaAliases: ['CO2'],
+      hint1: '1 Carbon, 2 Oxygens.',
+      hint2: 'Both C and O are non-metals → Molecular.'
+    },
+    {
+      id: 12,
+      givenType: 'formula',
+      name: 'Magnesium carbonate',
+      formula: 'MgCO3',
+      nature: 'Ionic',
+      nameAliases: ['magnesium carbonate', 'carbonate de magnesium'],
+      hint1: 'Mg is magnesium (+2), CO3 is carbonate (-2).',
+      hint2: 'Name: Magnesium carbonate. Metal + polyatomic ion → Ionic.'
+    },
+    {
+      id: 13,
+      givenType: 'name',
+      name: 'Lead(II) nitrate',
+      formula: 'Pb(NO3)2',
+      nature: 'Ionic',
+      formulaAliases: ['Pb(NO3)2'],
+      hint1: 'Lead(II) is Pb(2+), Nitrate is NO3(1-). Requires 2 nitrates.',
+      hint2: 'Formula: Pb(NO3)2 → Ionic.'
+    },
+    {
+      id: 14,
+      givenType: 'formula',
+      name: 'Sulfuric acid',
+      formula: 'H2SO4(aq)',
+      nature: 'Molecular',
+      nameAliases: ['sulfuric acid', 'acide sulfurique'],
+      hint1: 'H2SO4(aq) is the aqueous acid formed from sulfate.',
+      hint2: 'Name: Sulfuric acid. Acid molecule → Molecular.'
+    },
+    {
+      id: 15,
+      givenType: 'name',
+      name: 'Sodium hydroxide',
+      formula: 'NaOH',
+      nature: 'Ionic',
+      formulaAliases: ['NaOH'],
+      hint1: 'Sodium is Na(+1), Hydroxide is OH(-1).',
+      hint2: 'Formula: NaOH → Ionic.'
+    }
+  ];
+
+  const attempts = {};
+
+  function formatSubscripts(text) {
+    if (!text) return '';
+    return text.replace(/(\d+)/g, '<sub>$1</sub>');
+  }
+
+  function normalize(str) {
+    return str.trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('quizBody');
+    tbody.innerHTML = quizData.map((item, idx) => {
+      attempts[item.id] = attempts[item.id] || 0;
+
+      const nameCell = item.givenType === 'name' 
+        ? `<span class="given-text">${item.name}</span>`
+        : `<div>
+            <input type="text" id="name_${item.id}" placeholder="e.g. ${item.nameAliases ? item.nameAliases[0] : ''}" oninput="updatePreview(${item.id})">
+            <div class="hint-box" id="hint_name_${item.id}"></div>
+           </div>`;
+
+      const formulaCell = item.givenType === 'formula'
+        ? `<span class="given-text">${item.formula}</span>`
+        : `<div>
+            <input type="text" id="formula_${item.id}" placeholder="e.g. Fe(NO3)3" oninput="updatePreview(${item.id})">
+            <div class="sub-preview" id="preview_${item.id}"></div>
+            <div class="hint-box" id="hint_formula_${item.id}"></div>
+           </div>`;
+
+      const natureCell = `
+        <div>
+          <select id="nature_${item.id}">
+            <option value="">Select...</option>
+            <option value="Ionic">Ionic</option>
+            <option value="Molecular">Molecular</option>
+          </select>
+          <div class="hint-box" id="hint_nature_${item.id}"></div>
+        </div>
+      `;
+
+      return `
+        <tr id="row_${item.id}">
+          <td><strong>${idx + 1}</strong></td>
+          <td>${nameCell}</td>
+          <td>${formulaCell}</td>
+          <td>${natureCell}</td>
+          <td class="status-cell">
+            <button class="btn-check" id="btn_${item.id}" onclick="checkRow(${item.id})">Check</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function updatePreview(id) {
+    const formulaInput = document.getElementById(`formula_${id}`);
+    const previewDiv = document.getElementById(`preview_${id}`);
+    if (formulaInput && previewDiv) {
+      previewDiv.innerHTML = formatSubscripts(formulaInput.value);
+    }
+  }
+
+  function checkRow(id) {
+    const item = quizData.find(q => q.id === id);
+    let isNameCorrect = true;
+    let isFormulaCorrect = true;
+    let isNatureCorrect = true;
+
+    // Validate Name if input
+    if (item.givenType === 'formula') {
+      const nameInput = document.getElementById(`name_${id}`);
+      const val = normalize(nameInput.value);
+      const validNames = [item.name, ...(item.nameAliases || [])].map(normalize);
+      isNameCorrect = validNames.includes(val);
+      setFieldStatus(nameInput, isNameCorrect);
+    }
+
+    // Validate Formula if input
+    if (item.givenType === 'name') {
+      const formulaInput = document.getElementById(`formula_${id}`);
+      const val = normalize(formulaInput.value);
+      const validFormulas = [item.formula, ...(item.formulaAliases || [])].map(normalize);
+      isFormulaCorrect = validFormulas.includes(val);
+      setFieldStatus(formulaInput, isFormulaCorrect);
+    }
+
+    // Validate Nature
+    const natureSelect = document.getElementById(`nature_${id}`);
+    isNatureCorrect = natureSelect.value === item.nature;
+    setFieldStatus(natureSelect, isNatureCorrect);
+
+    const isRowCorrect = isNameCorrect && isFormulaCorrect && isNatureCorrect;
+
+    if (isRowCorrect) {
+      document.getElementById(`btn_${id}`).innerText = '✓ Correct';
+      document.getElementById(`btn_${id}`).style.background = 'var(--correct)';
+      document.getElementById(`btn_${id}`).disabled = true;
+      hideHints(id);
+    } else {
+      attempts[id]++;
+      showProgressiveHint(id, item, isNameCorrect, isFormulaCorrect, isNatureCorrect);
+    }
+
+    updateOverallScore();
+  }
+
+  function setFieldStatus(element, isCorrect) {
+    if (isCorrect) {
+      element.classList.remove('incorrect-field');
+      element.classList.add('correct-field');
+    } else {
+      element.classList.remove('correct-field');
+      element.classList.add('incorrect-field');
+    }
+  }
+
+  function showProgressiveHint(id, item, nameOK, formulaOK, natureOK) {
+    const level = attempts[id];
+
+    if (!nameOK && item.givenType === 'formula') {
+      const hintEl = document.getElementById(`hint_name_${id}`);
+      hintEl.style.display = 'block';
+      hintEl.innerText = level === 1 ? item.hint1 : `Hint: Correct name is '${item.name}'`;
+    }
+
+    if (!formulaOK && item.givenType === 'name') {
+      const hintEl = document.getElementById(`hint_formula_${id}`);
+      hintEl.style.display = 'block';
+      hintEl.innerText = level === 1 ? item.hint1 : `Hint: Correct formula is '${item.formula}'`;
+    }
+
+    if (!natureOK) {
+      const hintEl = document.getElementById(`hint_nature_${id}`);
+      hintEl.style.display = 'block';
+      hintEl.innerText = level === 1 ? 'Check metal vs non-metal / polyatomic ion presence.' : `Nature is ${item.nature}.`;
+    }
+  }
+
+  function hideHints(id) {
+    ['name', 'formula', 'nature'].forEach(type => {
+      const el = document.getElementById(`hint_${type}_${id}`);
+      if (el) el.style.display = 'none';
+    });
+  }
+
+  function updateOverallScore() {
+    let completedCount = 0;
+    quizData.forEach(item => {
+      const btn = document.getElementById(`btn_${item.id}`);
+      if (btn && btn.disabled) completedCount++;
+    });
+
+    document.getElementById('scoreBadge').innerText = `Score: ${completedCount} / 15`;
+    const pct = (completedCount / 15) * 100;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+  }
+
+  function resetQuiz() {
+    quizData.forEach(item => { attempts[item.id] = 0; });
+    renderTable();
+    updateOverallScore();
+  }
+
+  // Initial setup
+  renderTable();
+</script>
+
+</body>
+</html>
