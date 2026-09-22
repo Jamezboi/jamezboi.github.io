@@ -49,6 +49,7 @@ layout: none
 - [Chem Quiz 2 Study](https://jamezboi.github.io/quiz2.html)
 - [Chem Quiz 2 Study (2)](https://jamezboi.github.io/Polyatomic_Ions.html)
 - [Chem Test 1 Study](https://jamezboi.github.io/quiz3.html)
+- [Chem Test 1 Study (2)](https://jamezboi.github.io/practice_quiz.html)
 
 ---
 
