@@ -50,7 +50,7 @@
     const dot = $('statusDot'), label = $('statusText'), sub = $('statusSub');
     if (label) label.textContent = text;
     if (dot) dot.className = 'dot ' + (kind === 'warn' ? 'warn' : 'ok');
-    if (sub) sub.textContent = state.source + (state.error ? ' · ' + state.error : '');
+    if (sub) sub.textContent = state.error ? state.error : (state.source === 'Demo fallback' ? 'Demo data · connect ESPN in Settings' : state.source);
   }
 
   function normalizeESPN(data) {
@@ -94,7 +94,7 @@
       applyFantasy(n.teams, n.players); state.source='ESPN Fantasy API'; return true;
     } catch(e) {
       state.error = e.message;
-      state.source = e.message.includes('401') ? 'ESPN Fantasy API · authentication required' : 'Demo fallback';
+      state.source = e.message.includes('401') ? 'ESPN Fantasy · private league' : 'Demo fallback';
       return false;
     }
   }
@@ -118,13 +118,13 @@
         const c=e.competitions?.[0] || {}, a=(c.competitors||[]).find(x=>x.homeAway==='away')||{}, h=(c.competitors||[]).find(x=>x.homeAway==='home')||{}, st=e.status?.type||{};
         return {id:e.id,state:st.state==='in'?'in':st.state==='post'?'post':'scheduled',detail:st.shortDetail||st.detail||'',date:e.date,
           away:{abbr:a.team?.abbreviation||'',name:a.team?.displayName||'',score:Number(a.score||0)},home:{abbr:h.team?.abbreviation||'',name:h.team?.displayName||'',score:Number(h.score||0)}};
-      }); state.live=true; state.source='ESPN NHL'; return;
+      }); state.live=true; state.source='ESPN NHL'; state.error=''; return;
     } catch (_) {}
     try {
       const d=await getJSON(C.nhlScore); state.games=(d.games||[]).map(g=>({id:g.id,state:['LIVE','CRIT'].includes(g.gameState)?'in':g.gameState==='FINAL'?'post':'scheduled',detail:g.gameState,date:g.startTime,
         away:{abbr:g.awayTeam?.abbrev||'',name:g.awayTeam?.name?.default||'',score:Number(g.awayTeam?.score||0)},home:{abbr:g.homeTeam?.abbrev||'',name:g.homeTeam?.name?.default||'',score:Number(g.homeTeam?.score||0)}}));
-      state.live=true; state.source='Official NHL Web API';
-    } catch (_) { state.games=[]; state.live=false; }
+      state.live=true; state.source='Official NHL Web API'; state.error='';
+    } catch (_) { state.games=[]; state.live=false; state.error=''; }
   }
 
   function gameFor(p) { return state.games.find(g => [g.away?.abbr,g.home?.abbr].includes(p.team)); }
