@@ -78,23 +78,28 @@
   }
 
   async function loadFantasy() {
-    state.error='';
-    if (state.api) {
-      try {
-        const d = await getJSON(apiURL('/api/league/teams') + `?league_id=${encodeURIComponent(state.league)}&season=${state.season}`);
-        if (d.teams?.length) { applyFantasy(d.teams, flattenBackend(d)); state.source='Secure ESPN backend'; return true; }
-      } catch(e) { state.error=e.message; }
+    state.error = '';
+
+    // GitHub Pages cannot send ESPN's private-session cookies cross-origin.
+    // Never hit the private ESPN endpoint directly from the public frontend:
+    // it produces a guaranteed 401 for private leagues and leaves the page noisy.
+    if (!state.api) {
+      state.source = 'Demo fallback';
+      return true;
     }
-    const base = `${C.espnHost}/apis/v3/games/${C.gameCode}/seasons/${state.season}/segments/0/leagues/${state.league}`;
+
     try {
-      const url = base + '?view=mTeam&view=mRoster&view=mSettings&view=mStandings';
-      const d = await getJSON(url);
-      const n = normalizeESPN(d);
-      if (!n.teams.length) throw new Error('ESPN returned no teams');
-      applyFantasy(n.teams, n.players); state.source='ESPN Fantasy API'; return true;
-    } catch(e) {
+      const d = await getJSON(apiURL('/api/league/teams') + `?league_id=${encodeURIComponent(state.league)}&season=${state.season}`);
+      if (d.teams?.length) {
+        applyFantasy(d.teams, flattenBackend(d));
+        state.source = 'Secure ESPN backend';
+        state.error = '';
+        return true;
+      }
+      throw new Error('Backend returned no fantasy teams');
+    } catch (e) {
       state.error = e.message;
-      state.source = e.message.includes('401') ? 'ESPN Fantasy · private league' : 'Demo fallback';
+      state.source = 'Demo fallback';
       return false;
     }
   }
