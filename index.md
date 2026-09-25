@@ -3,42 +3,18 @@ layout: none
 ---
 
 <style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    padding: 2rem;
-    line-height: 1.6;
-  }
-
-  h2 {
-    margin-top: 2rem;
-    color: #0057e7;
-  }
-
-  ul {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  li {
-    margin: 0.5rem 0;
-  }
-
-  a {
-    color: #0366d6;
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  a:hover {
-    text-decoration: underline;
-  }
-
-  .footer {
-    margin-top: 3rem;
-    font-style: italic;
-    color: #666;
-  }
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:2rem;line-height:1.6}
+  h2{margin-top:2rem;color:#0057e7}
+  ul{list-style:none;padding-left:0}
+  li{margin:.5rem 0}
+  a{color:#0366d6;text-decoration:none;font-weight:500}
+  a:hover{text-decoration:underline}
+  .featured{display:block;padding:1rem 1.2rem;margin:.75rem 0;background:#f3f6ff;border:1px solid #dce5ff;border-radius:12px}
+  .footer{margin-top:3rem;font-style:italic;color:#666}
 </style>
+
+## Featured
+- <a class="featured" href="https://jamezboi.github.io/fantasy-hockey/"><strong>Hockey AI Pro — Fantasy Hockey Intelligence</strong><br><span>Full rosters · trade analyzer · Monte Carlo simulation · live performance · league hub · API settings</span></a>
 
 ## Games & More
 - [Snake](https://jamezboi.github.io/snake.html)
