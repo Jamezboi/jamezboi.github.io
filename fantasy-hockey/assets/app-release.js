@@ -136,7 +136,7 @@
   function health() { const seen=new Set(); let ok=true; state.players.forEach(p=>{const k=`${p.espn_id}|${p.fantasy_team_id}`; if(seen.has(k)) ok=false; seen.add(k);}); return ok; }
 
   function nav() {
-    const items=[['dashboard','Dashboard','grid'],['rosters','Full Rosters','users'],['trades','Trade Lab','arrows'],['sim','Simulation','flask'],['live','Live Center','radio'],['league','League Hub','trophy'],['players','Player Pool','search'],['settings','Settings','settings']];
+    const items=[['dashboard','Dashboard','grid'],['rosters','Full Rosters','users'],['trades','Trade Lab','arrows'],['sim','Simulation','flask'],['live','Live Center','radio'],['predictions','Predictions','activity'],['league','League Hub','trophy'],['players','Player Pool','search'],['settings','Settings','settings']];
     $('brandIcon').innerHTML=icon('hockey'); $('refreshBtn').innerHTML=icon('refresh'); $('themeBtn').innerHTML=icon(state.theme==='light'?'moon':'sun'); $('mobileMenu').innerHTML=icon('grid'); $('modalClose').innerHTML=icon('x');
     $('nav').innerHTML=items.map(x=>`<button class="nav-btn ${state.tab===x[0]?'active':''}" data-tab="${x[0]}">${icon(x[2])}<span class="nav-label">${x[1]}</span></button>`).join('');
     document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{state.tab=b.dataset.tab;render();});
@@ -159,6 +159,32 @@
   }
   function recHTML(x) { return `<div class="list-row"><div class="list-main">${x.in?avatar(x.in):icon('alert')}<div><strong>${x.in?esc(x.in.name):'Status alert'}</strong><div class="muted">${x.in?'Move from Bench → Active':'Review '+esc(x.out.name)} · ${esc(x.reason)}</div></div></div>${x.in?'<button class="btn btn-success rec-apply">Apply</button>':'<span class="pill warn">Review</span>'}</div>`; }
   function gameHTML(g) { return `<div class="list-row"><div><strong>${esc(g.away?.abbr)} @ ${esc(g.home?.abbr)}</strong><div class="muted">${esc(g.detail||g.state)}</div></div><span class="${g.state==='in'?'tag-live':'tag-final'}">${esc(g.state)}</span></div>`; }
+
+  
+  function predictionModel(g) {
+    const awayPlayers=state.players.filter(p=>p.team===g.away.abbr), homePlayers=state.players.filter(p=>p.team===g.home.abbr);
+    const strength=list=>list.reduce((s,p)=>s+Math.max(0,avs(p)),0);
+    const a=strength(awayPlayers),h=strength(homePlayers);
+    let diff=(h-a)/Math.max(20,Math.abs(a)+Math.abs(h))*100+4.5;
+    if(g.state==='in') diff+=(Number(g.home.score||0)-Number(g.away.score||0))*7;
+    const hp=Math.max(2,Math.min(98,50+diff));
+    return {awayProb:100-hp,homeProb:hp,confidence:Math.min(99,50+Math.abs(hp-50)*1.25)};
+  }
+  function predictionHTML(g) {
+    const m=predictionModel(g),live=g.state==='in';
+    return \`<div class="card prediction-card"><div class="card-head"><div><strong>\${esc(g.away.abbr)} @ \${esc(g.home.abbr)}</strong><div class="muted">\${esc(g.detail||g.state)} · \${live?'updates every refresh':'pre-game model'}</div></div><span class="\${live?'tag-live':'pill'}">\${live?'LIVE':'MODEL'}</span></div><div class="card-body"><div class="bars"><div class="bar-row"><span>\${esc(g.away.abbr)}</span><div class="bar"><span style="width:\${m.awayProb}%"></span></div><b>\${m.awayProb.toFixed(0)}%</b></div><div class="bar-row"><span>\${esc(g.home.abbr)}</span><div class="bar"><span style="width:\${m.homeProb}%"></span></div><b>\${m.homeProb.toFixed(0)}%</b></div></div><div class="muted" style="margin-top:12px">Confidence \${m.confidence.toFixed(0)}% · roster strength + home ice + live score state. Model estimate, not an official NHL probability.</div></div></div>\`;
+  }
+  function rosterAI() {
+    const r=currentRoster(),starts=r.filter(p=>!['Bench','BE','BN','IR','IR+'].includes(String(p.slot))),bench=r.filter(p=>['Bench','BE','BN'].includes(String(p.slot))),swaps=[];
+    bench.forEach(b=>{const candidates=starts.filter(a=>a.position===b.position);if(candidates.length){const weakest=candidates.sort((x,y)=>(avs(x)+(gameFor(x)?8:0))-(avs(y)+(gameFor(y)?8:0)))[0];const gain=(avs(b)+(gameFor(b)?8:0))-(avs(weakest)+(gameFor(weakest)?8:0));if(gain>2)swaps.push({in:b,out:weakest,gain});}});
+    const targets=state.players.filter(p=>String(p.fantasy_team_id)!==String(state.selectedTeam)).sort((a,b)=>(avs(b)+(gameFor(b)?6:0))-(avs(a)+(gameFor(a)?6:0))).slice(0,8);
+    return {swaps,targets};
+  }
+  function predictions() {
+    const games=state.games.slice(),ai=rosterAI();
+    $('view-predictions').innerHTML=\`<div class="hero"><div class="card"><div class="card-body"><div class="eyebrow">REALTIME MODEL</div><h1>Game Predictions & Roster AI</h1><p>Predictions refresh with the live NHL feed. The roster engine uses loaded fantasy players, game availability, projection value and opponent roster strength.</p><div class="filters"><span class="pill live">\${state.live?'Live feed active':'Waiting for live feed'}</span><span class="pill">\${games.length} games loaded</span><span class="pill">\${ai.swaps.length} lineup moves</span></div></div></div><div class="card"><div class="card-head"><span class="section-title">Roster recommendation</span><button class="btn btn-primary" id="predOptimize">Open lineup optimizer</button></div><div class="card-body">\${ai.swaps.length?ai.swaps.slice(0,4).map(x=>\`<div class="list-row"><div><strong>Start \${esc(x.in.name)}</strong><div class="muted">Bench \${esc(x.out.name)} · estimated gain +\${x.gain.toFixed(1)}</div></div><span class="pill live">START</span></div>\`).join(''):'<div class="empty">No high-confidence start/sit swap detected from loaded data.</div>'}</div></div></div><div class="grid-2" style="margin-top:16px">\${games.length?games.map(predictionHTML).join(''):'<div class="card"><div class="empty">No NHL games are available from the live feed.</div></div>'}</div><div class="card" style="margin-top:16px"><div class="card-head"><span class="section-title">Roster / trade targets</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Player</th><th>NHL</th><th>Pos</th><th>AVS</th><th>Game</th><th>Action</th></tr></thead><tbody>\${ai.targets.map(p=>\`<tr><td><div class="player-cell">\${avatar(p)}<strong>\${esc(p.name)}</strong></div></td><td>\${teamCell(p.team)}</td><td>\${esc(p.position)}</td><td class="score">\${fmt(avs(p))}</td><td>\${gameFor(p)?'<span class="tag-live">GAME</span>':'<span class="pill">OFF</span>'}</td><td><span class="pill">TRADE TARGET</span></td></tr>\`).join('')}</tbody></table></div></div>\`;
+    $('predOptimize').onclick=()=>{state.tab='rosters';render();};
+  }
 
   function rosters() {
     const r=currentRoster().slice().sort((a,b)=>projection(b)-projection(a));
@@ -200,7 +226,7 @@
   function openModal(title,body){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalBackdrop').classList.add('open');}
   function downloadCSV(rows,name){const cols=['name','team','position','slot','status','projection','ai_value_score','fantasy_team_name','fantasy_owner'];const csv=[cols.join(','),...rows.map(p=>cols.map(k=>`"${String(p[k]??'').replaceAll('"','""')}"`).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);}
 
-  function render(){nav();selector();shell();if(state.tab==='dashboard')dashboard();if(state.tab==='rosters')rosters();if(state.tab==='trades')trades();if(state.tab==='sim')sim();if(state.tab==='live')liveView();if(state.tab==='league')league();if(state.tab==='players')players();if(state.tab==='settings')settings();setStatus(state.source, state.error ? 'warn':'ok');document.body.classList.toggle('light',state.theme==='light');}
+  function render(){nav();selector();shell();if(state.tab==='dashboard')dashboard();if(state.tab==='rosters')rosters();if(state.tab==='trades')trades();if(state.tab==='sim')sim();if(state.tab==='live')liveView();if(state.tab==='predictions')predictions();if(state.tab==='league')league();if(state.tab==='players')players();if(state.tab==='settings')settings();setStatus(state.source, state.error ? 'warn':'ok');document.body.classList.toggle('light',state.theme==='light');}
   $('refreshBtn').onclick=async()=>{await loadFantasy();await loadLive();render();}; $('themeBtn').onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';persist();render();}; $('mobileMenu').onclick=()=>$('sidebar').classList.toggle('open'); $('modalClose').onclick=()=>$('modalBackdrop').classList.remove('open'); $('modalBackdrop').onclick=e=>{if(e.target.id==='modalBackdrop')e.currentTarget.classList.remove('open');};
 
   (async function boot(){
