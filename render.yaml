@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: hockey-ai-pro-jamezboi
+    runtime: python
+    plan: free
+    rootDir: fantasy-hockey/backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: ALLOWED_ORIGINS
+        value: https://jamezboi.github.io
+      - key: LEAGUE_ID
+        value: "760495843"
+      - key: ESPN_FANTASY_SEASON
+        value: "2027"
+      - key: ESPN_S2
+        sync: false
+      - key: SWID
+        sync: false
