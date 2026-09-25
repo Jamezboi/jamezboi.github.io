@@ -1,39 +1,36 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#080c14">
-  <meta name="description" content="Hockey AI Pro — fantasy hockey roster intelligence, trade analysis, simulation and live performance.">
-  <title>Hockey AI Pro</title>
-  <link rel="stylesheet" href="./assets/app.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236d7cff'/%3E%3Ccircle cx='32' cy='32' r='20' fill='none' stroke='white' stroke-width='5'/%3E%3Ccircle cx='25' cy='32' r='3' fill='white'/%3E%3Cpath d='M39 21l10 22M37 46 23 18' stroke='white' stroke-width='4'/%3E%3C/svg%3E">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080c14">
+<meta name="description" content="Hockey AI Pro — fantasy hockey roster intelligence, trade analysis, simulation and live performance.">
+<title>Hockey AI Pro</title>
+<link rel="stylesheet" href="./assets/app.css?v=6103">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236d7cff'/%3E%3Ccircle cx='32' cy='32' r='20' fill='none' stroke='white' stroke-width='5'/%3E%3Ccircle cx='25' cy='32' r='3' fill='white'/%3E%3Cpath d='M39 21l10 22M37 46 23 18' stroke='white' stroke-width='4'/%3E%3C/svg%3E">
 </head>
 <body>
 <div class="app-shell">
-  <aside class="sidebar" id="sidebar">
-    <div class="brand"><div class="brand-badge" id="brandIcon"></div><div><div class="brand-title">HOCKEY AI <span style="color:#7f8cff">PRO</span></div><div class="brand-sub">Fantasy intelligence · release build</div></div></div>
-    <nav class="nav" id="nav"></nav>
-    <div class="sidebar-bottom"><div class="status-mini"><div style="display:flex;align-items:center;gap:8px"><span class="dot ok" id="statusDot"></span><strong id="statusText">Demo engine ready</strong></div><div class="muted" style="font-size:11px;margin-top:7px" id="statusSub">Local data + live NHL feeds</div></div></div>
-  </aside>
-  <main class="main">
-    <header class="topbar"><button class="icon-btn mobile-menu" id="mobileMenu" title="Menu"></button><div class="page-title" id="pageTitle">Dashboard</div><div class="toolbar"><select class="select team-select" id="teamSelect" aria-label="Team"></select><button class="icon-btn" id="refreshBtn" title="Refresh"></button><button class="icon-btn" id="themeBtn" title="Theme"></button></div></header>
-    <div class="content">
-      <section class="view active" id="view-dashboard"></section>
-      <section class="view" id="view-rosters"></section>
-      <section class="view" id="view-trades"></section>
-      <section class="view" id="view-sim"></section>
-      <section class="view" id="view-live"></section>
-      <section class="view" id="view-league"></section>
-      <section class="view" id="view-players"></section>
-      <section class="view" id="view-settings"></section>
-    </div>
-  </main>
-</div>
+<aside class="sidebar" id="sidebar">
+<div class="brand"><div class="brand-badge" id="brandIcon"></div><div><div class="brand-title">HOCKEY AI <span style="color:#7f8cff">PRO</span></div><div class="brand-sub">Fantasy intelligence · release build</div></div></div>
+<nav class="nav" id="nav"></nav>
+<div class="sidebar-bottom"><div class="status-mini"><div style="display:flex;align-items:center;gap:8px"><span class="dot ok" id="statusDot"></span><strong id="statusText">Demo engine ready</strong></div><div class="muted" style="font-size:11px;margin-top:7px" id="statusSub">Local data + live NHL feeds</div></div></div>
+</aside>
+<main class="main">
+<header class="topbar"><button class="icon-btn mobile-menu" id="mobileMenu" title="Menu"></button><div class="page-title" id="pageTitle">Dashboard</div><div class="toolbar"><select class="select team-select" id="teamSelect" aria-label="Team"></select><button class="icon-btn" id="refreshBtn" title="Refresh"></button><button class="icon-btn" id="themeBtn" title="Theme"></button></div></header>
+<div class="content">
+<section class="view active" id="view-dashboard"></section>
+<section class="view" id="view-rosters"></section>
+<section class="view" id="view-trades"></section>
+<section class="view" id="view-sim"></section>
+<section class="view" id="view-live"></section>
+<section class="view" id="view-league"></section>
+<section class="view" id="view-players"></section>
+<section class="view" id="view-settings"></section>
+</div></main></div>
 <div class="modal-backdrop" id="modalBackdrop"><div class="modal"><div class="card-head"><strong id="modalTitle">Details</strong><button class="icon-btn" id="modalClose"></button></div><div class="modal-body" id="modalBody"></div></div></div>
-<script src="./config.js"></script>
-<script src="./assets/data.js"></script>
-<script src="./assets/icons.js"></script>
-<script src="./assets/app.js"></script>
-</body>
-</html>
+<script src="./config.js?v=6103"></script>
+<script src="./assets/data.js?v=6103"></script>
+<script src="./assets/icons.js?v=6103"></script>
+<script src="./assets/app.js?v=6103"></script>
+</body></html>
