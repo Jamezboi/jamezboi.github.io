@@ -487,8 +487,12 @@ function buildQ(id,u,used){
    items=shuffle(coordChoices(a));correct=items.indexOf(a);
    choiceHTML=items.map(g=>ptH(g));
  }else if(type==='cos'||type==='sin'){
+   /* FIX: map the question type to the data key — cos→x, sin→y.
+      (Previously passed 'cos'/'sin' straight through, so a[type] was
+      undefined and neg(undefined) crashed.) */
+   const w=type==='cos'?'x':'y';
    prompt=`What is <b class="m">${type}(${a.rad})</b>?`;
-   items=shuffle(valueChoices(a,type));correct=items.indexOf(a[type]);
+   items=shuffle(valueChoices(a,w));correct=items.indexOf(a[w]);
    choiceHTML=items.map(v=>fmt(v));
  }else if(type==='ang'){
    prompt=`Which angle lands on <b>${ptH(a)}</b>?`;
@@ -529,11 +533,18 @@ function startRound(u){
  Q={u,total:list.length,list,queue:list.map(q=>q.id),cur:null,firstCorrect:0,streak:0,bestStreak:0,answered:false,timer:null};
  nextQ();
 }
+/* FIX: guard against a dead session (user exited mid-round while the
+   auto-advance timer was pending) */
 function nextQ(){
+ if(!Q)return;
  clearTimeout(Q.timer);
  if(!Q.queue.length)return finish();
  Q.cur=Q.queue.shift();Q.answered=false;
  renderQuiz();
+}
+/* FIX: clean teardown whenever a round is abandoned */
+function stopQuiz(){
+ if(Q){clearTimeout(Q.timer);Q=null;}
 }
 function dotHTML(d){
  let c='dot';
@@ -549,7 +560,7 @@ function renderQuiz(){
    <div class="qtop">
      <button class="btn ghost sm" id="quit">✕ Exit</button>
      <div class="qtitle">Unit ${Q.u} · ${UNITS[Q.u-1].name}</div>
-     <div class="chipHud">🔥 ${Q.streak}</div>
+     <div class="chipHud" id="streakHud">🔥 ${Q.streak}</div>
      <div class="chipHud" id="scoreHud">✓ ${Q.firstCorrect}/${Q.total}</div>
    </div>
    <div class="dots">${Q.list.map(d=>dotHTML(d)).join('')}<span class="left">${Q.queue.length+(Q.answered?0:1)} to go</span></div>
@@ -564,17 +575,18 @@ function renderQuiz(){
    </div>
    <div class="fb" id="fb"></div>
  </div>`;
- $('#quit').onclick=()=>{if(confirm('Leave this round? It won’t count.'))go('home');};
+ $('#quit').onclick=()=>{if(confirm('Leave this round? It won’t count.')){stopQuiz();go('home');}};
  $$('#choices .choice').forEach(b=>b.onclick=()=>answer(+b.dataset.i));
 }
 function refreshHUD(){
  $('#scoreHud').textContent=`✓ ${Q.firstCorrect}/${Q.total}`;
+ const sh=$('#streakHud');if(sh)sh.textContent=`🔥 ${Q.streak}`;   /* FIX: streak now updates live */
  const ds=$$('.dots .dot');
  Q.list.forEach((d,i)=>{ds[i].className='dot'+(d.id===Q.cur?' cur':'')+(d.first===true?' ok':d.first===false?(d.cleared?' ok2':' retry'):'');});
  $('.dots .left').textContent=`${Q.queue.length+(Q.answered?0:1)} to go`;
 }
 function answer(i){
- if(Q.answered)return;Q.answered=true;
+ if(!Q||Q.answered)return;Q.answered=true;
  const q=Q.list[Q.cur];
  $('#choices').classList.add('lock');
  const btns=$$('#choices .choice');
@@ -605,13 +617,16 @@ function showFB(ok,q){
  $('#nextBtn').onclick=()=>{clearTimeout(Q.timer);nextQ();};
 }
 function finish(){
+ if(!Q)return;
  const N=Q.total,fc=Q.firstCorrect,s=Math.round(100*fc/N);
  const rec=save.m[Q.u];rec.att++;
  let masteredNow=false;const perfect=s===100;
  if(perfect){rec.p=Math.min(9,rec.p+1);if(rec.p>=2&&!rec.mastered){rec.mastered=true;masteredNow=true;}}
  rec.best=Math.max(rec.best,s);persist();
- renderResults({u:Q.u,s,N,fc,streak:Q.bestStreak,slips:N-fc,perfect,masteredNow,p:rec.p,mastered:rec.mastered});
- if(masteredNow){sndWin();confetti(1.5);if(Q.u<5)setTimeout(()=>toast(`🔓 Unit ${Q.u+1} unlocked!`),600);}
+ const r={u:Q.u,s,N,fc,streak:Q.bestStreak,slips:N-fc,perfect,masteredNow,p:rec.p,mastered:rec.mastered};
+ stopQuiz();                                    /* FIX: session fully closed */
+ renderResults(r);
+ if(masteredNow){sndWin();confetti(1.5);if(r.u<5)setTimeout(()=>toast(`🔓 Unit ${r.u+1} unlocked!`),600);}
  else if(perfect){sndWin();confetti(.8);}
 }
 function animateNum(el,to,dur){const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);el.textContent=Math.round(to*e)+'%';if(k<1)requestAnimationFrame(f);})(t0);}
@@ -787,11 +802,14 @@ function renderDetail(id){
 }
 function select(id){
  selId=id;
- const ids=UNITS[learnU-1].angles,k=ids.indexOf(id);if(k>=0)selIdx=k;
+ const ids=UNITS[learnU-1].angles,k=ids.indexOf(id);
+ if(k>=0)selIdx=k;
  $$('#chart .pt').forEach(g=>g.classList.toggle('sel',g.dataset.ids.split(' ').includes(id)));
  renderDetail(id);
  aimRay(byId[id].deg,false);
- const nn=$('#navLbl');if(nn)nn.textContent=`${selIdx+1}/${ids.length}`;
+ /* FIX: only move the counter when the picked point belongs to the
+    current unit (dimmed points from earlier units keep their label) */
+ const nn=$('#navLbl');if(nn&&k>=0)nn.textContent=`${selIdx+1}/${ids.length}`;
 }
 function renderLearn(u){
  view={name:'learn',u};
