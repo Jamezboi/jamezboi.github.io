@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Circle, by Heart — Radian Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@1,500;1,600;1,700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070b16; --panel:rgba(255,255,255,.045); --panel2:rgba(255,255,255,.08);
+  --line:rgba(255,255,255,.1); --txt:#eef2ff; --dim:#8f9cbf;
+  --cyan:#22d3ee; --amber:#fbbf24; --pink:#f472b6; --violet:#a78bfa;
+  --green:#34d399; --red:#f87171; --sky:#38bdf8; --rose:#fb7185;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Space Grotesk',system-ui,sans-serif;color:var(--txt);min-height:100vh;
+  background:
+    radial-gradient(900px 600px at 85% -10%, rgba(167,139,250,.15), transparent 60%),
+    radial-gradient(800px 500px at -10% 110%, rgba(34,211,238,.12), transparent 60%),
+    var(--bg);
+}
+#app{min-height:100vh}
+.screen{max-width:1100px;margin:0 auto;padding:26px 20px 90px;animation:fadeUp .45s ease both}
+.m{font-family:'Spectral',Georgia,serif;font-style:italic;font-weight:600}
+.ov{text-decoration:overline;text-decoration-thickness:1.5px}
+.cx{color:var(--sky);font-weight:600}.cy{color:var(--rose);font-weight:600}
+.dimline{color:var(--dim);font-size:14px;margin-top:10px;line-height:1.8}
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;justify-content:center;font:600 15px 'Space Grotesk';padding:11px 18px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);cursor:pointer;transition:.18s}
+.btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.28)}
+.btn.primary{background:linear-gradient(135deg,#22d3ee,#a78bfa);border:none;color:#071019;box-shadow:0 6px 24px rgba(124,58,237,.35)}
+.btn.primary:hover{filter:brightness(1.1)}
+.btn.ghost{background:transparent}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:9px}
+.iconbtn{position:fixed;top:14px;right:14px;z-index:50;width:42px;height:42px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-size:17px;cursor:pointer;backdrop-filter:blur(6px)}
+.linkbtn{background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;text-decoration:underline dotted}
+/* ---------- cards ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px 22px}
+/* ---------- home ---------- */
+.hero{display:grid;grid-template-columns:1fr 300px;gap:26px;align-items:center;margin-top:8px}
+@media(max-width:800px){.hero{grid-template-columns:1fr}}
+h1.title{font-size:clamp(34px,6vw,54px);font-weight:700;line-height:1.05;background:linear-gradient(120deg,#e8ecf8,#a78bfa 55%,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+.subtitle{color:var(--dim);margin-top:14px;font-size:16.5px;max-width:54ch;line-height:1.65}
+.heroBtns{margin-top:22px}
+.miniCard svg{width:100%;max-width:280px;display:block;margin:0 auto}
+.miniCap{text-align:center;color:var(--dim);font-size:12.5px;margin-top:10px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+@media(max-width:800px){.steps{grid-template-columns:1fr}}
+.step p{color:var(--dim);font-size:14px;margin-top:8px;line-height:1.6}
+.stepN{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:700;background:linear-gradient(135deg,#22d3ee,#a78bfa);color:#071019;margin-bottom:10px}
+.unitsHead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:38px;flex-wrap:wrap}
+.unitsHead h2{font-size:22px}
+.pwrap{display:flex;flex-direction:column;gap:6px;min-width:210px;font-size:13px;color:var(--dim);text-align:right}
+.pbar{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.pfill{height:100%;background:linear-gradient(90deg,#22d3ee,#a78bfa);border-radius:99px;transition:width 1s}
+.unitcard{width:100%;display:flex;align-items:center;gap:18px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px;color:var(--txt);cursor:pointer;transition:.18s;margin-top:14px;font-family:'Space Grotesk'}
+.unitcard:hover{transform:translateY(-2px);border-color:rgba(167,139,250,.55);background:var(--panel2)}
+.unitcard.locked{opacity:.55;cursor:not-allowed}
+.unitcard.locked:hover{transform:none;border-color:var(--line)}
+.unitcard.mastered{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.05)}
+.unitcard.shakeit{animation:shake .4s}
+.unum{font-size:30px;font-weight:700;background:linear-gradient(135deg,#22d3ee,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;min-width:34px}
+.uname{font-weight:700;font-size:17px}
+.utag{color:var(--dim);font-weight:500;font-size:13.5px;margin-left:8px}
+.uchips{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.chip{font-family:'Spectral',serif;font-style:italic;font-weight:600;font-size:14px;padding:2px 9px;border-radius:8px;border:1px solid currentColor}
+.ustat{margin-left:auto;text-align:right;flex-shrink:0}
+.stars{color:var(--amber);font-size:19px;letter-spacing:3px}
+.ustat small{display:block;color:var(--dim);font-size:11.5px;margin-top:4px}
+.mbadge{color:var(--amber);font-weight:700;font-size:13px}
+.foot{margin-top:30px;text-align:center;color:var(--dim);font-size:12.5px}
+.foot .linkbtn{margin-left:12px}
+/* ---------- shared top bars ---------- */
+.qtop{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.qtitle{font-weight:700;font-size:17px}
+.chipHud{padding:7px 13px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);font-size:13.5px;font-weight:600;color:var(--dim)}
+#scoreHud{margin-left:auto;color:var(--green)}
+/* ---------- quiz ---------- */
+.dots{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.dot{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.12);transition:.2s}
+.dot.cur{box-shadow:0 0 0 3px rgba(255,255,255,.22);background:rgba(255,255,255,.4)}
+.dot.ok{background:var(--green)}
+.dot.ok2{background:var(--amber)}
+.dot.retry{background:var(--amber);animation:pulseA 1s infinite}
+.left{margin-left:auto;color:var(--dim);font-size:13px}
+.qcard{display:grid;grid-template-columns:320px 1fr;gap:26px;margin-top:18px;user-select:none}
+@media(max-width:860px){.qcard{grid-template-columns:1fr}}
+.qfig .fig{width:100%;max-width:320px;display:block;margin:0 auto}
+.qtype{font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.reask{font-size:11px;color:var(--amber);border:1px solid rgba(251,191,36,.5);border-radius:99px;padding:2px 8px;margin-left:8px;letter-spacing:.05em;text-transform:none}
+.qprompt{font-size:clamp(20px,3vw,27px);font-weight:600;margin-top:10px;line-height:1.35}
+.qhint{margin-top:10px;color:var(--dim);font-size:14px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+@media(max-width:640px){.choices{grid-template-columns:1fr}}
+.choice{display:flex;align-items:center;gap:12px;padding:15px 16px;border-radius:14px;border:1.5px solid var(--line);background:rgba(255,255,255,.035);color:var(--txt);cursor:pointer;transition:.16s;font-size:19px;text-align:left}
+.choice .k{flex:0 0 24px;height:24px;border-radius:7px;display:grid;place-items:center;font:600 12px 'Space Grotesk';color:var(--dim);border:1px solid var(--line)}
+.choice:hover{border-color:rgba(167,139,250,.7);background:rgba(167,139,250,.08);transform:translateY(-2px)}
+.choices.lock .choice{pointer-events:none}
+.choice.right{border-color:var(--green);background:rgba(52,211,153,.13);box-shadow:0 0 22px rgba(52,211,153,.22)}
+.choice.right .k{color:var(--green);border-color:var(--green)}
+.choice.wrong{border-color:var(--red);background:rgba(248,113,113,.12);animation:shake .4s}
+.choice.reveal{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.fb{margin-top:18px}
+.fbin{animation:fadeUp .3s ease both;border-radius:16px;padding:18px 20px;border:1px solid var(--line)}
+.fbin.good{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.4)}
+.fbin.bad{background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.4)}
+.fbh{font-weight:700;font-size:17px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fico{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.good .fico{background:var(--green);color:#04120b}.bad .fico{background:var(--red);color:#2a0707}
+.fbx{margin:12px 0 16px;color:#cdd6ee;font-size:15.5px;line-height:1.7}
+/* ---------- learn ---------- */
+.lgrid{display:grid;grid-template-columns:440px 1fr;gap:22px;margin-top:18px;align-items:start}
+@media(max-width:960px){.lgrid{grid-template-columns:1fr}}
+.lleft{position:sticky;top:16px}
+@media(max-width:960px){.lleft{position:static}}
+.chartHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+#chart svg{width:100%;height:auto;display:block}
+.chartNav{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:10px}
+.navLbl{color:var(--dim);font-size:13px;min-width:36px;text-align:center}
+.detailCard{margin-top:16px}
+.dhead{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.famchip{font-size:12.5px;font-weight:600;border:1px solid;border-radius:99px;padding:3px 10px}
+.degchip{color:var(--dim);font-size:13px}
+.dbig{font-size:34px;margin:10px 0 4px}
+.drow{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.03);margin-top:8px;font-size:16px}
+.drow b{font-family:'Spectral',serif;font-style:italic;font-size:19px}
+.drow.x b{color:var(--sky)}.drow.y b{color:var(--rose)}
+.dpt{margin-top:12px;font-size:19px}
+.dtip{margin-top:12px;color:#c6cfe8;font-size:14.5px;line-height:1.65;border-top:1px dashed var(--line);padding-top:12px}
+.teach{margin-bottom:16px;animation:fadeUp .5s ease both}
+.teach h3{font-size:17px;margin-bottom:10px}
+.teach p{color:#c6cfe8;font-size:15px;line-height:1.7}
+.tris{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 12px}
+@media(max-width:520px){.tris{grid-template-columns:1fr}}
+.tri{width:100%;height:auto}
+.tl{font-family:'Spectral',serif;font-style:italic;font-size:13px;fill:#e8ecf8;paint-order:stroke;stroke:#070b16;stroke-width:3px}
+.dim2{fill:#8f9cbf;font-size:11px}
+.ladder{border-collapse:collapse;width:100%;margin:6px 0 12px}
+.ladder th{color:var(--dim);font-weight:500;text-align:left;padding:7px 10px 7px 0;font-size:14px}
+.ladder td{padding:7px 8px;font-size:15.5px;text-align:center;border-left:1px solid var(--line)}
+.ladder tr.sin td{color:var(--rose)}.ladder tr.cos td{color:var(--sky)}
+.ladder tr.sin th{color:var(--rose)}.ladder tr.cos th{color:var(--sky)}
+.mtable{width:100%;border-collapse:collapse;margin:8px 0 12px}
+.mtable td{padding:9px 10px;border-bottom:1px solid var(--line);font-size:15.5px}
+.mtable .hd td{color:var(--dim);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.mtable .arr{text-align:center;color:var(--violet)}
+.astc{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:360px;margin:8px 0 12px}
+.astq{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:14px;color:var(--dim)}
+.astq.on{border-color:var(--amber);color:var(--txt);background:rgba(251,191,36,.09)}
+/* ---------- results ---------- */
+.resWrap{max-width:640px;margin:26px auto;text-align:center}
+.gauge{width:190px;margin:0 auto}
+.gnum{fill:#eef2ff;font:700 34px 'Space Grotesk'}
+.gsub{fill:#8f9cbf;font:500 11px 'Space Grotesk';letter-spacing:.14em}
+.resTitle{font-size:30px;margin-top:18px}
+.resStars{font-size:34px;color:var(--amber);letter-spacing:8px;margin:14px 0 4px}
+.resCap{color:var(--dim);font-size:13px}
+.resSub{color:#c6cfe8;margin-top:16px;line-height:1.7;font-size:15.5px}
+.statchips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.statchip{padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--panel);font-size:14px;color:var(--dim)}
+.resBtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+/* ---------- svg bits ---------- */
+.ax{stroke:rgba(255,255,255,.22);stroke-width:1.5}
+.arrow{fill:rgba(255,255,255,.35)}
+.ring{fill:rgba(255,255,255,.015);stroke:rgba(255,255,255,.16);stroke-width:1.5}
+.lbl{font-family:'Spectral',serif;font-style:italic;font-weight:600;font-size:17px;paint-order:stroke;stroke:#070b16;stroke-width:4px;stroke-linejoin:round}
+.coord{font-family:'Spectral',serif;font-style:italic;font-size:11.5px;paint-order:stroke;stroke:#070b16;stroke-width:3.5px}
+.qn text{fill:rgba(255,255,255,.09);font-family:'Spectral',serif;font-style:italic;font-size:20px}
+.axlbl{fill:rgba(255,255,255,.3);font-family:'Spectral',serif;font-style:italic;font-size:12px;paint-order:stroke;stroke:#070b16;stroke-width:3px}
+.ray{stroke:#a78bfa;stroke-width:2.6;stroke-linecap:round;opacity:.95}
+.arcp{stroke:#a78bfa;stroke-width:2.6;fill:none;stroke-linecap:round;opacity:.85}
+.pt{cursor:pointer}
+.pt .halo{opacity:0;transition:.22s}
+.pt:hover .halo{opacity:.5}
+.pt.sel .halo{opacity:1}
+.fig .rayV{stroke:#a78bfa;stroke-width:2.4;stroke-linecap:round}
+.fig .arcV{stroke:#a78bfa;stroke-width:2.2;fill:none;stroke-linecap:round;opacity:.9}
+.fig .proj{stroke-dasharray:4 5;stroke-width:2}
+.fig .proj.x{stroke:var(--sky)}.fig .proj.y{stroke:var(--rose)}
+.fig .pl{font-family:'Spectral',serif;font-style:italic;font-weight:600;font-size:14px;paint-order:stroke;stroke:#070b16;stroke-width:3.5px}
+.fig .pl.x{fill:var(--sky)}.fig .pl.y{fill:var(--rose)}
+.fig .qm{fill:#eef2ff;font:700 12px 'Space Grotesk'}
+.qdot{animation:pop .3s ease both}
+/* ---------- fx ---------- */
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--panel2);border:1px solid var(--line);backdrop-filter:blur(8px);padding:12px 20px;border-radius:14px;font-weight:600;opacity:0;transition:.3s;z-index:60;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%)}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:70;display:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+@keyframes pop{from{transform:scale(.5);opacity:0}}
+@keyframes pulseA{50%{box-shadow:0 0 0 5px rgba(251,191,36,.25)}}
+</style>
+</head>
+<body>
+<button id="muteBtn" class="iconbtn" title="Toggle sound">🔊</button>
+<div id="app"></div>
+<div id="toast"></div>
+<canvas id="fx"></canvas>
+
+<script>
+'use strict';
+/* ================================================================
+   DATA — the 17 labelled stops on the circle (0 and 2π are twins)
+================================================================ */
+const ANGLES=[
+ {id:'0',   rad:'0',     deg:0,   unit:1, x:'1',     y:'0',      fam:'axis', quad:0, ref:'0',  partner:null,
+  tip:'The starting line — face east. One full step right, none up.',
+  find:'x = 1, y = 0 — you are standing on the starting line: θ = 0.'},
+ {id:'p6',  rad:'π/6',   deg:30,  unit:1, x:'√3/2',  y:'1/2',    fam:'6', quad:1, ref:'π/6', partner:'p6',
+  tip:'First stop, 30° up. Gentle slope: big run (√3/2), small rise (1/2). Count: one π/6.',
+  find:'(√3/2, 1/2): x is the big one → the gentle 30° slope. First stop of the 6-family: θ = π/6.'},
+ {id:'p4',  rad:'π/4',   deg:45,  unit:1, x:'√2/2',  y:'√2/2',   fam:'4', quad:1, ref:'π/4', partner:'p4',
+  tip:'Halfway up the quadrant — the perfect diagonal. Both coordinates are √2/2 (from the 1-1-√2 triangle, shrunk to hypotenuse 1).',
+  find:'Both coordinates equal and positive → Q1’s perfect diagonal: θ = π/4.'},
+ {id:'p3',  rad:'π/3',   deg:60,  unit:1, x:'1/2',   y:'√3/2',   fam:'3', quad:1, ref:'π/3', partner:'p3',
+  tip:'60° — steep. The exact mirror of π/6 with the pair swapped: (1/2, √3/2).',
+  find:'(1/2, √3/2): x is the small one → the steep 60° slope: θ = π/3.'},
+ {id:'p2',  rad:'π/2',   deg:90,  unit:1, x:'0',     y:'1',      fam:'axis', quad:0, ref:'0',  partner:null,
+  tip:'Top of the world: a quarter turn, pointing north. (0, 1).',
+  find:'x = 0, y = 1 — the top of the circle: θ = π/2.'},
+ {id:'2p3', rad:'2π/3',  deg:120, unit:2, x:'-1/2',  y:'√3/2',   fam:'3', quad:2, ref:'π/3', partner:'p3',
+  tip:'π − π/3. It’s π/3 reflected in the y-axis: same y, x turns negative.',
+  find:'y big and positive, x small and negative → Q2, steep: θ = 2π/3 (π/3’s mirror).'},
+ {id:'3p4', rad:'3π/4',  deg:135, unit:2, x:'-√2/2', y:'√2/2',   fam:'4', quad:2, ref:'π/4', partner:'p4',
+  tip:'Q2’s diagonal: magnitudes equal, x negative. 3π/4 is π/4 mirrored.',
+  find:'Equal magnitudes, x negative, y positive → Q2’s diagonal: θ = 3π/4.'},
+ {id:'5p6', rad:'5π/6',  deg:150, unit:2, x:'-√3/2', y:'1/2',    fam:'6', quad:2, ref:'π/6', partner:'p6',
+  tip:'Only 30° short of π. π/6 mirrored: (−√3/2, 1/2).',
+  find:'x big and negative, y small and positive → Q2, gentle: θ = 5π/6 (π/6’s mirror).'},
+ {id:'pi',  rad:'π',     deg:180, unit:2, x:'-1',    y:'0',      fam:'axis', quad:0, ref:'0',  partner:null,
+  tip:'Half turn — dead west. cos π = −1, sin π = 0.',
+  find:'x = −1, y = 0 — dead west: θ = π.'},
+ {id:'7p6', rad:'7π/6',  deg:210, unit:3, x:'-√3/2', y:'-1/2',   fam:'6', quad:3, ref:'π/6', partner:'p6',
+  tip:'π/6 past π. Pull π/6 through the origin: both signs flip.',
+  find:'Both negative, |x| big → Q3, gentle: θ = 7π/6 (π/6 pulled through the origin).'},
+ {id:'5p4', rad:'5π/4',  deg:225, unit:3, x:'-√2/2', y:'-√2/2',  fam:'4', quad:3, ref:'π/4', partner:'p4',
+  tip:'Q3’s diagonal: both coordinates −√2/2. Diagonals are easy — equal magnitudes, signs from the quadrant.',
+  find:'Both equal −√2/2 → Q3’s diagonal: θ = 5π/4.'},
+ {id:'4p3', rad:'4π/3',  deg:240, unit:3, x:'-1/2',  y:'-√3/2',  fam:'3', quad:3, ref:'π/3', partner:'p3',
+  tip:'π/3 past π: (−1/2, −√3/2).',
+  find:'Both negative, |y| big → Q3, steep: θ = 4π/3 (π/3 past π).'},
+ {id:'3p2', rad:'3π/2',  deg:270, unit:3, x:'0',     y:'-1',     fam:'axis', quad:0, ref:'0',  partner:null,
+  tip:'Straight down: (0, −1).',
+  find:'x = 0, y = −1 — the bottom of the circle: θ = 3π/2.'},
+ {id:'5p3', rad:'5π/3',  deg:300, unit:4, x:'1/2',   y:'-√3/2',  fam:'3', quad:4, ref:'π/3', partner:'p3',
+  tip:'2π − π/3: π/3 flipped below the x-axis. x stays positive.',
+  find:'x small and positive, y big and negative → Q4, steep: θ = 5π/3 (π/3 short of 2π).'},
+ {id:'7p4', rad:'7π/4',  deg:315, unit:4, x:'√2/2',  y:'-√2/2',  fam:'4', quad:4, ref:'π/4', partner:'p4',
+  tip:'Q4’s diagonal: (√2/2, −√2/2).',
+  find:'Equal magnitudes, x positive, y negative → Q4’s diagonal: θ = 7π/4.'},
+ {id:'11p6',rad:'11π/6', deg:330, unit:4, x:'√3/2',  y:'-1/2',   fam:'6', quad:4, ref:'π/6', partner:'p6',
+  tip:'π/6 before the full turn: (√3/2, −1/2). Same as winding back −π/6.',
+  find:'x big and positive, y small and negative → Q4, gentle: θ = 11π/6 (π/6 before the full turn).'},
+ {id:'2pi', rad:'2π',    deg:360, unit:4, x:'1',     y:'0',      fam:'axis', quad:0, ref:'0',  partner:null,
+  tip:'Full turn — you’re back at the start. 0 and 2π name the same point.',
+  find:'x = 1, y = 0 — back at the start after a full turn: θ = 2π.'},
+];
+const UNITS=[
+ {n:1,name:'First Quadrant', tag:'The Foundation',    angles:['0','p6','p4','p3','p2']},
+ {n:2,name:'Second Quadrant',tag:'The y-axis Mirror', angles:['2p3','3p4','5p6','pi']},
+ {n:3,name:'Third Quadrant', tag:'Through the Origin',angles:['7p6','5p4','4p3','3p2']},
+ {n:4,name:'Fourth Quadrant',tag:'The x-axis Mirror', angles:['5p3','7p4','11p6','2pi']},
+ {n:5,name:'Full Circle',    tag:'Boss Level',        angles:ANGLES.map(a=>a.id)},
+];
+const FAMCOLOR={axis:'#aab5d3','6':'#22d3ee','4':'#fbbf24','3':'#f472b6'};
+const FAMNAME={axis:'Axis point','6':'π/6 family (30°)','4':'π/4 family (45°)','3':'π/3 family (60°)'};
+const QR=['','I','II','III','IV'];
+
+/* ================================================================
+   STATE + HELPERS
+================================================================ */
+const KEY='unitCircleRad_master_v1';
+function defaultSave(){const m={};for(let i=1;i<=5;i++)m[i]={p:0,best:0,att:0,mastered:false};return{m,muted:false};}
+let save;
+try{save=JSON.parse(localStorage.getItem(KEY));if(!save||!save.m)save=defaultSave();}catch(e){save=defaultSave();}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(save));}catch(e){}}
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const byId={},byVal={};
+ANGLES.forEach(a=>{byId[a.id]=a;const k=a.x+'|'+a.y;if(!(k in byVal))byVal[k]=a;});
+const shuffle=arr=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const neg=v=>v==='0'?'0':(v.startsWith('-')?v.slice(1):'-'+v);
+const abs=v=>v.startsWith('-')?v.slice(1):v;
+function fmt(v){const n=v.startsWith('-');let s=n?v.slice(1):v;const m=s.match(/^√([^/]+)(\/\d+)?$/);if(m)s=`√<span class="ov">${m[1]}</span>${m[2]||''}`;return(n?'−':'')+s;}
+const svgVal=v=>v.replace(/^-/,'−');
+const ptH=a=>`(<span class="cx">${fmt(a.x)}</span>, <span class="cy">${fmt(a.y)}</span>)`;
+
+const app=document.getElementById('app');
+let view={name:'home'}, Q=null, learnU=0, selIdx=0, selId=null, revealAll=false;
+
+/* ================================================================
+   SVG BUILDERS
+================================================================ */
+const LBL={
+ '0':{x:338,y:226,a:'middle'},'p6':{x:346,y:120,a:'start'},'p4':{x:324,y:74,a:'start'},'p3':{x:292,y:46,a:'start'},
+ 'p2':{x:200,y:28,a:'middle'},'2p3':{x:108,y:46,a:'end'},'3p4':{x:76,y:74,a:'end'},'5p6':{x:54,y:120,a:'end'},
+ 'pi':{x:64,y:226,a:'middle'},'7p6':{x:54,y:282,a:'end'},'5p4':{x:76,y:330,a:'end'},'4p3':{x:108,y:358,a:'end'},
+ '3p2':{x:200,y:378,a:'middle'},'5p3':{x:292,y:358,a:'start'},'7p4':{x:324,y:330,a:'start'},'11p6':{x:346,y:282,a:'start'},
+ '2pi':{x:338,y:174,a:'middle'}
+};
+function markerAt(cx,cy,col,fam){
+ if(fam==='axis')return `<circle cx="${cx}" cy="${cy}" r="5.4" fill="#0a0f1e" stroke="${col}" stroke-width="2.4"/>`;
+ if(fam==='4')return `<rect x="${cx-4.6}" y="${cy-4.6}" width="9.2" height="9.2" fill="${col}" transform="rotate(45 ${cx} ${cy})"/>`;
+ if(fam==='3')return `<path d="M ${cx} ${cy-6.6} L ${cx+6} ${cy+4.4} L ${cx-6} ${cy+4.4} Z" fill="${col}"/>`;
+ return `<circle cx="${cx}" cy="${cy}" r="5.8" fill="${col}"/>`;
+}
+function arcPath(cx,cy,r,deg){
+ if(deg<=0.01)return'';
+ if(deg>=359.99)return `M ${cx+r} ${cy} A ${r} ${r} 0 1 0 ${cx-r} ${cy} A ${r} ${r} 0 1 0 ${cx+r} ${cy}`;
+ const e={x:cx+r*Math.cos(deg*Math.PI/180),y:cy-r*Math.sin(deg*Math.PI/180)};
+ return `M ${cx+r} ${cy} A ${r} ${r} 0 ${deg>180?1:0} 0 ${e.x.toFixed(1)} ${e.y.toFixed(1)}`;
+}
+/* interactive / decorative learn chart (viewBox 400, center 200, r 130) */
+function chartSVG({u=null,mini=false,reveal=false}={}){
+ let vis,brightIds;
+ if(mini){
+   brightIds=new Set();
+   for(let i=1;i<=5;i++)if(save.m[i].mastered)UNITS[i-1].angles.forEach(id=>brightIds.add(id));
+   const nextU=[1,2,3,4,5].find(i=>!save.m[i].mastered);
+   const dimIds=nextU?new Set(UNITS[nextU-1].angles):new Set();
+   vis=ANGLES.filter(a=>brightIds.has(a.id)||dimIds.has(a.id));
+ }else{
+   brightIds=new Set(UNITS[u-1].angles);
+   vis=ANGLES.filter(a=>a.unit<=u);
+ }
+ const pts={};vis.forEach(a=>{const k=a.deg%360;(pts[k]=pts[k]||[]).push(a);});
+ let s=`<svg viewBox="0 0 400 400" class="csvg">`;
+ s+=`<g class="qn"><text x="285" y="122">I</text><text x="115" y="122">II</text><text x="115" y="286">III</text><text x="285" y="286">IV</text></g>`;
+ s+=`<line class="ax" x1="36" y1="200" x2="364" y2="200"/><line class="ax" x1="200" y1="36" x2="200" y2="364"/>`;
+ s+=`<polygon class="arrow" points="364,200 355,196 355,204"/><polygon class="arrow" points="200,36 196,45 204,45"/><polygon class="arrow" points="36,200 45,196 45,204"/><polygon class="arrow" points="200,364 196,355 204,355"/>`;
+ s+=`<circle class="ring" cx="200" cy="200" r="130"/><circle cx="200" cy="200" r="2.5" fill="rgba(255,255,255,.4)"/>`;
+ s+=`<path id="arc" class="arcp" d=""/><line id="ray" class="ray" x1="200" y1="200" x2="330" y2="200"/>`;
+ let coordTxt='';
+ Object.values(pts).forEach(list=>{
+   const bright=list.some(x=>brightIds.has(x.id));
+   const a=list.find(x=>brightIds.has(x.id))||list[0];
+   const col=FAMCOLOR[a.fam],r=a.deg*Math.PI/180;
+   const cx=(200+130*Math.cos(r)).toFixed(1),cy=(200-130*Math.sin(r)).toFixed(1);
+   if(reveal){
+     const rx=(200+97*Math.cos(r)).toFixed(1),ry=(200-97*Math.sin(r)).toFixed(1);
+     coordTxt+=`<text class="coord" x="${rx}" y="${(+ry+4).toFixed(1)}" text-anchor="middle" fill="${bright?col:'rgba(143,156,191,.65)'}">(${svgVal(a.x)}, ${svgVal(a.y)})</text>`;
+   }
+   s+=`<g class="pt" data-ids="${list.map(x=>x.id).join(' ')}" ${bright?'':'opacity="0.38"'}>
+     <circle class="halo" cx="${cx}" cy="${cy}" r="13.5" fill="none" stroke="${col}" stroke-width="2"/>
+     <circle cx="${cx}" cy="${cy}" r="18" fill="transparent"/>
+     ${markerAt(cx,cy,col,a.fam)}</g>`;
+   list.forEach(x=>{
+     const L=LBL[x.id],c=brightIds.has(x.id)?FAMCOLOR[x.fam]:'rgba(143,156,191,.55)';
+     s+=`<text class="lbl" x="${L.x}" y="${L.y}" text-anchor="${L.a}" fill="${c}">${x.rad}</text>`;
+   });
+ });
+ s+=coordTxt+`</svg>`;
+ return s;
+}
+/* quiz question figure (viewBox 320, center 160, r 100) */
+function figure(a,type){
+ const r=a.deg*Math.PI/180,c=Math.cos(r),s=Math.sin(r);
+ const px=160+100*c,py=160-100*s;
+ const hasRay=['coords','cos','sin','ref','quad'].includes(type);
+ let g='';
+ g+=`<g class="qn"><text x="232" y="88" style="font-size:15px">I</text><text x="88" y="88" style="font-size:15px">II</text><text x="88" y="234" style="font-size:15px">III</text><text x="232" y="234" style="font-size:15px">IV</text></g>`;
+ g+=`<line class="ax" x1="22" y1="160" x2="298" y2="160"/><line class="ax" x1="160" y1="22" x2="160" y2="298"/>`;
+ g+=`<polygon class="arrow" points="298,160 289,156 289,164"/><polygon class="arrow" points="160,22 156,31 164,31"/><polygon class="arrow" points="22,160 31,156 31,164"/><polygon class="arrow" points="160,298 156,289 164,289"/>`;
+ g+=`<text class="axlbl" x="276" y="146" text-anchor="middle">0</text><text class="axlbl" x="181" y="38" text-anchor="middle">π/2</text><text class="axlbl" x="44" y="146" text-anchor="middle">π</text><text class="axlbl" x="181" y="298" text-anchor="middle">3π/2</text>`;
+ g+=`<circle class="ring" cx="160" cy="160" r="100"/>`;
+ if(hasRay){
+   g+=`<path class="arcV" d="${arcPath(160,160,30,a.deg)}"/>`;
+   g+=`<line class="rayV" x1="160" y1="160" x2="${px.toFixed(1)}" y2="${py.toFixed(1)}"/>`;
+ }
+ if(type==='cos')g+=`<line class="proj x" x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="${px.toFixed(1)}" y2="160"/><text class="pl x" x="${px.toFixed(1)}" y="178" text-anchor="middle">?</text>`;
+ if(type==='sin')g+=`<line class="proj y" x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="160" y2="${py.toFixed(1)}"/><text class="pl y" x="170" y="${(py+4).toFixed(1)}">?</text>`;
+ if(type==='ang'){
+   g+=`<line class="proj x" x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="${px.toFixed(1)}" y2="160"/><line class="proj y" x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="160" y2="${py.toFixed(1)}"/>`;
+   g+=`<text class="pl x" x="${px.toFixed(1)}" y="178" text-anchor="middle">${svgVal(a.x)}</text><text class="pl y" x="170" y="${(py+4).toFixed(1)}">${svgVal(a.y)}</text>`;
+   g+=markerAt(px.toFixed(1),py.toFixed(1),FAMCOLOR[a.fam],a.fam);
+ }else if(hasRay){
+   g+=`<g class="qdot" transform="translate(${px.toFixed(1)},${py.toFixed(1)})"><circle r="10" fill="#0a0f1e" stroke="#a78bfa" stroke-width="2.2"/><text class="qm" y="4" text-anchor="middle">?</text></g>`;
+ }
+ return `<svg class="fig" viewBox="0 0 320 320">${g}</svg>`;
+}
+/* learn-chart ray animation */
+function setRay(ray,arc,d){
+ const r=d*Math.PI/180;
+ ray.setAttribute('x2',(200+130*Math.cos(r)).toFixed(1));
+ ray.setAttribute('y2',(200-130*Math.sin(r)).toFixed(1));
+ arc.setAttribute('d',arcPath(200,200,34,d));
+}
+function aimRay(deg,instant){
+ const svg=$('#chart svg');if(!svg)return;
+ const ray=svg.querySelector('#ray'),arc=svg.querySelector('#arc');
+ const from=(svg._deg==null)?0:svg._deg;
+ if(instant){cancelAnimationFrame(svg._raf);setRay(ray,arc,deg);svg._deg=deg;return;}
+ let delta=((deg-from)%360+540)%360-180;
+ if(Math.abs(delta)<.01){cancelAnimationFrame(svg._raf);setRay(ray,arc,deg);svg._deg=deg;return;}
+ const to=from+delta,t0=performance.now(),dur=Math.min(650,220+Math.abs(delta)*2.4);
+ cancelAnimationFrame(svg._raf);
+ const step=t=>{
+   const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3),d=from+(to-from)*e;
+   setRay(ray,arc,d);
+   if(k<1)svg._raf=requestAnimationFrame(step);else{setRay(ray,arc,deg);svg._deg=deg;}
+ };
+ svg._raf=requestAnimationFrame(step);
+}
+
+/* ================================================================
+   QUESTION ENGINE
+================================================================ */
+const QMETA={
+ coords:{label:'Coordinate Hunt',hint:'x = cos θ (blue) · y = sin θ (red)',color:'#22d3ee'},
+ cos:{label:'Find cos',hint:'cos is the x-coordinate — the blue shadow on the x-axis',color:'#38bdf8'},
+ sin:{label:'Find sin',hint:'sin is the y-coordinate — the red shadow on the y-axis',color:'#fb7185'},
+ ang:{label:'Name That Angle',hint:'Read the blue x and red y off the dashed lines',color:'#fbbf24'},
+ ref:{label:'Reference Angle',hint:'The smallest hop back to the x-axis',color:'#a78bfa'},
+ quad:{label:'Which Quadrant?',hint:'Borders: π/2 · π · 3π/2 · 2π',color:'#34d399'}
+};
+const QW={coords:3,cos:2,sin:2,ang:2.6,ref:1.1,quad:.6};
+function weightedPick(items){const tot=items.reduce((s,t)=>s+QW[t],0);let r=Math.random()*tot;for(const t of items){r-=QW[t];if(r<=0)return t;}return items[items.length-1];}
+function availableTypes(a){const t=['coords','cos','sin'];if(a.id!=='2pi')t.push('ang');if(a.quad>=2)t.push('ref','quad');return t;}
+
+function coordChoices(a){
+ const cands=[],seen=new Set([a.x+'|'+a.y]);
+ const add=(x,y)=>{if(x===undefined)return;const k=x+'|'+y;if(!seen.has(k)){seen.add(k);cands.push({x,y});}};
+ add(a.y,a.x);add(neg(a.x),a.y);add(a.x,neg(a.y));add(neg(a.x),neg(a.y));
+ if(a.partner){const p=byId[a.partner];add(p.x,p.y);}
+ ANGLES.filter(o=>o.ref===a.ref&&o.fam!=='axis').forEach(o=>add(o.x,o.y));
+ shuffle(ANGLES).forEach(o=>add(o.x,o.y));
+ return [a,...cands.slice(0,3)];
+}
+function valueChoices(a,w){
+ const correct=a[w],other=a[w==='x'?'y':'x'];
+ const cands=[],seen=new Set([correct]);
+ const add=v=>{if(v&&!seen.has(v)){seen.add(v);cands.push(v);}};
+ add(other);add(neg(correct));add(neg(other));
+ if(a.partner){const p=byId[a.partner];add(p.x);add(p.y);}
+ shuffle(['1','0','-1','1/2','-1/2','√2/2','-√2/2','√3/2','-√3/2']).forEach(add);
+ return [correct,...cands.slice(0,3)];
+}
+function angChoices(a){
+ const cands=[],seen=new Set([a.id]);
+ const add=id=>{if(id&&id!=='2pi'&&!seen.has(id)){seen.add(id);cands.push(byId[id]);}};
+ const sw=byVal[a.y+'|'+a.x];if(sw)add(sw.id);
+ if(a.partner)add(a.partner);
+ ANGLES.filter(o=>o.ref===a.ref&&o.fam!=='axis'&&o.id!==a.id).forEach(o=>add(o.id));
+ shuffle(ANGLES).forEach(o=>add(o.id));
+ return [a,...cands.slice(0,3)];
+}
+function refChoices(a){
+ const others=['π/6','π/4','π/3','π/2'].filter(r=>r!==a.ref);
+ return [a.ref,...others];
+}
+function explain(a,type){
+ const R=`<b class="m">${a.rad}</b>`;
+ if(type==='ang')return `The point ${ptH(a)}: ${a.find}`;
+ if(type==='ref'){
+   const f={2:`π − ${a.rad}`,3:`${a.rad} − π`,4:`2π − ${a.rad}`}[a.quad];
+   return `Swing back to the x-axis by the shortest path: <b class="m">${f} = ${a.ref}</b>. The reference angle always carries the raw numbers — here the pair (${fmt(abs(a.x))}, ${fmt(abs(a.y))}) — while the quadrant only fixes the signs.`;
+ }
+ if(type==='quad'){
+   const d=a.deg;
+   const b=[[0,90,'I'],[90,180,'II'],[180,270,'III'],[270,360,'IV']].find(x=>d>=x[0]&&d<x[1]);
+   return `${R} = ${d}°. The quadrant borders are 90°, 180°, 270° — ${d}° sits between ${b[0]}° and ${b[1]}°, so it lives in Quadrant ${b[2]}.`;
+ }
+ if(a.fam==='axis'){
+   const ax={'0':'the starting direction — dead east','p2':'a quarter turn — dead north','pi':'a half turn — dead west','3p2':'a three-quarter turn — dead south','2pi':'a full turn — right back where you started'}[a.id];
+   return `${R} is ${ax}: point ${ptH(a)}. So cos = <b class="cx">${fmt(a.x)}</b>, sin = <b class="cy">${fmt(a.y)}</b>.`;
+ }
+ if(a.quad===1){
+   const famTip={'6':'the 30° stop: a gentle slope — run √3/2, rise 1/2','4':'the 45° stop: the perfect diagonal — both equal √2/2','3':'the 60° stop: steep — run 1/2, rise √3/2 (π/6 with the pair swapped)'}[a.fam];
+   return `${R} (${a.deg}°) is a Quadrant I native — everything positive. It’s ${famTip}. So cos = <b class="cx">${fmt(a.x)}</b>, sin = <b class="cy">${fmt(a.y)}</b> → point ${ptH(a)}.`;
+ }
+ const rule={2:'only sin (y) stays positive — x flips negative',3:'both flip negative (only tan is positive there)',4:'only cos (x) stays positive — y flips negative'}[a.quad];
+ const mirror={2:'reflected in the y-axis',3:'pulled through the origin',4:'reflected in the x-axis'}[a.quad];
+ const p=byId[a.partner];
+ return `${R} (${a.deg}°) lives in Quadrant ${QR[a.quad]} — it’s <b class="m">${p.rad}</b> ${mirror}. Copy the pair (${fmt(abs(a.x))}, ${fmt(abs(a.y))}), then apply ASTC: in Q${a.quad}, ${rule}. Result: cos = <b class="cx">${fmt(a.x)}</b>, sin = <b class="cy">${fmt(a.y)}</b> → point ${ptH(a)}.`;
+}
+function buildQ(id,u,used){
+ const a=byId[id];
+ let pool=availableTypes(a).filter(t=>!used.has(t));
+ if(!pool.length)pool=availableTypes(a);
+ const type=weightedPick(pool);used.add(type);
+ let items,choiceHTML,correct,prompt;
+ if(type==='coords'){
+   prompt=`Which point does <b class="m">θ = ${a.rad}</b> point to?`;
+   items=shuffle(coordChoices(a));correct=items.indexOf(a);
+   choiceHTML=items.map(g=>ptH(g));
+ }else if(type==='cos'||type==='sin'){
+   prompt=`What is <b class="m">${type}(${a.rad})</b>?`;
+   items=shuffle(valueChoices(a,type));correct=items.indexOf(a[type]);
+   choiceHTML=items.map(v=>fmt(v));
+ }else if(type==='ang'){
+   prompt=`Which angle lands on <b>${ptH(a)}</b>?`;
+   items=shuffle(angChoices(a));correct=items.indexOf(a);
+   choiceHTML=items.map(g=>g.rad);
+ }else if(type==='ref'){
+   prompt=`What is the <b>reference angle</b> for <b class="m">θ = ${a.rad}</b>?`;
+   items=shuffle(refChoices(a));correct=items.indexOf(a.ref);
+   choiceHTML=items.map(r=>r);
+ }else{
+   prompt=`In which quadrant does <b class="m">θ = ${a.rad}</b> live?`;
+   items=['I','II','III','IV'];correct=a.quad-1;
+   choiceHTML=items.map(q=>`Quadrant ${q}`);
+ }
+ return {a,type,prompt,choiceHTML,correct,explain:explain(a,type)};
+}
+function buildRound(u){
+ const qs=[];
+ if(u<=4){
+   UNITS[u-1].angles.forEach(id=>{const used=new Set();qs.push(buildQ(id,u,used));qs.push(buildQ(id,u,used));});
+   if(u>1){
+     const prev=UNITS.slice(0,u-1).flatMap(x=>x.angles);
+     shuffle(prev).slice(0,2).forEach(id=>qs.push(buildQ(id,u,new Set())));
+   }
+ }else{
+   ANGLES.filter(a=>a.fam!=='axis').forEach(a=>qs.push(buildQ(a.id,5,new Set())));
+   const ax=shuffle(ANGLES.filter(a=>a.fam==='axis'&&a.id!=='2pi'));
+   qs.push(buildQ(ax[0].id,5,new Set()));
+ }
+ return shuffle(qs).map((q,i)=>({...q,id:i}));
+}
+
+/* ================================================================
+   QUIZ FLOW
+================================================================ */
+function startRound(u){
+ const list=buildRound(u);
+ Q={u,total:list.length,list,queue:list.map(q=>q.id),cur:null,firstCorrect:0,streak:0,bestStreak:0,answered:false,timer:null};
+ nextQ();
+}
+function nextQ(){
+ clearTimeout(Q.timer);
+ if(!Q.queue.length)return finish();
+ Q.cur=Q.queue.shift();Q.answered=false;
+ renderQuiz();
+}
+function dotHTML(d){
+ let c='dot';
+ if(d.first===true)c+=' ok';else if(d.first===false)c+=(d.cleared?' ok2':' retry');
+ if(d.id===Q.cur)c+=' cur';
+ return `<span class="${c}"></span>`;
+}
+function renderQuiz(){
+ view={name:'quiz',u:Q.u};
+ const q=Q.list[Q.cur],m=QMETA[q.type];
+ app.innerHTML=`
+ <div class="screen">
+   <div class="qtop">
+     <button class="btn ghost sm" id="quit">✕ Exit</button>
+     <div class="qtitle">Unit ${Q.u} · ${UNITS[Q.u-1].name}</div>
+     <div class="chipHud">🔥 ${Q.streak}</div>
+     <div class="chipHud" id="scoreHud">✓ ${Q.firstCorrect}/${Q.total}</div>
+   </div>
+   <div class="dots">${Q.list.map(d=>dotHTML(d)).join('')}<span class="left">${Q.queue.length+(Q.answered?0:1)} to go</span></div>
+   <div class="qcard card">
+     <div class="qfig">${figure(q.a,q.type)}</div>
+     <div class="qmain">
+       <div class="qtype" style="color:${m.color}">${m.label}${q.first===false?'<span class="reask">↻ re-ask</span>':''}</div>
+       <h2 class="qprompt">${q.prompt}</h2>
+       <div class="qhint">💡 ${m.hint}</div>
+       <div class="choices" id="choices">${q.choiceHTML.map((h,i)=>`<button class="choice" data-i="${i}"><span class="k">${i+1}</span><span class="v m">${h}</span></button>`).join('')}</div>
+     </div>
+   </div>
+   <div class="fb" id="fb"></div>
+ </div>`;
+ $('#quit').onclick=()=>{if(confirm('Leave this round? It won’t count.'))go('home');};
+ $$('#choices .choice').forEach(b=>b.onclick=()=>answer(+b.dataset.i));
+}
+function refreshHUD(){
+ $('#scoreHud').textContent=`✓ ${Q.firstCorrect}/${Q.total}`;
+ const ds=$$('.dots .dot');
+ Q.list.forEach((d,i)=>{ds[i].className='dot'+(d.id===Q.cur?' cur':'')+(d.first===true?' ok':d.first===false?(d.cleared?' ok2':' retry'):'');});
+ $('.dots .left').textContent=`${Q.queue.length+(Q.answered?0:1)} to go`;
+}
+function answer(i){
+ if(Q.answered)return;Q.answered=true;
+ const q=Q.list[Q.cur];
+ $('#choices').classList.add('lock');
+ const btns=$$('#choices .choice');
+ const ok=i===q.correct;
+ if(ok){
+   btns[i].classList.add('right');
+   if(q.first===undefined){q.first=true;Q.firstCorrect++;Q.streak++;Q.bestStreak=Math.max(Q.bestStreak,Q.streak);}
+   else q.cleared=true;
+   sndOk();showFB(true,q);
+   Q.timer=setTimeout(nextQ,1700);
+ }else{
+   btns[i].classList.add('wrong');btns[q.correct].classList.add('reveal');
+   if(q.first===undefined){q.first=false;Q.streak=0;}
+   Q.queue.push(q.id);
+   sndNo();showFB(false,q);
+ }
+ refreshHUD();
+}
+function showFB(ok,q){
+ const fb=$('#fb');
+ const head=ok?['Nailed it.','Clean.','Exact.','Sharp.','Locked in.'][Math.floor(Math.random()*5)]
+              :`Not quite — the answer is <span class="m">${q.choiceHTML[q.correct]}</span>`;
+ fb.innerHTML=`<div class="fbin ${ok?'good':'bad'}">
+   <div class="fbh"><span class="fico">${ok?'✓':'✕'}</span>${head}</div>
+   <div class="fbx">${q.explain}</div>
+   <button class="btn ${ok?'primary':''}" id="nextBtn">${ok?'Next →':'Continue →'}</button>
+ </div>`;
+ $('#nextBtn').onclick=()=>{clearTimeout(Q.timer);nextQ();};
+}
+function finish(){
+ const N=Q.total,fc=Q.firstCorrect,s=Math.round(100*fc/N);
+ const rec=save.m[Q.u];rec.att++;
+ let masteredNow=false;const perfect=s===100;
+ if(perfect){rec.p=Math.min(9,rec.p+1);if(rec.p>=2&&!rec.mastered){rec.mastered=true;masteredNow=true;}}
+ rec.best=Math.max(rec.best,s);persist();
+ renderResults({u:Q.u,s,N,fc,streak:Q.bestStreak,slips:N-fc,perfect,masteredNow,p:rec.p,mastered:rec.mastered});
+ if(masteredNow){sndWin();confetti(1.5);if(Q.u<5)setTimeout(()=>toast(`🔓 Unit ${Q.u+1} unlocked!`),600);}
+ else if(perfect){sndWin();confetti(.8);}
+}
+function animateNum(el,to,dur){const t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);el.textContent=Math.round(to*e)+'%';if(k<1)requestAnimationFrame(f);})(t0);}
+function renderResults(r){
+ view={name:'results',u:r.u};
+ const circ=2*Math.PI*78;
+ const col=r.s===100?'#fbbf24':r.s>=70?'#34d399':'#a78bfa';
+ const title=r.masteredNow?'🏆 MASTERED!':r.perfect?'⭐ Perfect round!':r.s>=70?'So close!':'Reps logged.';
+ const sub=r.masteredNow?`Two perfect runs — Unit ${r.u} is locked in. ${r.u<5?`Unit ${r.u+1} is now unlocked.`:'You own the entire unit circle. Legend.'}`
+   :r.perfect?'One more 100% run and this unit is mastered for good.'
+   :r.s>=70?'Every miss was re-asked and fixed — you’re close. Review the patterns and run it back.'
+   :'Every miss got instantly re-taught. Peek at the Learn tab, then go again — it clicks fast.';
+ const nextOK=r.u<5&&save.m[r.u].mastered;
+ app.innerHTML=`
+ <div class="screen"><div class="resWrap">
+   <div class="gauge"><svg viewBox="0 0 200 200">
+     <circle cx="100" cy="100" r="78" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="13"/>
+     <circle id="gaugeArc" cx="100" cy="100" r="78" fill="none" stroke="${col}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" transform="rotate(-90 100 100)" style="transition:stroke-dashoffset 1.1s cubic-bezier(.22,1,.36,1)"/>
+     <text id="gaugeNum" x="100" y="104" text-anchor="middle" class="gnum">0%</text>
+     <text x="100" y="126" text-anchor="middle" class="gsub">FIRST-TRY</text>
+   </svg></div>
+   <h2 class="resTitle">${title}</h2>
+   <div class="resStars">${'★'.repeat(Math.min(r.p,2))}${'☆'.repeat(2-Math.min(r.p,2))}</div>
+   <div class="resCap">${r.mastered?'Mastered — this unit is yours.':'Two ★ (perfect runs) master a unit'}</div>
+   <p class="resSub">${sub}</p>
+   <div class="statchips">
+     <span class="statchip">First-try ${r.fc}/${r.N}</span>
+     <span class="statchip">Best streak 🔥 ${r.streak}</span>
+     <span class="statchip">Re-asks ${r.slips}</span>
+   </div>
+   <div class="resBtns">
+     ${nextOK?`<button class="btn primary" id="nextUnit">Unit ${r.u+1} →</button>`:''}
+     <button class="btn ${nextOK?'':'primary'}" id="retry">↻ ${r.perfect?'Run it back':'Try again'}</button>
+     <button class="btn" id="toLearn">📖 Learn tab</button>
+     <button class="btn ghost" id="toHome">Home</button>
+   </div>
+ </div></div>`;
+ requestAnimationFrame(()=>{$('#gaugeArc').style.strokeDashoffset=circ*(1-r.s/100);});
+ animateNum($('#gaugeNum'),r.s,1000);
+ $('#retry').onclick=()=>startRound(r.u);
+ $('#toLearn').onclick=()=>go('learn',r.u);
+ $('#toHome').onclick=()=>go('home');
+ if(nextOK)$('#nextUnit').onclick=()=>go('learn',r.u+1);
+}
+
+/* ================================================================
+   LEARN SCREEN
+================================================================ */
+function tri45(){return `<svg class="tri" viewBox="0 0 180 150">
+ <polygon points="40,130 140,130 40,30" fill="rgba(251,191,36,.07)" stroke="#fbbf24" stroke-width="2"/>
+ <polyline points="40,118 52,118 52,130" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/>
+ <text x="90" y="146" class="tl" text-anchor="middle">1</text>
+ <text x="28" y="84" class="tl" text-anchor="end">1</text>
+ <text x="98" y="74" class="tl">√2</text>
+ <text x="52" y="46" class="tl dim2">45°</text>
+ <text x="118" y="122" class="tl dim2">45°</text></svg>`;}
+function tri3060(){return `<svg class="tri" viewBox="0 0 180 150">
+ <polygon points="40,130 40,78 130,130" fill="rgba(167,139,250,.07)" stroke="#a78bfa" stroke-width="2"/>
+ <polyline points="40,118 52,118 52,130" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/>
+ <text x="28" y="107" class="tl" text-anchor="end">1</text>
+ <text x="85" y="146" class="tl" text-anchor="middle">√3</text>
+ <text x="93" y="96" class="tl">2</text>
+ <text x="50" y="112" class="tl dim2">60°</text>
+ <text x="104" y="122" class="tl dim2">30°</text></svg>`;}
+function ladder(){
+ const th=['0','π/6','π/4','π/3','π/2'];
+ const lad=['√0/2','√1/2','√2/2','√3/2','√4/2'];
+ const val=['0','1/2','√2/2','√3/2','1'];
+ const cosv=[...val].reverse();
+ return `<table class="ladder">
+  <tr><th>θ</th>${th.map(t=>`<td class="m" style="color:var(--dim)">${t}</td>`).join('')}</tr>
+  <tr class="sin"><th>sin θ</th>${lad.map(v=>`<td class="m">${fmt(v)}</td>`).join('')}</tr>
+  <tr class="sin"><th>=</th>${val.map(v=>`<td class="m">${fmt(v)}</td>`).join('')}</tr>
+  <tr class="cos"><th>cos θ</th>${cosv.map(v=>`<td class="m">${fmt(v)}</td>`).join('')}</tr>
+ </table>`;
+}
+function mirrorTable(u){
+ const pairs=u===2?[['p3','2p3'],['p4','3p4'],['p6','5p6']]:u===3?[['p6','7p6'],['p4','5p4'],['p3','4p3']]:[['p3','5p3'],['p4','7p4'],['p6','11p6']];
+ const cell=id=>{const a=byId[id];return `<td><b class="m">${a.rad}</b> ${ptH(a)}</td>`;};
+ return `<table class="mtable">
+  <tr class="hd"><td>Quadrant I</td><td></td><td>Quadrant ${u===2?'II':u===3?'III':'IV'}</td></tr>
+  ${pairs.map(([p,n])=>`<tr>${cell(p)}<td class="arr">→</td>${cell(n)}</tr>`).join('')}
+ </table>`;
+}
+function astc(hl){
+ const q=(n,w)=>`<div class="astq ${n===hl?'on':''}"><b>Q${n}</b><span>${w} positive</span></div>`;
+ return `<div class="astc">${q(2,'Sin')}${q(1,'All')}${q(3,'Tan')}${q(4,'Cos')}</div><p class="dimline">“All Students Take Calculus” — counterclockwise from Q1.</p>`;
+}
+function cheat(){
+ return `<table class="mtable">
+  <tr class="hd"><td></td><td>mirror of Q1</td><td>ref angle</td><td>signs</td></tr>
+  <tr><td><b>Q1</b></td><td>native</td><td class="m">θ</td><td>all +</td></tr>
+  <tr><td><b>Q2</b></td><td>y-axis</td><td class="m">π − θ</td><td>sin +</td></tr>
+  <tr><td><b>Q3</b></td><td>origin</td><td class="m">θ − π</td><td>both −</td></tr>
+  <tr><td><b>Q4</b></td><td>x-axis</td><td class="m">2π − θ</td><td>cos +</td></tr>
+ </table>`;
+}
+function learnCards(u){
+ if(u===1)return `
+ <div class="card teach"><h3>📐 Every point is (cos θ, sin θ)</h3>
+ <p>Pick any spot on the circle: its <b class="cx">x-coordinate is cos θ</b>, its <b class="cy">y-coordinate is sin θ</b>. Learn the point and you get both functions for free. In every diagram here, x is <b class="cx">blue</b> and y is <b class="cy">red</b>.</p></div>
+ <div class="card teach"><h3>🔺 Two tiny triangles explain all the numbers</h3>
+ <div class="tris">${tri45()}${tri3060()}</div>
+ <p>Shrink each triangle until its hypotenuse equals the radius (1). The <b class="m">1-1-√2</b> triangle hands you <b class="m">√2/2 &amp; √2/2</b>; the <b class="m">1-√3-2</b> triangle hands you <b class="m">1/2 &amp; √3/2</b>. That’s the whole first quadrant.</p></div>
+ <div class="card teach"><h3>🪜 The magic ladder</h3>${ladder()}
+ <p>Under the square root, <b class="cy">sin counts up 0·1·2·3·4</b> while <b class="cx">cos counts back down</b>. Learn the ladder once — every value in the entire app is built from it.</p></div>
+ <div class="card teach"><h3>🧭 Count by families</h3>
+ <p>The denominator slices the <b>half-turn (π)</b>: sixths <b class="m">π/6</b> = every 30°, quarters <b class="m">π/4</b> = every 45°, thirds <b class="m">π/3</b> = every 60°.</p>
+ <p class="dimline">π/6 · 2π/6 = π/3 · 3π/6 = π/2 — all three families meet at the top.</p></div>
+ <div class="card teach"><h3>👯 The twins trick</h3>
+ <p><b class="m">π/6</b> and <b class="m">π/3</b> are mirror twins: the pair <b class="m">(√3/2, 1/2)</b> simply swaps to <b class="m">(1/2, √3/2)</b>. And <b class="m">π/4</b> is its own twin: <b class="m">(√2/2, √2/2)</b>.</p></div>`;
+ if(u===2)return `
+ <div class="card teach"><h3>🪞 The y-axis mirror</h3>
+ <p>Quadrant II is Quadrant I flipped left. <b>Same numbers — x turns negative.</b></p>
+ ${mirrorTable(2)}
+ <p>Copy the Q1 pair, flip the sign of x. Done.</p></div>
+ <div class="card teach"><h3>📏 Reference angle: π − θ</h3>
+ <p>The <b>reference angle</b> is the Q1 angle with the same numbers — the shortest hop back to the x-axis. For Q2 it’s <span class="m">π − θ</span>.</p>
+ <p class="dimline">π − 2π/3 = π/3 · π − 3π/4 = π/4 · π − 5π/6 = π/6</p></div>
+ <div class="card teach"><h3>🧠 ASTC — All Students Take Calculus</h3>
+ ${astc(2)}
+ <p>In Q2, only <b class="cy">sin (y)</b> stays positive — the y-values you learned survive, x-values flip.</p></div>
+ <div class="card teach"><h3>🔄 π — the half turn</h3>
+ <p>Walk halfway around: you stand dead west at <b class="m">(−1, 0)</b>. So <b class="m">cos π = −1</b> and <b class="m">sin π = 0</b>.</p></div>`;
+ if(u===3)return `
+ <div class="card teach"><h3>🕳️ Through the origin</h3>
+ <p>Cross π and keep counting — <b class="m">7π/6</b> is literally “π plus a π/6”. Every Q3 point is its Q1 twin pulled through the center: <b>both signs flip</b>.</p>
+ ${mirrorTable(3)}</div>
+ <div class="card teach"><h3>📏 Reference angle: θ − π</h3>
+ <p>How far past the half-turn? That’s your Q1 partner.</p>
+ <p class="dimline">7π/6 − π = π/6 · 5π/4 − π = π/4 · 4π/3 − π = π/3</p></div>
+ <div class="card teach"><h3>🧠 ASTC in Q3</h3>
+ ${astc(3)}
+ <p>Only tan is positive here — so <b>cos and sin both go negative</b>.</p></div>
+ <div class="card teach"><h3>⬇️ 3π/2 — straight down</h3>
+ <p>Three quarter-turns: dead south at <b class="m">(0, −1)</b>.</p></div>`;
+ if(u===4)return `
+ <div class="card teach"><h3>🪞 The x-axis mirror</h3>
+ <p>Quadrant IV is Quadrant I flipped down. <b>Same numbers — y turns negative.</b></p>
+ ${mirrorTable(4)}</div>
+ <div class="card teach"><h3>📏 Reference angle: 2π − θ</h3>
+ <p>How far short of the full turn?</p>
+ <p class="dimline">2π − 5π/3 = π/3 · 2π − 7π/4 = π/4 · 2π − 11π/6 = π/6</p></div>
+ <div class="card teach"><h3>⏪ Clockwise shortcut</h3>
+ <p><b class="m">11π/6 = −π/6</b> — the same point reached by winding 30° <i>backwards</i>. Negative angles run clockwise; a handy double meaning.</p></div>
+ <div class="card teach"><h3>🧠 ASTC in Q4</h3>
+ ${astc(4)}
+ <p>Only <b class="cx">cos (x)</b> stays positive.</p></div>
+ <div class="card teach"><h3>🔄 2π — the full turn</h3>
+ <p>Back at the start: <b class="m">(1, 0)</b>. That’s why <b class="m">0</b> and <b class="m">2π</b> name the same point.</p></div>`;
+ return `
+ <div class="card teach"><h3>♻️ The whole circle is 3 pairs + 4 compass points</h3>
+ <p>Take <b class="m">(√3/2, 1/2)</b>, <b class="m">(√2/2, √2/2)</b>, <b class="m">(1/2, √3/2)</b>, hit them with every sign combination, and add <b class="m">(±1, 0)</b> and <b class="m">(0, ±1)</b>. That’s all 16 points. You already know everything — this unit just mixes it.</p></div>
+ <div class="card teach"><h3>🗝️ The cheat sheet</h3>${cheat()}</div>
+ <div class="card teach"><h3>🧭 Panic buttons</h3>
+ <p>Blank out? <b>Count 30° slices</b> and reduce: 4π/6 = 2π/3, 10π/6 = 5π/3.</p>
+ <p><b>Diagonals</b> (π/4 family) are always ±<b class="m">√2/2, √2/2</b>. In the <b>π/6 family</b> the √3 lives on the x; in the <b>π/3 family</b> it lives on the y.</p>
+ <p><b>Two candidates?</b> Convert to degrees for a second: 3π/4 = 135° beats 2π/3 = 120° going counterclockwise.</p></div>`;
+}
+function renderDetail(id){
+ const a=byId[id],col=FAMCOLOR[a.fam];
+ $('#detail').innerHTML=`
+  <div class="dhead">
+    <span class="famchip" style="color:${col}">${FAMNAME[a.fam]}</span>
+    <span class="degchip">${a.deg}°</span>
+    ${a.quad>1?`<span class="degchip">ref ${a.ref}</span>`:''}
+  </div>
+  <div class="dbig m">θ = ${a.rad}</div>
+  <div class="drow x"><span>x = cos θ</span><b>${fmt(a.x)}</b></div>
+  <div class="drow y"><span>y = sin θ</span><b>${fmt(a.y)}</b></div>
+  <div class="dpt">Point ${ptH(a)}</div>
+  <div class="dtip">💡 ${a.tip}</div>`;
+}
+function select(id){
+ selId=id;
+ const ids=UNITS[learnU-1].angles,k=ids.indexOf(id);if(k>=0)selIdx=k;
+ $$('#chart .pt').forEach(g=>g.classList.toggle('sel',g.dataset.ids.split(' ').includes(id)));
+ renderDetail(id);
+ aimRay(byId[id].deg,false);
+ const nn=$('#navLbl');if(nn)nn.textContent=`${selIdx+1}/${ids.length}`;
+}
+function renderLearn(u){
+ view={name:'learn',u};
+ const unit=UNITS[u-1],rec=save.m[u],p=Math.min(rec.p,2);
+ app.innerHTML=`
+ <div class="screen">
+   <div class="qtop">
+     <button class="btn ghost sm" id="back">← Units</button>
+     <div class="qtitle">Unit ${u} · ${unit.name} <span style="color:var(--dim);font-weight:500">— ${unit.tag}</span></div>
+     ${rec.att?`<div class="chipHud"><span class="stars" style="font-size:14px">${'★'.repeat(p)}${'☆'.repeat(2-p)}</span> · best ${rec.best}%</div>`:''}
+     <button class="btn primary sm" id="goQuiz" style="margin-left:auto">Start the quiz →</button>
+   </div>
+   <div class="lgrid">
+     <div class="lleft">
+       <div class="card chartCard">
+         <div class="chartHead"><span style="color:var(--dim);font-size:13.5px">Tap a point to inspect it</span>
+           <button class="btn ghost sm" id="revealBtn">${revealAll?'🙈 Hide':'👀 Reveal'} all coordinates</button></div>
+         <div id="chart">${chartSVG({u,reveal:revealAll})}</div>
+         <div class="chartNav">
+           <button class="btn sm" id="prevA">←</button>
+           <span class="navLbl" id="navLbl"></span>
+           <button class="btn sm" id="nextA">→</button>
+         </div>
+       </div>
+       <div class="card detailCard" id="detail"></div>
+     </div>
+     <div class="lright">${learnCards(u)}</div>
+   </div>
+ </div>`;
+ $('#back').onclick=()=>go('home');
+ $('#goQuiz').onclick=()=>startRound(u);
+ $('#prevA').onclick=()=>{const ids=UNITS[u-1].angles;selIdx=(selIdx-1+ids.length)%ids.length;select(ids[selIdx]);};
+ $('#nextA').onclick=()=>{const ids=UNITS[u-1].angles;selIdx=(selIdx+1)%ids.length;select(ids[selIdx]);};
+ $('#revealBtn').onclick=()=>{revealAll=!revealAll;$('#chart').innerHTML=chartSVG({u,reveal:revealAll});bindChart(u);select(selId);};
+ bindChart(u);
+ select(unit.angles[selIdx]);
+}
+function bindChart(u){
+ $$('#chart .pt').forEach(g=>{
+   g.addEventListener('click',()=>{
+     const ids=g.dataset.ids.split(' ');
+     const id=ids.find(i=>UNITS[u-1].angles.includes(i))||ids[0];
+     select(id);
+   });
+ });
+}
+
+/* ================================================================
+   HOME
+================================================================ */
+function unitCardsHTML(){
+ return UNITS.map(un=>{
+   const rec=save.m[un.n];
+   const locked=un.n>1&&!save.m[un.n-1].mastered;
+   const p=Math.min(rec.p,2);
+   const chips=un.n===5?`<span class="chip" style="color:#aab5d3">all 16 angles</span>`
+     :un.angles.map(id=>`<span class="chip" style="color:${FAMCOLOR[byId[id].fam]}">${byId[id].rad}</span>`).join('');
+   const stat=locked?`🔒<small>Locked</small>`
+     :rec.mastered?`<span class="mbadge">✓ Mastered</span><span class="stars">${'★'.repeat(p)}${'☆'.repeat(2-p)}</span>`
+     :`<span class="stars">${'★'.repeat(p)}${'☆'.repeat(2-p)}</span><small>${rec.att?`best ${rec.best}%`:'not attempted'}</small>`;
+   return `<button class="unitcard ${locked?'locked':''} ${rec.mastered?'mastered':''}" data-u="${un.n}">
+     <span class="unum">${un.n}</span>
+     <span style="flex:1"><span class="uname">${un.name}</span><span class="utag">${un.tag}</span>
+       <span class="uchips">${chips}</span></span>
+     <span class="ustat">${stat}</span></button>`;
+ }).join('');
+}
+function renderHome(){
+ view={name:'home'};
+ const masteredCount=[1,2,3,4,5].filter(i=>save.m[i].mastered).length;
+ const target=[1,2,3,4,5].find(i=>!save.m[i].mastered)||5;
+ app.innerHTML=`
+ <div class="screen">
+   <div class="hero">
+     <div>
+       <h1 class="title">Unit Circle,<br>by Heart.</h1>
+       <p class="subtitle">All 16 angles — in radians, no degrees required. Learn the patterns, quiz with instant feedback, and master each quadrant (100% twice) to unlock the next.</p>
+       <div class="heroBtns"><button class="btn primary" id="startBtn">${masteredCount?'Continue training →':'Start Unit 1 · First Quadrant →'}</button></div>
+     </div>
+     <div class="card miniCard"><div>${chartSVG({mini:true})}</div><div class="miniCap">Your circle so far — master units to light it up</div></div>
+   </div>
+   <div class="steps">
+     <div class="card step"><div class="stepN">1</div><b>Learn the patterns</b><p>Mirror tricks, the magic ladder, ASTC — understanding instead of brute memorization.</p></div>
+     <div class="card step"><div class="stepN">2</div><b>Quiz with instant feedback</b><p>Six question styles. Every miss is explained and re-asked until you nail it.</p></div>
+     <div class="card step"><div class="stepN">3</div><b>Score 100% — twice</b><p>Two perfect runs master a unit and unlock the next quadrant. Boss level: the full circle.</p></div>
+   </div>
+   <div class="unitsHead"><h2>Units</h2>
+     <div class="pwrap"><span>${masteredCount}/5 mastered</span><div class="pbar"><div class="pfill" style="width:${masteredCount*20}%"></div></div></div>
+   </div>
+   ${unitCardsHTML()}
+   <div class="foot">Progress saves automatically in your browser.<button class="linkbtn" id="resetBtn">reset all progress</button></div>
+ </div>`;
+ $('#startBtn').onclick=()=>go('learn',target);
+ $$('.unitcard').forEach(el=>{
+   el.onclick=()=>{
+     const u=+el.dataset.u;
+     if(u>1&&!save.m[u-1].mastered){
+       el.classList.remove('shakeit');void el.offsetWidth;el.classList.add('shakeit');
+       toast('🔒 Locked — master the previous unit first (100% × 2).');return;
+     }
+     go('learn',u);
+   };
+ });
+ $('#resetBtn').onclick=()=>{if(confirm('Wipe all progress? This can’t be undone.')){save=defaultSave();persist();renderHome();toast('Progress reset. Fresh circle!');}};
+}
+
+/* ================================================================
+   SOUND + CONFETTI + TOAST
+================================================================ */
+let AC;
+function beep(f,d=0.12,type='sine',vol=0.16,when=0){
+ if(save.muted)return;
+ try{
+   AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+   const t=AC.currentTime+when,o=AC.createOscillator(),g=AC.createGain();
+   o.type=type;o.frequency.value=f;
+   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.015);g.gain.exponentialRampToValueAtTime(0.001,t+d);
+   o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+0.05);
+ }catch(e){}
+}
+const sndOk=()=>{beep(620,.09,'sine',.14);beep(930,.15,'sine',.14,.07);};
+const sndNo=()=>{beep(190,.16,'square',.05);beep(140,.22,'square',.045,.09);};
+const sndWin=()=>[523,659,784,1047].forEach((f,i)=>beep(f,.17,'sine',.13,i*.09));
+function confetti(power){
+ const cv=$('#fx');cv.width=innerWidth;cv.height=innerHeight;cv.style.display='block';
+ const ctx=cv.getContext('2d'),P=[],colors=['#22d3ee','#fbbf24','#f472b6','#a78bfa','#34d399'];
+ for(let i=0;i<Math.floor(120*power);i++)P.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.3,vx:(Math.random()-.5)*3,vy:2+Math.random()*3.5,s:4+Math.random()*6,r:Math.random()*Math.PI,vr:(Math.random()-.5)*.25,c:colors[i%5]});
+ let fr=0;
+ (function loop(){
+   ctx.clearRect(0,0,cv.width,cv.height);
+   P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);ctx.restore();});
+   if(++fr<220)requestAnimationFrame(loop);else{ctx.clearRect(0,0,cv.width,cv.height);cv.style.display='none';}
+ })();
+}
+let toastT;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
+
+/* ================================================================
+   NAV + KEYBOARD + INIT
+================================================================ */
+function go(name,u){
+ window.scrollTo(0,0);
+ if(name==='home')renderHome();
+ else if(name==='learn'){if(learnU!==u){learnU=u;selIdx=0;revealAll=false;}renderLearn(u);}
+ else if(name==='quiz')startRound(u);
+}
+const muteBtn=$('#muteBtn');
+function syncMute(){muteBtn.textContent=save.muted?'🔇':'🔊';}
+muteBtn.onclick=()=>{save.muted=!save.muted;persist();syncMute();if(!save.muted)sndOk();};
+syncMute();
+document.addEventListener('keydown',e=>{
+ if(view.name==='quiz'&&Q){
+   if(e.key>='1'&&e.key<='4'){const b=$$('#choices .choice')[+e.key-1];if(b)b.click();}
+   else if((e.key==='Enter'||e.key===' ')&&$('#nextBtn')){e.preventDefault();$('#nextBtn').click();}
+ }else if(e.key==='Escape'&&view.name==='learn'){go('home');}
+});
+renderHome();
+</script>
+</body>
+</html>
