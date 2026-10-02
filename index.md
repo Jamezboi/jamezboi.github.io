@@ -14,6 +14,7 @@ layout: none
 </style>
 
 ## Featured
+- <a class="featured" href="https://jamezboi.github.io/sentinel/"><strong>Sentinel — Private Focus Console</strong><br><span>Desk-only phone checks · desktop distraction guardrails · local analytics · Windows download</span></a>
 - <a class="featured" href="https://jamezboi.github.io/fantasy-hockey/"><strong>Hockey AI Pro — Fantasy Hockey Intelligence</strong><br><span>Full rosters · trade analyzer · Monte Carlo simulation · live performance · league hub · API settings</span></a>
 
 ## Games & More
