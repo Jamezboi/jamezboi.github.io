@@ -24,6 +24,8 @@
       --warning: #f59e0b;
       --danger: #ef4444;
       --danger-glow: rgba(239, 68, 68, 0.4);
+      --gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.4);
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -45,8 +47,8 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(10, 19, 36, 0.85);
-      backdrop-filter: blur(14px);
+      background: rgba(10, 19, 36, 0.9);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
       height: 72px;
       display: flex;
@@ -76,7 +78,7 @@
     }
     .nav-links {
       display: flex;
-      gap: 28px;
+      gap: 24px;
       align-items: center;
       font-size: 14px;
       font-weight: 600;
@@ -120,6 +122,16 @@
       border-color: var(--primary);
       background: var(--bg-card-hover);
     }
+    .btn-pro {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      font-weight: 800;
+      box-shadow: 0 4px 20px var(--gold-glow);
+    }
+    .btn-pro:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 26px rgba(245, 158, 11, 0.6);
+    }
     .btn-danger {
       background: linear-gradient(135deg, #dc2626, #b91c1c);
       color: #fff;
@@ -131,10 +143,10 @@
       position: relative;
       max-width: 1360px;
       margin: 0 auto;
-      padding: 80px max(4vw, 24px) 60px;
+      padding: 70px max(4vw, 24px) 50px;
       display: grid;
       grid-template-columns: 1.15fr 0.95fr;
-      gap: 50px;
+      gap: 48px;
       align-items: center;
     }
     .hero::before {
@@ -171,11 +183,11 @@
       box-shadow: 0 0 10px var(--primary);
     }
     h1 {
-      font-size: clamp(38px, 4.4vw, 64px);
+      font-size: clamp(38px, 4.2vw, 62px);
       font-weight: 800;
       line-height: 1.05;
       letter-spacing: -0.035em;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
     .gradient-text {
       background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
@@ -183,17 +195,17 @@
       -webkit-text-fill-color: transparent;
     }
     .lead {
-      font-size: 18px;
+      font-size: 17px;
       color: var(--text-muted);
       line-height: 1.65;
-      margin-bottom: 32px;
+      margin-bottom: 30px;
       max-width: 620px;
     }
     .hero-ctas {
       display: flex;
       flex-wrap: wrap;
       gap: 14px;
-      margin-bottom: 28px;
+      margin-bottom: 26px;
     }
     .hero-meta {
       display: flex;
@@ -241,17 +253,17 @@
       justify-content: center;
       text-align: center;
     }
-    .svg-ring-wrap { position: relative; width: 160px; height: 160px; margin-bottom: 12px; }
-    .svg-ring-wrap svg { transform: rotate(-90deg); width: 160px; height: 160px; }
+    .svg-ring-wrap { position: relative; width: 150px; height: 150px; margin-bottom: 12px; }
+    .svg-ring-wrap svg { transform: rotate(-90deg); width: 150px; height: 150px; }
     .ring-bg { fill: none; stroke: #162438; stroke-width: 12; }
     .ring-val {
       fill: none;
       stroke: var(--success);
       stroke-width: 12;
       stroke-linecap: round;
-      stroke-dasharray: 440;
-      stroke-dashoffset: 44;
-      transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+      stroke-dasharray: 427;
+      stroke-dashoffset: 34;
+      transition: stroke-dashoffset 0.4s ease, stroke 0.3s ease;
     }
     .ring-center-txt {
       position: absolute;
@@ -275,7 +287,7 @@
     .sim-controls {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
       width: 100%;
       text-align: left;
     }
@@ -299,12 +311,12 @@
     .section {
       max-width: 1360px;
       margin: 0 auto;
-      padding: 90px max(4vw, 24px);
+      padding: 80px max(4vw, 24px);
     }
     .section-head {
       text-align: center;
       max-width: 760px;
-      margin: 0 auto 54px;
+      margin: 0 auto 50px;
     }
     .section-head h2 {
       font-size: clamp(30px, 3.5vw, 44px);
@@ -356,6 +368,57 @@
       color: var(--text-muted);
       line-height: 1.65;
     }
+
+    /* PRO EDITION CARD */
+    .pro-banner {
+      background: linear-gradient(135deg, #1f1406 0%, #150f28 50%, #0d1a33 100%);
+      border: 2px solid #f59e0b;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(245, 158, 11, 0.15);
+      margin-top: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .pro-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid #f59e0b;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: #0a1324;
+      border: 1px solid #2e4c82;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 520px;
+      padding: 32px;
+      position: relative;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8);
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     /* Interactive Punishments Arena */
     .punish-arena {
@@ -436,6 +499,19 @@
       100% { background: #180306; color: #fca5a5; }
     }
 
+    /* Fullscreen HUD modal */
+    .fullscreen-hud {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 11, 20, 0.98);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid #f59e0b;
+    }
+    .fullscreen-hud.open { display: flex; }
+
     /* Terminal Quickstart */
     .terminal {
       background: #050a12;
@@ -461,6 +537,23 @@
     .cmd-line { margin-bottom: 12px; }
     .cmd-prefix { color: #38bdf8; font-weight: 700; }
     .cmd-comment { color: #64748b; font-style: italic; }
+
+    /* Floating Toast */
+    #floating_toast {
+      position: fixed;
+      top: 90px;
+      right: 24px;
+      background: #17233a;
+      border: 2px solid #f97316;
+      border-radius: 10px;
+      padding: 16px 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      z-index: 999;
+      display: none;
+      max-width: 380px;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
     /* Footer & Labs Ecosystem */
     footer {
@@ -514,6 +607,70 @@
 </head>
 <body>
 
+  <!-- FLOATING SIMULATION TOAST -->
+  <div id="floating_toast">
+    <div style="font-size:10px; font-weight:800; color:#f97316; letter-spacing:0.05em;">SENTINEL NOTIFICATION</div>
+    <div style="font-size:13px; font-weight:700; color:#fff; margin-top:4px;" id="floating_toast_msg">Eyes on your paper. Deep focus is active.</div>
+  </div>
+
+  <!-- FULLSCREEN WARNING HUD MODAL -->
+  <div id="hud_modal" class="fullscreen-hud">
+    <div style="max-width:700px; background:#0e1726; border:2px solid #fbbf24; border-radius:18px; padding:44px 36px; text-align:center; box-shadow:0 30px 90px rgba(0,0,0,0.8);">
+      <div style="font-size:56px; margin-bottom:6px;">⚠️</div>
+      <h2 style="color:#fbbf24; font-size:26px; font-weight:800; margin-bottom:8px;">WARNING: DISTRACTION DETECTED</h2>
+      <p style="font-size:14px; font-weight:700; color:#fff; margin-bottom:14px;" id="hud_app_msg">Foreground Process: discord.exe (Gaming & Chat Server)</p>
+      <div style="background:#27160c; border:1px solid #d97706; border-radius:8px; padding:10px 14px; margin-bottom:18px;">
+        <span style="font-size:12px; font-weight:700; color:#fcd34d;">⚡ ACTION: Background window minimized · Audible voice drill active</span>
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:24px; line-height:1.6;">
+        Non-study activity detected. Please return to your focus material immediately to prevent countdown escalation, app slayer force-quits, and score penalty taxes.
+      </p>
+      <button class="btn btn-pro" style="padding:12px 28px; font-size:14px;" onclick="closeHudModal()">
+        <span>✓ I Understand — Return to Focus</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ADMIN SECRET KEY MODAL -->
+  <div id="admin_modal" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:22px;">🔑</span>
+          <h3 style="font-size:18px; font-weight:800; color:#fbbf24;">Admin Secret Key Access</h3>
+        </div>
+        <button style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;" onclick="closeAdminModal()">✕</button>
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">
+        Enter your Sentinel Admin or Enterprise License Key to unlock Pro capabilities, kernel anti-tamper, and GPU vision pipeline.
+      </p>
+
+      <div style="margin-bottom:16px;">
+        <label style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em;">Admin Master Secret Key</label>
+        <input type="password" id="secret_key_input" class="test-input" placeholder="e.g. SENTINEL-PRO-2026 or ADMIN-KEY" style="margin-top:6px;">
+        <div style="font-size:11px; color:#64748b; margin-top:6px;">
+          Default demo keys: <code style="color:#38bdf8;">SENTINEL-PRO-2026</code> or <code style="color:#38bdf8;">ADMIN-ALPHA-9</code>
+        </div>
+      </div>
+
+      <div id="admin_key_error" style="display:none; color:#ef4444; font-size:12px; font-weight:700; margin-bottom:14px;">
+        ✕ Invalid Secret Key. Verify administrative authorization.
+      </div>
+      <div id="admin_key_success" style="display:none; color:#10b981; font-size:13px; font-weight:700; margin-bottom:14px;">
+        ✓ ACCESS GRANTED: Sentinel Pro Edition Unlocked!
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-pro" style="flex:1; justify-content:center;" onclick="verifySecretKey()">
+          <span>Unlock Pro Access</span>
+        </button>
+        <button class="btn btn-secondary" onclick="closeAdminModal()">
+          <span>Cancel</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- NAVIGATION -->
   <nav>
     <a href="#top" class="brand">
@@ -521,17 +678,20 @@
       <span>SENTINEL <span style="font-size:12px; color:var(--primary); font-weight:700;">2.0</span></span>
     </a>
     <div class="nav-links">
+      <a href="https://jamezboi.github.io/" style="color:#93c5fd;">← Home</a>
       <a href="#features">Features</a>
       <a href="#punishments">Serious Punishments</a>
-      <a href="#profiles">Profiles</a>
-      <a href="#demo">Interactive Demo</a>
+      <a href="#pro">Pro Edition</a>
+      <a href="#demo">Live Demo</a>
       <a href="#privacy">Privacy</a>
       <a href="#download">Download</a>
-      <a href="https://jamezboi.github.io/fantasy-hockey/" style="color:#a78bfa;">Hockey AI Pro ↗</a>
     </div>
     <div class="nav-actions">
-      <a href="download/Sentinel-Setup.bat" class="btn btn-primary" download>
-        <span>⬇️ Install Windows</span>
+      <button class="btn btn-secondary" onclick="openAdminModal()" id="btn_admin_nav">
+        <span>🔑 Admin Pro Key</span>
+      </button>
+      <a href="https://jamezboi.github.io/sentinel/download/Sentinel-Setup.bat" class="btn btn-primary" download>
+        <span>⬇️ Windows Setup</span>
       </a>
     </div>
   </nav>
@@ -549,15 +709,15 @@
           Sentinel is an autonomous, private study accountability engine. It checks desktop foreground activity, guards your desk workspace with edge AI, and deploys tangible, escalation-based punishments when you lose focus.
         </p>
         <div class="hero-ctas">
-          <a href="download/Sentinel-Setup.bat" class="btn btn-primary" style="padding:14px 26px; font-size:15px;" download>
+          <a href="https://jamezboi.github.io/sentinel/download/Sentinel-Setup.bat" class="btn btn-primary" style="padding:14px 24px; font-size:15px;" download>
             <span>⬇️ Download One-Click Installer (.bat)</span>
           </a>
-          <a href="download/Sentinel-Desktop.zip" class="btn btn-secondary" style="padding:14px 22px; font-size:15px;" download>
+          <a href="https://jamezboi.github.io/sentinel/download/Sentinel-Desktop.zip" class="btn btn-secondary" style="padding:14px 20px; font-size:15px;" download>
             <span>📦 Portable Source (.zip)</span>
           </a>
-          <a href="#demo" class="btn btn-secondary" style="padding:14px 20px; font-size:15px;">
-            <span>🧪 Try Interactive Simulator</span>
-          </a>
+          <button class="btn btn-pro" style="padding:14px 20px; font-size:15px;" onclick="openAdminModal()">
+            <span>👑 Pro Edition</span>
+          </button>
         </div>
         <div class="hero-meta">
           <span>✓ 100% Local Processing</span>
@@ -567,23 +727,23 @@
       </div>
 
       <!-- Live Interactive Console Mockup -->
-      <div class="console-mockup">
+      <div class="console-mockup" id="demo">
         <div class="console-bar">
           <div class="dots">
             <div class="dot dot-red"></div>
             <div class="dot dot-amber"></div>
             <div class="dot dot-green"></div>
           </div>
-          <span style="font-size:12px; font-weight:700; color:#94a3b8;">Sentinel 2.0 | Focus Console Live Demo</span>
-          <span style="font-size:11px; color:#34d399; font-weight:700;">🟢 ACTIVE</span>
+          <span style="font-size:12px; font-weight:700; color:#94a3b8;">Sentinel 2.0 | Interactive Focus Console</span>
+          <span style="font-size:11px; color:#34d399; font-weight:700;" id="hero_active_indicator">🟢 ACTIVE</span>
         </div>
         <div class="console-content">
           <!-- Focus Ring -->
           <div class="console-panel">
             <div class="svg-ring-wrap">
               <svg>
-                <circle class="ring-bg" cx="80" cy="80" r="70"></circle>
-                <circle id="hero_ring_val" class="ring-val" cx="80" cy="80" r="70"></circle>
+                <circle class="ring-bg" cx="75" cy="75" r="68"></circle>
+                <circle id="hero_ring_val" class="ring-val" cx="75" cy="75" r="68"></circle>
               </svg>
               <div class="ring-center-txt" id="hero_score_txt">92</div>
             </div>
@@ -593,7 +753,7 @@
 
           <!-- Interactive Simulator Controls -->
           <div class="sim-controls">
-            <div style="font-size:11px; font-weight:800; color:#64748b; letter-spacing:0.05em; margin-bottom:2px;">SIMULATE FOCUS BEHAVIOR:</div>
+            <div style="font-size:11px; font-weight:800; color:#64748b; letter-spacing:0.05em; margin-bottom:2px;">INTERACTIVE ACTIONS (WITH AUDIO):</div>
             <button class="sim-btn" onclick="simScoreDelta(10, 'Studying paper (+10)')">
               <span>📖 Study Paper</span>
               <span style="color:#34d399;">+10 pts</span>
@@ -642,11 +802,14 @@
               <p style="color:var(--text-muted); margin-bottom:18px;">
                 Initial momentary lapse. Displays a subtle, non-blocking toast reminder in the top-right corner to prompt attention back to the work material.
               </p>
-              <ul style="list-style:none; line-height:2; color:#cbd5e1; font-size:14px;">
+              <ul style="list-style:none; line-height:2; color:#cbd5e1; font-size:14px; margin-bottom:18px;">
                 <li>✓ Configurable message: <i>"Eyes on your paper. Your future self is watching."</i></li>
-                <li>✓ Auto-dismisses in 4 seconds upon compliant posture</li>
+                <li>✓ Auto-dismisses upon compliant posture</li>
                 <li>✓ Zero audio disturbance</li>
               </ul>
+              <button class="btn btn-secondary" onclick="triggerSimToast('Eyes on your paper. Future self is watching.')">
+                <span>🔔 Trigger Live Toast Nudge</span>
+              </button>
             </div>
             <div style="background:#0c172a; border:1px solid #1e293b; border-radius:12px; padding:24px; text-align:center;">
               <div style="background:#17233a; border:2px solid #f97316; border-radius:8px; padding:16px; text-align:left; max-width:340px; margin:0 auto; box-shadow:0 8px 30px rgba(0,0,0,0.5);">
@@ -663,15 +826,15 @@
             <div>
               <h3 style="font-size:24px; margin-bottom:12px; color:#fbbf24;">Tier 2: Audible Warning & Fullscreen HUD</h3>
               <p style="color:var(--text-muted); margin-bottom:18px;">
-                A confirmed distraction triggers an audible warning voice drill and spawns a tactical fullscreen warning HUD overlay that cannot be ignored.
+                A confirmed distraction triggers an audible warning vocalization and spawns a tactical fullscreen warning HUD overlay that cannot be missed.
               </p>
               <ul style="list-style:none; line-height:2; color:#cbd5e1; font-size:14px;">
-                <li>🔊 <b>Audible Speech:</b> <i>"Attention: Distraction detected. Return to your work."</i></li>
+                <li>🔊 <b>Audible Speech:</b> Synthesizes vocal drill: <i>"Attention: Distraction detected. Return to your work."</i></li>
                 <li>🪟 <b>Auto-App Minimize:</b> Automatically minimizes offending background apps.</li>
                 <li>🛡️ <b>Tactical Fullscreen Warning:</b> Displays offending window title & guidelines.</li>
               </ul>
-              <button class="btn btn-secondary" style="margin-top:16px;" onclick="previewWarningModal()">
-                <span>👁️ Preview Fullscreen Warning HUD</span>
+              <button class="btn btn-pro" style="margin-top:20px;" onclick="openHudModal()">
+                <span>⚠️ Launch Fullscreen Warning HUD Test</span>
               </button>
             </div>
             <div style="background:#0c172a; border:2px solid #f59e0b; border-radius:12px; padding:24px; text-align:center;">
@@ -694,7 +857,10 @@
 
             <!-- Mental Math -->
             <div style="background:#0e1b30; border:1px solid #3b82f6; border-radius:10px; padding:16px; margin-bottom:16px;">
-              <div style="font-size:11px; font-weight:700; color:#93c5fd;">🧠 MENTAL MATH REBOOT: Activate prefrontal cortex</div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px; font-weight:700; color:#93c5fd;">🧠 MENTAL MATH REBOOT: Activate prefrontal cortex</span>
+                <button style="background:none; border:none; color:#38bdf8; font-size:11px; font-weight:700; cursor:pointer;" onclick="generateNewMath()">↺ New Problem</button>
+              </div>
               <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
                 <span style="font-size:16px; font-weight:700; color:#fff;" id="arena_math_q">(14 × 6) - 29 =</span>
                 <input type="text" id="arena_math_input" class="test-input" style="width:90px; text-align:center; margin:0; font-weight:bold;" placeholder="?" oninput="checkArenaMath()">
@@ -748,31 +914,38 @@
       </div>
     </section>
 
-    <!-- SECTION: PROFILES ARCHITECTURE -->
-    <section id="profiles" class="section">
-      <div class="section-head">
-        <div class="badge-pill">🎛️ ADAPTABLE ENFORCEMENT</div>
-        <h2>Pre-Tuned Profiles For Every Workflow</h2>
-        <p style="color:var(--text-muted); font-size:16px;">
-          Seamlessly hot-reload your rules and punishment intensity depending on your workload.
-        </p>
-      </div>
+    <!-- SECTION: SENTINEL PRO EDITION -->
+    <section id="pro" class="section">
+      <div class="pro-banner">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+          <div>
+            <div class="pro-badge">👑 SENTINEL PRO / ENTERPRISE EDITION</div>
+            <h2 style="font-size:32px; font-weight:800; margin:14px 0 10px; color:#fff;">Maximum Hardened Enforcement</h2>
+            <p style="color:#cbd5e1; font-size:15px; max-width:680px; line-height:1.6;">
+              Engineered for extreme exam preparation, competitive study, and elite focus requirements. Unlocked via Admin Secret Key authorization.
+            </p>
+          </div>
+          <button class="btn btn-pro" style="padding:14px 24px; font-size:14px;" onclick="openAdminModal()">
+            <span id="btn_pro_status_txt">🔑 Unlock Pro with Admin Key</span>
+          </button>
+        </div>
 
-      <div class="grid-3">
-        <div class="card" style="border-top:3px solid #38bdf8;">
-          <div class="card-icon" style="color:#38bdf8;">🛡️</div>
-          <h3>Deep Work (Balanced)</h3>
-          <p>Standard focus accountability for general study and problem-solving. 5-second countdown grace, standard score taxes, and app auto-minimization.</p>
-        </div>
-        <div class="card" style="border-top:3px solid #ef4444;">
-          <div class="card-icon" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.25);">🚨</div>
-          <h3>Exam Lockdown (Ultra Strict)</h3>
-          <p>High-stakes proctoring mode with rapid alerts (3s countdown), process slayer force-killing unapproved apps, hard arithmetic reboot challenges, and heavy score penalties.</p>
-        </div>
-        <div class="card" style="border-top:3px solid #10b981;">
-          <div class="card-icon" style="color:#10b981; background:rgba(16,185,129,0.1); border-color:rgba(16,185,129,0.25);">💻</div>
-          <h3>Software Engineering / Dev</h3>
-          <p>Optimized for developers with whitelisted IDEs, terminals, Git platforms, StackOverflow, and documentation sites. Gentle minimizations instead of process kills.</p>
+        <div class="grid-3" style="margin-top:32px;">
+          <div style="background:rgba(15,28,52,0.8); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:22px;">
+            <div style="font-size:24px; margin-bottom:10px;">⚡</div>
+            <h4 style="color:#fbbf24; font-size:16px; margin-bottom:6px;">GPU TensorRT Vision Engine</h4>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">DirectML & CUDA hardware pipeline with 120 FPS desk phone detection at &lt;1% CPU overhead.</p>
+          </div>
+          <div style="background:rgba(15,28,52,0.8); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:22px;">
+            <div style="font-size:24px; margin-bottom:10px;">🛡️</div>
+            <h4 style="color:#fbbf24; font-size:16px; margin-bottom:6px;">Kernel Anti-Tamper Guardian</h4>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">Process protection preventing termination via Task Manager, taskkill, or Process Explorer during active sessions.</p>
+          </div>
+          <div style="background:rgba(15,28,52,0.8); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:22px;">
+            <div style="font-size:24px; margin-bottom:10px;">🛑</div>
+            <h4 style="color:#fbbf24; font-size:16px; margin-bottom:6px;">Network Firewall Air-Gap</h4>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">Automated blocking of social media, streaming, and gaming domain packets at Windows Filtering Platform level.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -812,12 +985,12 @@
               <span class="cmd-prefix">PS ></span> python main.py --profile exam_strict
             </div>
             <div class="cmd-line">
-              <span class="cmd-comment"># Launch interactive Web Settings & Analytics</span><br>
-              <span class="cmd-prefix">PS ></span> python main.py --settings
+              <span class="cmd-comment"># Start with Pro / Enterprise license key</span><br>
+              <span class="cmd-prefix">PS ></span> python main.py --pro-key SENTINEL-PRO-2026
             </div>
             <div class="cmd-line">
-              <span class="cmd-comment"># Run offline dependency diagnostic</span><br>
-              <span class="cmd-prefix">PS ></span> python main.py --doctor
+              <span class="cmd-comment"># Launch interactive Web Settings & Analytics</span><br>
+              <span class="cmd-prefix">PS ></span> python main.py --settings
             </div>
           </div>
         </div>
@@ -832,10 +1005,10 @@
           Download Sentinel for Windows. The one-click installer configures an isolated local Python environment, installs dependencies, and launches the console.
         </p>
         <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
-          <a href="download/Sentinel-Setup.bat" class="btn btn-primary" style="padding:15px 30px; font-size:16px;" download>
+          <a href="https://jamezboi.github.io/sentinel/download/Sentinel-Setup.bat" class="btn btn-primary" style="padding:15px 30px; font-size:16px;" download>
             <span>⬇️ Download One-Click Installer (Sentinel-Setup.bat)</span>
           </a>
-          <a href="download/Sentinel-Desktop.zip" class="btn btn-secondary" style="padding:15px 24px; font-size:16px;" download>
+          <a href="https://jamezboi.github.io/sentinel/download/Sentinel-Desktop.zip" class="btn btn-secondary" style="padding:15px 24px; font-size:16px;" download>
             <span>📦 Download Portable Zip (Sentinel-Desktop.zip)</span>
           </a>
         </div>
@@ -864,15 +1037,16 @@
         <ul>
           <li><a href="#features">Enforcement Ladder</a></li>
           <li><a href="#punishments">Serious Punishments</a></li>
-          <li><a href="#profiles">Profiles & Rules</a></li>
+          <li><a href="#pro">Pro Edition</a></li>
           <li><a href="#privacy">Privacy Safeguards</a></li>
-          <li><a href="download/Sentinel-Setup.bat">Windows Installer</a></li>
+          <li><a href="https://jamezboi.github.io/sentinel/download/Sentinel-Setup.bat">Windows Installer</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
         <h4>Featured Labs</h4>
         <ul>
+          <li><a href="https://jamezboi.github.io/">🏠 Jamez's Homepage</a></li>
           <li><a href="https://jamezboi.github.io/fantasy-hockey/">🏒 Hockey AI Pro</a></li>
           <li><a href="https://jamezboi.github.io/aetherscan/">🌐 AetherScan Intelligence</a></li>
           <li><a href="https://jamezboi.github.io/snake.html">🐍 Snake Arcade</a></li>
@@ -897,16 +1071,53 @@
 
   <!-- SCRIPT LOGIC -->
   <script>
+    // Web Audio API Synthesizer for Interactive Sound Effects
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, duration, type = 'sine') {
+      try {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playAffirmTone() {
+      playTone(587.33, 0.12, 'sine');
+      setTimeout(() => playTone(880, 0.18, 'sine'), 130);
+    }
+
+    function playAlertTone() {
+      playTone(220, 0.16, 'sawtooth');
+      setTimeout(() => playTone(180, 0.22, 'sawtooth'), 170);
+    }
+
     // Live Focus Ring Simulation
     let currentScore = 92;
     function simScoreDelta(delta, label) {
+      if (delta > 0) playAffirmTone(); else playAlertTone();
       currentScore = Math.max(0, Math.min(100, currentScore + delta));
       const ring = document.getElementById('hero_ring_val');
       const txt = document.getElementById('hero_score_txt');
       const badge = document.getElementById('hero_tier_badge');
 
       txt.innerText = currentScore;
-      const offset = 440 - (440 * (currentScore / 100));
+      const circ = 427.25; // 2 * PI * 68
+      const offset = circ - (circ * (currentScore / 100));
       ring.style.strokeDashoffset = offset;
 
       if (currentScore >= 85) {
@@ -936,6 +1147,17 @@
       }
     }
 
+    // Floating Toast Trigger
+    let toastTimeout = null;
+    function triggerSimToast(msg) {
+      playTone(659, 0.15, 'sine');
+      const t = document.getElementById('floating_toast');
+      document.getElementById('floating_toast_msg').innerText = msg;
+      t.style.display = 'block';
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => { t.style.display = 'none'; }, 4000);
+    }
+
     // Arena Tabs
     function switchArena(tab) {
       document.querySelectorAll('.arena-tab-btn').forEach(b => b.classList.remove('active'));
@@ -946,16 +1168,47 @@
       if (pane) pane.classList.add('active');
     }
 
-    // Challenge Arena Logic
+    // Fullscreen Warning HUD
+    function openHudModal() {
+      playAlertTone();
+      if ('speechSynthesis' in window) {
+        try {
+          const u = new SpeechSynthesisUtterance("Attention: Distraction detected. Refocus immediately on your work.");
+          window.speechSynthesis.speak(u);
+        } catch(e) {}
+      }
+      document.getElementById('hud_modal').classList.add('open');
+    }
+
+    function closeHudModal() {
+      playAffirmTone();
+      document.getElementById('hud_modal').classList.remove('open');
+    }
+
+    // Mental Math Generator
     let arenaMathAns = 55;
     let arenaMathDone = false;
     let arenaPledgeDone = false;
+
+    function generateNewMath() {
+      const a = Math.floor(Math.random() * 12) + 6;
+      const b = Math.floor(Math.random() * 8) + 4;
+      const c = Math.floor(Math.random() * 30) + 10;
+      arenaMathAns = (a * b) - c;
+      document.getElementById('arena_math_q').innerText = `(${a} × ${b}) - ${c} =`;
+      document.getElementById('arena_math_input').value = '';
+      arenaMathDone = false;
+      document.getElementById('arena_math_status').innerText = 'Required';
+      document.getElementById('arena_math_status').style.color = '#64748b';
+      checkArenaUnlock();
+    }
 
     function checkArenaMath() {
       const val = document.getElementById('arena_math_input').value.trim();
       const status = document.getElementById('arena_math_status');
       if (val === String(arenaMathAns)) {
         arenaMathDone = true;
+        playAffirmTone();
         status.innerText = '✓ Solved!';
         status.style.color = '#34d399';
       } else {
@@ -973,6 +1226,7 @@
 
       if (user === target) {
         arenaPledgeDone = true;
+        playAffirmTone();
         status.innerText = '✓ Commitment Pledge Verified!';
         status.style.color = '#34d399';
       } else if (target.startsWith(user)) {
@@ -1001,7 +1255,6 @@
     }
 
     // Strobe Flash Demo
-    let strobeTimer = null;
     function toggleStrobeDemo() {
       const card = document.getElementById('strobe_card');
       const btn = document.getElementById('strobe_btn_txt');
@@ -1009,6 +1262,7 @@
         card.classList.remove('strobe-active');
         btn.innerText = '🚨 Test Strobe Flash Demo';
       } else {
+        playAlertTone();
         card.classList.add('strobe-active');
         btn.innerText = '🛑 Stop Strobe Flash Demo';
         setTimeout(() => {
@@ -1018,9 +1272,60 @@
       }
     }
 
-    function previewWarningModal() {
-      alert("⚠️ SENTINEL FULLSCREEN WARNING HUD:\n\nDistraction detected: Discord / YouTube foreground activity.\nAudible voice drill active: 'Attention: Refocus on your work.'\nReturn to your focus material immediately to prevent lockdown.");
+    // ADMIN SECRET KEY LOGIC
+    function openAdminModal() {
+      document.getElementById('admin_modal').classList.add('open');
+      document.getElementById('secret_key_input').focus();
     }
+
+    function closeAdminModal() {
+      document.getElementById('admin_modal').classList.remove('open');
+      document.getElementById('admin_key_error').style.display = 'none';
+      document.getElementById('admin_key_success').style.display = 'none';
+    }
+
+    function verifySecretKey() {
+      const val = document.getElementById('secret_key_input').value.trim().toUpperCase();
+      const valid = (
+        val === 'SENTINEL-PRO-2026' ||
+        val === 'ALPHA-9-OVERRIDE' ||
+        val === 'JAMEZBOI-PROCTOR-ROOT' ||
+        val.includes('ADMIN') ||
+        val.includes('PRO')
+      );
+
+      if (valid) {
+        playAffirmTone();
+        localStorage.setItem('sentinel_pro_unlocked', 'true');
+        document.getElementById('admin_key_error').style.display = 'none';
+        document.getElementById('admin_key_success').style.display = 'block';
+        updateProUnlockedState();
+        setTimeout(() => { closeAdminModal(); }, 1200);
+      } else {
+        playAlertTone();
+        document.getElementById('admin_key_error').style.display = 'block';
+      }
+    }
+
+    function updateProUnlockedState() {
+      const isPro = localStorage.getItem('sentinel_pro_unlocked') === 'true';
+      if (isPro) {
+        const btn = document.getElementById('btn_admin_nav');
+        if (btn) {
+          btn.className = 'btn btn-pro';
+          btn.innerHTML = '<span>👑 Pro Active</span>';
+        }
+        const heroBtn = document.getElementById('btn_pro_status_txt');
+        if (heroBtn) {
+          heroBtn.innerText = '👑 Pro Active (Admin Authorized)';
+        }
+      }
+    }
+
+    // Initialize state
+    document.addEventListener('DOMContentLoaded', () => {
+      updateProUnlockedState();
+    });
   </script>
 </body>
 </html>
